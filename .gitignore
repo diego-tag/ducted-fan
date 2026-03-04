@@ -3,15 +3,6 @@ Debug/
 Release/
 build/
 
-# Compiled object files and binaries
-*.o
-*.elf
-*.bin
-*.hex
-*.map
-*.list
-*.su
-
 # IDE specific cache/temporary files
 .metadata/
 *.bak
