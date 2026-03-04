@@ -1,0 +1,7 @@
+Servos_PID_and_manager.c:28:6:DPDF_BNO055_firmware_read_init	1
+Servos_PID_and_manager.c:39:6:DPDF_BNO055_firmware_read	1
+Servos_PID_and_manager.c:51:6:pid_servo_roll_turner_and_turn_on	1
+Servos_PID_and_manager.c:63:6:pid_servo_pitch_turner_and_turn_on	1
+Servos_PID_and_manager.c:75:10:pid_servo	7
+Servos_PID_and_manager.c:162:6:execution_servo	1
+Servos_PID_and_manager.c:168:6:servos_turn_off	1

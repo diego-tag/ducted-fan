@@ -1,0 +1,4 @@
+bno055_stm32_hal.c:9:6:delay_func	1
+bno055_stm32_hal.c:13:19:bus_read	2
+bno055_stm32_hal.c:31:19:bus_write	2
+bno055_stm32_hal.c:49:6:bno055_calibration	6
