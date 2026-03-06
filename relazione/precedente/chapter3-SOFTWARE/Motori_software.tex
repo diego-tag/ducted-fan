@@ -1,0 +1,391 @@
+
+\section{Progettazione e sviluppo del \textit{sub-firmware} per il controllo dei motori e servomotori}
+
+Il pacchetto \textit{firmware} di gestione dei principali attuatori del \textit{D.P.D.F} conta la creazione di \textbf{cinque} \textit{file} di programmazione.\\
+Nello specifico, tre \textbf{\textit{header file}} e due \textbf{\textit{source file}} dall'estensione tipica del \textbf{C}.\\
+In analogia ai precedenti, l'implementazione degli algoritmi di controllo degli attuatori è avvenuta servendosi del contesto \textit{H.A.L}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{\textit{Sub-firmware} di controllo degli attuatori del D.P.D.F. \textit{Header files}: DPDF\_var\_def.h}
+\label{DPDF_var_def}
+Il suddetto \textit{file}, è stato il primo ad essere sviluppato.\\
+l'\textit{Header file} è stato creato con lo scopo di definire un'ambiente separato che potesse contenere le direttive di definizione (\textit{macros}), le variabili e le strutture dati, utilizzate nella gestione degli attuatori del \textit{D.P.D.F}.\\
+Con il fine di aumentare la leggbilità e la manutenibilità del codice, questo è stato suddiviso in sezioni, in cui, per ogni entità di programmazione è stata redatta una breve descrizione della sua funzione all'interno del \textit{sub-firmware}.
+
+\paragraph{Direttive di inclusione}\mbox{}\\
+La prima sezione del \textit{file} contiene le direttive di inclusione.\\
+Con il fine di \textbf{integrare nel \textit{sub-firmware}} degli attuatori il servizio \textit{H.A.L}, è stato incluso il file ''\textbf{stm32h7xx\_hal.h}'', il quale rappresenta il punto principale di accesso alla libreria \textit{H.A.L} per i microcontrollori \textbf{STM32H7}.
+A seguire, il frammento di codice rappresentante la sezione sotto analisi.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=12, lastline=22, caption={\footnotesize Estratto di codice C dal file \textit{DPDF\_var\_def.h}: la sezione riservata alle direttive di inclusione}]{chapters/chapter3-SOFTWARE/codeFiles/DPDF_var_def.h}
+
+\paragraph{Direttive di definizione}\mbox{}\\
+La sezione contiene tutte le direttive di inclusione utilizzate nel \textit{sub-firmware} degli attuatori. Si può notare, l'ulteriore suddivisione in due sottosezioni. La prima dedicata alla definizione delle \textit{macros} relative agli algoritmi di controllo dei motori, mentre, l'altra, contenente le direttive di definizione legate all'algoritmo di controllo dei servomotori.
+Nella sezione dell'elaborato, descrivente il \textit{file} \textbf{Motors\_PID\_and\_manager.c}, verrano approfonditi i significati delle singole direttive.\\
+A seguire, il \textit{listing} della sezione in descrizione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=22, lastline=127, caption={\footnotesize Estratto di codice C dal file \textit{DPDF\_var\_def.h}: la sezione contenente le direttive di definizione}]{chapters/chapter3-SOFTWARE/codeFiles/DPDF_var_def.h}
+
+\paragraph{Variabili e strutture dati}\mbox{}\\
+La suddetta sezione, è il luogo di raccolta delle principali strutture dati impiegate negli algoritmi di gestione degli attuatori, includendo, inoltre, i relativi puntatori di accesso.
+La prima struttura dati che si incontra nella sezione è ''\textbf{DPDF\_axis\_zero\_rot\_t}''. Tale struttura dati, è stata progettata con il fine di contenere la prima misura di rotazione angolare intorno agli assi
+del sistema di riferimento acquisita dall'\textit{IMU}. L'informazione, verrà poi utilizzata nella calibrazione del \textit{BNO-055 Bosch Sensortec}.
+Segue la struttura \textbf{DPDF\_axis\_rot\_t}, pensata per la memorizzazione della misura istantanea della rotazione angolare rispetto agli assi di riferimento. La struttura, essendo il principale punto di accesso ai dati di orientamento in tempo reale, è coinvolta nella computazione del controllore \textbf{PID} per la regolazione dei motori.
+Il \textit{sub-firmware} di gestione del \textit{BNO-055} produce misure che appartengono all'intervallo: \textbf{[-180\degree$\div$ 180]}. I valori negativi fanno riferimento ad una rotazione in senso antiorario, al contrario, quelli positivi rappresentano una rotazione in senso orario. Considerando un'ampiezza complessiva pari a 360\degree e la necessità di rappresentare numeri con segno, è stato scelto il tipo
+di dato \textbf{int16\_t}, che garantisce una risoluzione sufficiente e compatibilità tipica con i vincoli di memoria tipici dei sistemi \textit{embedded}.
+Infine, l'ultima struttura dati definita nel \textit{file} è \textbf{pid\_prmts\_t}, sviluppata per consentire lo stoccaggio dei parametri dei controllori \textbf{PID}. La presenza di più regolatori ha reso necessaria l'introduzione di una struttura dati generale, capace di rappresentare in
+modo uniforme i coefficienti caratteristici dei regolatori. La scelta di affiliare a questi coefficienti un tipo di dato in virgola mobile: \textbf{float}, trova ragione nel fatto che questi coefficienti appartengono all'insieme matematico dei numeri reali positivi, $\mathbb{R}^+$.\\
+Con il fine di aumentare la leggibilità del codice, nel presente file sono stati introdotti \textit{alias} di tipo.
+A seguire, il frammento di codice esplicante la sezione in analisi.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=128, lastline=188, caption={\footnotesize Estratto di codice C dal file \textit{DPDF\_var\_def.h}: la sezione contenente le variabili e le strutture dati}]{chapters/chapter3-SOFTWARE/codeFiles/DPDF_var_def.h}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{\textit{Sub-firmware} di controllo degli attuatori del D.P.D.F. \textit{Header files}: Servos\_PID\_and\_manager.h}
+\label{ServosPIDandManager}
+\textbf{Servos\_PID\_and\_manager.h} raccoglie le \textbf{dichiarazioni} delle procedure sviluppate con il fine di gestire la regolazione dei servomotori.\\
+In analogia a \textbf{DPDF\_var\_def.h}, il \textit{file} è stato suddiviso in sezioni per aumentare leggibilità e manutenibilità.
+
+\paragraph{Direttive di inclusione}\mbox{}\\
+La prima sezione del \textit{file} è riservata alle direttive di inclusione.\\
+Come redatto in precedenza, il \textit{file} costituisce l'interfaccia dichiarativa del \textit{driver} di controllo e gestione dei servomotori, ragion per cui si rende necessaria l'integrazione nel \textit{file} del \textit{driver} del \textit{BNO-055 Bosch Sensortec}.
+Il \textit{file}, dunque, si presenta come il punto di congiunzione del \textit{sub-firmware} dedicato agli attuatori con il \textit{driver} di gestione dell'unità di misura inerziale di casa \textit{Bosch}.\\
+L'integrazione del \textit{driver} è avvenuta mediante l'inclusione dei file ''\textbf{bno055.h}'' e ''\textbf{bno055\_stm32\_hal.h}''.\\
+A seguire, il frammento del codice descritto in precedenza.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=11, lastline=20, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.h}: la sezione contenente le direttive di inclusione}]{chapters/chapter3-SOFTWARE/codeFiles/Servos_PID_and_manager.h}
+
+\paragraph{Dichiarazione delle funzioni}\mbox{}\\
+La suddetta sezione, raccoglie le dichiarazioni di tutte le procedure che concorrono alla realizzazione del \textit{sub-firmware} di gestione dei servomotori.
+Ciascuna procedura è accompagnata da una puntuale descrizione dell'operatività della stessa.\\
+A seguire, il codice rappresentante la sezione in analisi.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=20, lastline=166, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.h}: la sezione contenente le dichiarazioni delle procedure costituenti il \textit{driver} di gestione dei servomotori}]{chapters/chapter3-SOFTWARE/codeFiles/Servos_PID_and_manager.h}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{\textit{Sub-firmware} di controllo degli attuatori del D.P.D.F. \textit{Header files}: Motors\_PID\_and\_manager.h}
+\label{MotorPIDandManagerH}
+In completa analogia con il \textit{file} \textit{Servos\_PID\_and\_manager.h},\\
+\textbf{Motors\_PID\_and\_manager.h} costituisce l'interfaccia dichiarativa del \textit{sub-firmware} di gestione dei motori.\\
+Anche in questo caso il \textit{file} è stato suddiviso in sezioni per le medesime motivazioni.
+
+\paragraph{Direttive di inclusione}\mbox{}\\
+In conformità con il precedente \textit{header file}, si è resa necessaria l'integrazione dell'\textbf{A.P.I} \textbf{STSW-IMG007}, coordinatore del \textit{VL53L1X STMicroelectronics}.\\
+La soddisfazione di tale necessità ha reso ''\textbf{Motors\_PID\_and\_manager.h}'' il punto di intersezione tra il \textit{sub-firmware} di regolazione degli attuatori e il \textit{driver} di gestione del \textbf{ToF} \textit{VL53L1X}.
+L'integrazione del \textit{driver} è avvenuta mediante l'inclusione del \textit{file} ''\textbf{vl53l1\_api.h}''.\\
+Con il fine di correggere gli errori di misura causati dalle perturbazioni di \textit{roll} e \textit{pitch}, si è resa necessaria una procedura che calcoli in qualsiasi istante la vera quota del sistema, riportando la misura lungo la direzione perpendicolare al terreno. Tale calcolo necessita degli operatori trigonometrici, le cui definizioni possono essere
+sfruttate includendo il \textit{file} ''\textbf{math.h}''.\\
+Inoltre, ''\textit{Servos\_PID\_and\_manager.h}'' è stato utilizzato come \textbf{\textit{header} di aggregazione}, in quanto al suo interno sono inclusi altri \textit{file} di intestazione necessari al funzionamento del \textbf{modulo}. In questo modo, è sufficiente includere \textit{Servos\_PID\_and\_manager.h} nel presente \textit{file} per rendere automaticamente disponibili tutte le dipendenze.\\
+A seguire, le direttive di inclusione.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=11, lastline=20, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.h}: la sezione contenente le direttive di inclusione del \textit{file}}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.h}
+
+\paragraph{Dichiarazione delle funzioni}\mbox{}\\
+La sezione riporta tutte le dichiarazioni delle funzioni del modulo \textit{firmware} responsabile del controllo dei motori.\\
+Ciascuna dichiarazione di funzione è affiliata ad una descrizione del ruolo e della funzionalità di questa nel \textit{sub-firmware}.\\
+A seguire, il codice rappresentante la sezione in analisi. 
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=20, lastline=182, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.h}: la sezione contenente le dichiarazioni delle funzioni del \textit{file}}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.h}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{\textit{Sub-firmware} di controllo degli attuatori del D.P.D.F. \textit{Source files}: Servos\_PID\_and\_manager.c}
+\label{ServosPIDandManager_c}
+\textbf{Servos\_PID\_and\_manager.c} è stato sviluppato con l'obiettivo di fungere da \textit{file} centrale del modulo \textit{firmware} di regolazione dei servomotori.
+Il \textit{file} contiene tutte le definizioni delle funzioni dichiarate in ''\textit{Servos\_PID\_and\_manager.h}'' (\ref{ServosPIDandManager}).
+Le funzioni del \textit{file} sono state create con il fine di configurare un'attuazione del comparto \textit{flap}-servomotori, tale da compensare le pertrubazioni angolari di \textit{roll} e \textit{pitch}, riportando nel giusto assetto di \textit{hovering} il \textit{D.P.D.F}.\\
+Per approfondire l'attuazione appena descritta, si rimanda alla lettura della sezione (\ref{Hitec HS-82MG Gear micro servo}).\\
+Per il conseguimento degli obiettivi di sviluppo del \textit{firmware}, sono state integrate le funzionalità offerte dalla libreria \textit{H.A.L}.
+
+\paragraph{Descrizione e configurazione delle periferiche della NUCLEO-H745ZI-Q}\mbox{}\\
+\label{Software:DescrizioneConfigurazionePerNUCELO_ServosPIDandManager}
+Come descritto nel paragrafo ''\textbf{Controllo}'' della sottosezione \ref{HS-82 MG Hitec. Controllo ed alimentazione}, per l'attuazione dei servomotori, si richiede uno specifico segnale PWM.\\
+Con il fine di ottenere l'attuazione desiderata, è stata sfruttata la capacità della NUCLEO-H745ZI-Q di generare segnali PWM con frequenza e \textit{duty cycle} impostabili. La genesi di questi segnali,
+la si ottiene configurando i \textit{timer} in modalità PWM.\\
+Il \textit{timer} responsabile della regolazione del segnale è il \textbf{General Purpose Timer (GP Timer)} \textbf{TIM2}, di cui sono sono stati sfruttati i canali \textbf{CH1} e \textbf{CH2}. (figura (\ref{fig:TIM2_IOC}) e (\ref{TIM2_CH1CH2})).\\
+Nello specifico, il \textit{CH1} si occupa dell'emissione del segnale di controllo del servomotore legato alla compensazione delle perturbazioni di \textit{roll}, mentre, il \textit{CH2} è coinvolto nell'emissione del segnale di regolazione del servomotore relativo alla compensazione delle rotazioni indesiderate di \textit{pitch}.\\
+Il \textit{TIM2} è stato configurato per generare i segnali di controllo in \textbf{PWM Mode 1}.
+%FOTO DELL'IMPOSTAZIONE DEI DUE CANALI
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{chapters/chapter3-SOFTWARE/Figures/TIM2_DettaglioCanali}
+    \caption{\footnotesize TIM2, CH1 e CH2 da STCubeMX}
+    \label{TIM4_ChannelView}
+\end{figure}
+
+Al fine di ottenere un segnale PWM come quello descritto nel paragrafo ''\textit{Controllo}'' della sottosezione poc'anzi citata, si richiede la modulazione dei parametri di \textbf{Prescaler}, \textbf{Period} e \textbf{Pulse}.
+La taratura dei parametri è avvenuta sotto direzione delle seguenti formule:
+\begin{equation}
+    \label{Equa di det del Period del PWM}
+    UE_{Hz} = \frac{C_{Hz}}{(Pr+1)\cdot(Pe+1)} \implies Pe = \frac{C_{Hz}}{UE_{Hz}\cdot(Pr+1)}-1
+\end{equation}
+\begin{equation}
+    \label{equatione di determinazione del pulse}
+    Pu = Pe\cdot[1-(1-Dc_{/100})]
+\end{equation}
+dove:
+\begin{itemize}
+    \item $UE_{Hz}$: indica la frequenza del segnale PWM.
+    \item $C_{Hz}$: si riferisce al valore del \textit{clock} in [Hz] del \textit{timer}.
+    \item $Pr$: è il valore attribuito al \textit{prescaler}.
+    \item $Pe$: è il valore attribuito al \textit{period}.
+    \item $Dc_{/100}$: è il risultato della divisione: $\frac{Duty\,\,cycle}{100}$. 
+    \item $Pu$: è il valore del \textit{pulse} o \textit{compare register}.    
+\end{itemize}
+Il \textit{clock} del \textit{timer}, generalmente corrisponde a quello del \textit{core} a cui è stato assegnato. Nel presente caso, essendo assegnato al \textit{Core Cortex-M4}, il valore di \textit{clock} corrisponde a \textbf{75 [Mhz]}.\\
+La frequenza del segnale è stata scelta di \textbf{50 [Mhz]}.\\
+Il valore del \textit{presclaler}, invece, deve essere opportunamente modulato per produrre una divisione intera, perciò è stato impostato a \textbf{99}.\\
+La conoscenza dei tre parametri precedentemente citati, permette, mediante la [\ref{Equa di det del Period del PWM}] di determinare il \textit{Period}, che si deduce essere \textbf{14999}.\\
+Per ottenere la posizione iniziale dei servomotori, corrispondente alla posizione centrale dei rotori, deve essere iniettato un segnale PWM con \textit{duty cycle} pari a \textbf{7.5\%}. Al fine di ottenere un segnale con tale percentuale, si rende necessario dedurre il valore di \textit{pulse}
+dalla [\ref{equatione di determinazione del pulse}]. Nel presente caso, considerando un \textit{duty cycle} del 7.5\% e un \textit{period} pari a 14999, si deduce un \textit{pulse} di \textbf{1125}. (figura (\ref{fig:TIM2_PrescalerPeriod}) e (\ref{TIM2_Pulse})).
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapters/chapter3-SOFTWARE/Figures/TIM2_PrescalerPerido}
+        \caption{\footnotesize TIM2 Prescaler e Period}
+        \label{fig:TIM2_PrescalerPeriod}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapters/chapter3-SOFTWARE/Figures/TIM2_Pulse}
+        \caption{\footnotesize TIM2 Pulse}
+        \label{TIM2_Pulse}
+    \end{minipage}
+\end{figure}
+
+\paragraph{Direttive di inclusione e variabili \textit{extern}}\mbox{}\\
+Al fine di garantire la corretta operatività del \textit{firmware}, si rende necessaria l'inclusione del file di intestazione ''\textit{Servos\_PID\_and\_manager.h}'' [\ref{ServosPIDandManager}],
+esponente le principali interfacce del modulo. Inoltre, per poter accedere e sfruttare le risorse messe a disposizione dalla libreria \textit{H.A.L}, è stato richiesto l'utilizzo di variabili globali definite in altri moduli, rese
+accessibili mediante direttiva \textbf{extern}. La direttiva ha permesso l'iintegrazione del \textit{TIM2}. \textbf{TIM\_HandleTypeDef} rappresenta la struttura di controllo \textit{software} associata alla periferica.
+La struttura, incapsula al suo interno tutte le informazioni necessarie per la configurazione, lo stato e il funzionamento del \textit{timer}.\\
+A seguire, il frammento di codice delle due sezioni descritte.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=11, lastline=24, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.c}: la sezione contenente le direttive di inclusione ed extern del \textit{file}}]{chapters/chapter3-SOFTWARE/codeFiles/Servos_PID_and_manager.c}
+
+\paragraph{Sezione di definizione delle funzioni}\mbox{}\\
+La suddetta sezione, contiene la definizione delle procedure utili al controllo dei servomotori.
+
+\paragraph{Sezione di definizione delle funzioni: DPDF\_BNO055\_firmware\_read\_init()}\mbox{}\\
+La funzione è responsabile del riallineamento delle misure rispetto al sistema di riferimento iniziale, definito in fase di calibrazione con \textbf{bno055\_calibration()} RICORDA IL RIFERIMENTO.\\
+La funzione adopera l'estrazione dei valori iniziali di rotazione intorno agli assi del riferimento. Tale operazione è mediata dalla cooperazione tra la struttura dati ''\textbf{bno055\_euler\_float\_t}'' e la funzione ''\textbf{bno055\_convert\_float\_euler\_hpr\_deg()}'', entrambe appartenenti al \textit{driver:BNO055}.
+All'estrazione dei dati segue il passaggio di questi alla struttura \textbf{axis\_zero\_rot}, che deve essere dichiarata e definita nel \textit{main file}.\\
+A seguire, la definizione della funzione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=25, lastline=43, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.c}: la definizione della funzione: DPDF\_BNO055\_firmware\_read\_init}]{chapters/chapter3-SOFTWARE/codeFiles/Servos_PID_and_manager.c}
+
+\paragraph{Sezione di definizione delle funzioni: DPDF\_BNO055\_firmware\_read()}\mbox{}\\
+La struttura della procedura è in analogia con la precedente. La funzione, difatti, estrae dal \textit{BNO055} il valore istantaneo di rotazione intorno agli assi del riferimento. L'operazione di estrazione è analoga a quella della funzione \textit{DPDF\_BNO055\_firmware\_read\_Init()}.
+A seguito dell'estrazione, mediante l'informazione contenuta in \textbf{axis\_zero\_rot}, viene computata la rotazione angolare in funzione del riferimento. Il risultato viene passato alla struttura dati \textbf{ist\_axis\_rot}, definita e dichiarata nel \textit{main file}.\\
+A seguire, la definizione della funzione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=44, lastline=57, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.c}: la definizione della funzione: DPDF\_BNO055\_firmware\_read}]{chapters/chapter3-SOFTWARE/codeFiles/Servos_PID_and_manager.c}
+
+\paragraph{Sezione di definizione delle funzioni: pid\_servo\_roll\_turner\_and\_turn\_on()}\mbox{}\\
+\label{pidServoTurnerTurnOn}
+La procedura provvede all'inizializzazione della struttura dati associata al regolatore PID (\textbf{pid\_pars}) del \textit{roll servo}, assegnandole i coefficienti di controllo corrispondenti, passati come parametri della funzione.
+Inoltre, viene richiamata la funzione \textbf{HAL\_TIM\_PWM\_Start()} appartenente al substrato \textit{H.A.L}. Tal funzione avvia la generazione del segnale PWM gestito dal \textit{timer} ed emesso dal canale interessato.\\
+La gestione del \textit{roll servo}, è stata affidata al \textbf{TIM2 CH1}.\\
+Il \textbf{sample\_time} del regolatore PID dei servomotori è pari a: \textbf{0.01} [s]. Tale valore trova ragione nella frequenza di misurazione del \textit{BNO-055} pari a \textbf{100 [Hz]} nella modalità \textit{NDOF}.\\
+A seguire, la definizione della funzione.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=58, lastline=73, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.c}: la definizione della funzione: pid\_servo\_roll\_turner\_and\_turn\_on}]{chapters/chapter3-SOFTWARE/codeFiles/Servos_PID_and_manager.c}
+
+\paragraph{Sezione di definizione delle funzioni: pid\_servo\_pitch\_turner\_and\_turn\_on()}\mbox{}\\
+La scelta di implementare un \textit{firmware} in cui i servomotori, pur essendo della stessa marca e tipologia, siano gestiti da due PID distinti con computazioni separate, trova giustificazione nel fatto che eventuali squilibri del drone e/o le
+dinamiche delle perturbazioni possono generare rotazioni più aggressive attorno a un asse rispetto all'altro, rendendo necessario un adattamento specifico dei parametri di controllo.
+La procedura intitolante il paragrafo è completamente analoga alla precedente.\\
+A seguire, la sua definizione.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=73, lastline=89, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.c}: la definizione della funzione: pid\_servo\_pitch\_turner\_and\_turn\_on}]{chapters/chapter3-SOFTWARE/codeFiles/Servos_PID_and_manager.c}
+
+\paragraph{Sezione di definizione delle funzioni: pid\_servo()}\mbox{}\\
+La procedura implementa la teoria del regolatore PID per computare il valore di ingresso dei servomotori, da inserire direttamente nel \textit{compare register}, così da modificare il \textit{duty cycle} del segnale
+PWM e conseguentemente causare la rotazione del servo.\\
+Il PID usato è basilare, include il filtro \textit{\textbf{anti-windup}} mediante il \textbf{clamping method}, adotta la \textbf{forma parallela}, utilizza il metodo di integrazione \textbf{di eulero in avanti} e la \textbf{differenza all'indietro} per il calcolo del termine derivativo.\\
+In particolare, nella sottosezione della funzione dedicata al filtro \textbf{anti-windup}, la \textit{macro} \textbf{UPPER\_LIMIT\_SERVO\_SATURATION} definisce il valore massimo scrivibile nel \textit{comapare register} del \textit{timer} che genera il segnale PWM di controllo dei servomotori,
+corrispondente ad un'escursione massima di \textbf{60\degree} in senso orario. Analogamente, \textbf{LOWER\_LIMIT\_SERVO\_SATURATION}, rappresenta il valore minimo scrivibile nel \textit{compare register}, corrispondente a \textbf{60\degree} in senso antiorario.
+Infine, la \textit{macro} \textbf{CENTER\_UPPER\_LOWER\_SERVO\_SATURATION} indica la posizione centrale, considerata a \textbf{0\degree}, la quale corrisponde ad una posizione dei \textit{flap} perpendicolare rispetto al terreno.\\
+La funzione è stata suddivisa in due sezioni: una dedicata alla gestione del segnale di ingresso qualora il \textit{D.P.D.F} ruotasse in senso orario e l'altra per la gestione della rotazione in senso antiorario. Tal suddivisione, si è resa necessaria
+poiché i valori di saturazione differivano nei due casi, rendendo indispendabile un trattamento distinto per ciascun servomotore.
+Il riferimento adottato, per ovvi motivi, è pari a: \textbf{0\degree} di rotazione attorno all'asse considerato.\\
+Il valore di ritorno della funzione, corrisponde al valore da inserire nel \textit{compare register} relativo alla gestione del servomotore preso in considerazione.
+A seguire, la definizione della funzione.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=90, lastline=182, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.c}: la definizione della funzione: pid\_servo}]{chapters/chapter3-SOFTWARE/codeFiles/Servos_PID_and_manager.c}
+
+\paragraph{Sezione di definizione delle funzioni: execution\_servo()}\mbox{}\\
+La procedura ha l'obiettivo di implementare l'ingresso di controllo computato in \textit{pid\_servo().}\\
+Si ricorda che il \textit{TIM2 CH1} è assegnato al controllo del \textit{roll servo}, mentre il \textit{TIM2 CH2} è assegnato al controllo del \textit{pitch servo}.\\
+A seguire, la sua definizione.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=183, lastline=189, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.c}: la definizione della funzione: execution\_servo}]{chapters/chapter3-SOFTWARE/codeFiles/Servos_PID_and_manager.c}
+
+\paragraph{Sezione di definizione delle funzioni: servos\_turn\_off()}\mbox{}\\
+La sudetta procedura, termina il processo di controllo del comparto servomotori, riportando i \textit{flap} in configurazione perrpendicolare rispetto al terreno, fermando, dopo un \textit{delay} di 0.5 [s] l'emissione del segnale PWM di controllo.\\
+La procedura è stata pensata per essere implementata durante i \text{Test}.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=190, lastline=200, caption={\footnotesize Estratto di codice C dal file \textit{Servos\_PID\_and\_manager.c}: la definizione della funzione: servo\_turn\_off}]{chapters/chapter3-SOFTWARE/codeFiles/Servos_PID_and_manager.c}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{\textit{Sub-firmware} di controllo degli attuatori del D.P.D.F. \textit{Source files}: Motors\_PID\_and\_manager.c}
+\label{Motors_PID_and_manager.c}
+\textbf{Motors\_PID\_and\_manager.c}, come ''\textit{Servos\_PID\_and\_manager.c}'', è stato realizzato nella la mentalità di renderlo il \textit{file} centrale del modulo \textit{firmware} responsabile dell'attuazione controllata dei motori.\\
+Il \textit{file} raccoglie le definizioni delle procedure dichiarate nel modulo di interfacciamento ''\textit{Motors\_PID\_and\_manager.h}'' (\ref{MotorPIDandManagerH}).
+Le funzioni sono state sviluppate con l'obiettivo di ottenere un soddisfacente controllo di quota del \textit{D.P.D.F}, oltre che garantire la sicurezza dell'operatore durante i \textit{test} singoli e di volo.
+Inoltre, il presente \textit{file} è deputato alla gestione della logica temporale di attuazione e degli eventi asincroni previsti, coordinando le \textit{interrupt} provenienti dai \textit{timer} e dai GPIO del microcontrollore.
+
+\paragraph{Descrizione e configurazione delle periferiche della NUCLEO-H745ZI-Q}\mbox{}\\
+I motori, ovvero gli attuatori responsabili della regolazione di quota del \textit{D.P.D.F}, devono essere controllati usando un \textit{ESC}.\\
+\textit{L'Electronic Speed Controller}, come approfondito nella sottosezione \textit{Turnigy Plush 40A. Risoluzione e controllo dei motori} (\ref{ESCRisoluzioneEControllo}), svolge il ruolo di 
+ponte \textit{hardware} tra il segnale di controllo generato dalla NUCLEO-H745ZI-Q e l'attuazione trifase dei motori \textit{brushless} (\ref{MotoriBrushless}). L'attuazione è guidata da un segnale PWM di comando, in ingresso all'\textit{ESC}.\\
+Come nel caso citato nel paragrafo \textit{Descrizione e configurazione delle periferiche della NUCLEO-H745ZI-Q} della sottosezione (\ref{Software:DescrizioneConfigurazionePerNUCELO_ServosPIDandManager}), i \textit{timer} possiedono la capacità di generare segnali PWM.
+Il \textbf{GP Timer} responsabile della regolazione degli attuatori in interesse è il \textbf{TIM4}. Nello specifico, il \textbf{TIM4 CH2} è responsabile dell'emissione del segnale di controllo del motore alto, mentre, il \textbf{TIM4 CH3} è deputato all'emissione del segnale di controllo del motore basso (figura \ref{TIM4_ChannelView}).
+%foto 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{chapters/chapter3-SOFTWARE/Figures/TIM4_ChannelView}
+    \caption{\footnotesize TIM4, CH2 e CH3 da STCubeMX}
+    \label{TIM4_ChannelView}
+\end{figure}
+
+In analogia al precedente caso, il \textit{TIM4} è stato configurato per generare segnali di controllo in \textbf{PWM Mode 1}.\\
+Al fine di emettere un segnale adatto all'armamento degli attuatori, si rende necessario un segnale implementante le stesse caratteristiche descritte nella sottosezione precedentemente citata (\ref{ESCRisoluzioneEControllo}).\\
+Considerando un \textbf{Prescaler} pari a \textbf{99}, una frequenza di \textbf{50 [Hz]} e un \textit{duty cycle} del \textbf{4.5\%}, il dimensionamento dei parametri di \textbf{Period} e \textbf{Pulse} è stato condotto facendo riferimento alle relazione matematiche (\ref{Equa di det del Period del PWM}) e (\ref{equatione di determinazione del pulse}).
+Disponendo di analoghi valori di \textit{UE}, \textit{Prescaler} e \textit{timer clock}, rispetto alla precedente computazione (\ref{Software:DescrizioneConfigurazionePerNUCELO_ServosPIDandManager}), l'elaborazione ha prodotto risultati similari, di fatti, il \textbf{Period} del segnale di controllo dei motori è pari a \textbf{14999}, mentre il \textbf{Pulse} di armamento è pari a \textbf{675}. (figura (\ref{fig:TIM4_PrescalerPeriod}) e (\ref{TIM4_Pulse}))\\
+%foto dei parametri
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapters/chapter3-SOFTWARE/Figures/TIM4_PrescalerPulse}
+        \caption{\footnotesize TIM4, Prescaler e Period}
+        \label{fig:TIM4_PrescalerPeriod}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapters/chapter3-SOFTWARE/Figures/TIM4_Pulse}
+        \caption{\footnotesize TIM4, Pulse}
+        \label{TIM4_Pulse}
+    \end{minipage}
+\end{figure}
+Per quanto riguarda la logica di temporizzazione, sono stati configurati: il \textbf{TIM3}, il \textbf{TIM6} e i \textbf{TIM7}.\\
+Per usare i \textit{timer} come generatori di base dei tempi, è sufficiente scegliere un arbitrario valore di \textbf{Prescaler} e, succesivamente, dimensionare il parametro di \textbf{Period} usando la (\ref{Equa di det del Period del PWM}).\\
+Quando il circuito contatore (\textit{timer}), raggiungerà lo zero, genererà un segnale di \textit{interrupt} verso il microcontrollore, richiedendo l'esecuzione della relativa \textbf{Interrupt Service Routine (ISR)}, dunque si rende necessario abilitare la linea di \textit{interrupt} corrispondente nel \textit{NVIC}.\\
+Il \textbf{TIM6} è responsabile della scansione temporale associata alla funzione di \textbf{ritardo di avviamento dei motori}, implementata al fine di garantire una fase di accensione sicura e graduale degli attuatori. 
+Il \textit{timer} è stato impostato per generare un'\textit{interrupt} ogni secondo. Considerando un \textbf{Prescaler} di \textbf{4999} e usando la (\ref{Equa di det del Period del PWM}) il \textbf{Period} corrisponde a \textbf{7499}.\\
+%foto tim6
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{chapters/chapter3-SOFTWARE/Figures/TIM6_Presclaer_period}
+    \caption{\footnotesize TIM6, Prescaler e period}
+    \label{TIM6_PrescalerPeriod}
+\end{figure}
+La gestione della temporizzazione associata al controllo dei motori e servomotori, invece, è affidata rispettivamente ai contatori \textbf{TIM3} e \textbf{TIM7}, opportunamente configurati come generatore della base dei tempi per il \textit{loop} di controllo.
+Come illustrato nel paragrafo \textit{Controllo} della sottosezione (\ref{HS-82 MG Hitec. Controllo ed alimentazione}), il servomotore ha una frequenza massima di variazione pari a \textbf{400 [Hz]}, mentre il \textit{BNO-055} produce misure con una frequenza di \textbf{100 [Hz]}. Considerando il contesto applicativo dei servomotori e la differenza di temporizzazione tra sensore e attuatore, il comparto servomotori adotta una scansione temporale di \textbf{0.01 [s]}.\\
+Per il comparto motori, essendo caratterizzato da un dinamica significativamente più lenta rispetto al controllore digitale, è stata adottata una scansione temporale di controllo pari a \textbf{0.5 [s]}.
+Dunque, il \textbf{Period} del \textbf{TIM3} è stato configurato in direttiva della (\ref{Equa di det del Period del PWM}), considerando un \textbf{Prescaler} di \textbf{999} e un $UE_{Hz}$ pari a \textbf{2 [Hz]}, deducendo così un \textbf{Period} pari a \textbf{37499}.\\
+Il \textbf{Period} del \textbf{TIM7}, invece, è stato dedotto considerando un \textbf{Prescaler} di \textbf{99} e un $UE_{Hz}$ pari a \textbf{100 [Hz]}, computando un valore del \textbf{Period} pari a \textbf{7499} (figura (\ref{fig:TIM3_PrescalerPeriod}) e \ref{TIM7_PrescalerPerido}).
+%foto
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapters/chapter3-SOFTWARE/Figures/TIM3_Presclaer_Period}
+        \caption{\footnotesize TIM3, Prescaler e Period}
+        \label{fig:TIM3_PrescalerPeriod}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapters/chapter3-SOFTWARE/Figures/TIM7_PresclaerPeriod}
+        \caption{\footnotesize TIM7, Prescaler e Period}
+        \label{TIM7_PrescalerPerido}
+    \end{minipage}
+\end{figure}
+\paragraph{Direttive di inclusione e variabili \textit{extern}}\mbox{}\\
+Similmente al precedente caso (\ref{ServosPIDandManager_c}), si richiede l'inclusione del proprio file di intestazione, ''\textit{Motors\_PID\_and\_manager.h}'' (\ref{MotorPIDandManagerH}) contenente le dichiarazioni delle procedure del modulo in analisi.
+Inoltre, l'accesso ai servizi \textit{HAL} è stato possibile mediante direttiva \textbf{extern}, permettendo l'integrazione della strtture di controllo dei: \textit{TIM3}, \textit{TIM4}, \textit{TIM6} e \textit{TIM7} oltre che delle \textit{flag} usate per la gestione dell \textit{interrupt}.
+Nello specifico, \textbf{ld\_st\_loop\_counter} e \textbf{flag} sono coinvolte nella sezione relativa al \textit{safe starup} del sistema, mentre, \textbf{flag\_int}, \textbf{flag\_int\_servo\_control} e \textbf{flag\_int\_motor\_control} gestiscono il substrato di temporizzazione.\\
+A seguire, il frammento di codice delle due sezioni descritte.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=11, lastline=33, caption={\footnotesize Estratto di codice C dal file \textit{Motors\_PID\_and\_manager.c}: la sezione relativa alle direttive di inclusione ed extern}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.c}
+
+\paragraph{Sezione di definizione delle funzioni: safe\_startup()}\mbox{}\\
+La funzione è stata implementata con il fine di garantire sicurezza per l'operatore in utilizzo del \textit{D.P.D.F}, fornendo il tempo ncessario per posizionarsi in un luogo di osservazione sicuro.\\
+Per l'avvio del \textit{firmware} è prevista la pressione dello \textbf{User Button (PC13)} della NUCLEO-H745ZI-Q. A seguito di tale evento, viene invocata la funzione in analisi, la quale abilita il \textbf{TIM6}, in \textit{interrupt mode}, tramite la funzione della libreria \textit{HAL} \textbf{HAL\_TIM\_Base\_Start\_IT()}.\\
+Ad ogni evento di aggiornamento del \textit{timer}, con periodo pari ad un secondo, viene eseguita la \textbf{ISR} associata al \textbf{TIM6}, operando un'incremento della variabile globale \textbf{ld\_st\_loop\_counter} e il \textit{toggle} del \textbf{LD1 (Green LED)} della scheda.\\
+L'esecuzione del programma rimane bloccata all'intenro di un ciclo \texttt{while()} fin quando \textbf{ld\_st\_loop\_counter} non raggiunge il valore della macro \textbf{NUMBER\_OF\_TOGGLES} dichiarata in \textit{DPDF\_var\_def} (\ref{DPDF_var_def}).\\
+Una volta soddisfatta la condizione di uscita, il \textbf{TIM6} viene disabilitato e viene acceso l'\textbf{LD3 (Red LED)}, indicando il completamento della sequenza di avvio e restituendo il controllo al flusso principale del \textit{firmware}.\\
+A seguire, la sua definizione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=34, lastline=50, caption={\footnotesize Estratto di codice C dal file \textit{Motors\_PID\_and\_manager.c}: La definizione della funzione safe\_startup()}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.c}
+
+
+\paragraph{Sezione di definizione delle funzioni: actual\_perpendicular\_ranging\_data()}\mbox{}\\
+La funzione è stata sviluppata con fine di corregere il sistematico errore di misura della quota del \textit{D.P.D.F}, dovuto a perturbazioni angolari attorno al \textit{roll} e \textit{pitch}.\\
+Medinate la funzione \textbf{VL53L1\_GetRangingMeasurement()} del \textit{driver STSW-IMG007} (\ref{Software_altezza}) viene estratta la misura di quota da correggere. Con la chiamata di funzione \textbf{DPDF\_BNO055\_firmware\_read()}, invece, vengono estratte le rotazioni angolari di \textit{pitch} e \textit{roll} le quali, poi, devono essere riportante in radianti per operare la computazione.\\
+La corretta quota del \textit{D.P.D.F} viene dedotta dalla seguente formula:
+\begin{equation}
+    q = m\cdot cos(r_{rad})\cdot cos(p_{rad})
+\end{equation}
+dove, con $q$ ci si riferisce alla corretta quota del \textit{D.P.D.F}, con $m$ si indica la misura estratta dal \textit{VL53L1X} e con $r_{rad}$ e $p_{rad}$ rispettivamente le misure di \textit{roll} e \textit{pitch} ottenute dal \textit{BNO-055} e riportate in radianti.\\
+Il risultato della computazione viene restituito dalla funzione.\\
+A seguire, la sua definizione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=51, lastline=75, caption={\footnotesize Estratto di codice C dal file \textit{Motors\_PID\_and\_manager.c}: La definizione della funzione actual\_perpendicular\_ranging\_data()}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.c}
+
+
+\paragraph{Sezione di definizione delle funzioni: motors\_PID\_turner\_and\_turn\_on()}\mbox{}\\
+La procedura provvede all'inizializzazione della struttura dati associata al regolatore PID dei motori, assegnangole i coefficienti di regolazione: \texttt{kp}, \texttt{ki}, \texttt{kd} e \texttt{sample\_time}, passati come parametri della funzione.
+In analogia a \textit{pid\_servo\_roll\_turner\_and\_turn\_on()} (\ref{pidServoTurnerTurnOn}), viene gestito l'avvio del segnale di controllo coinvolto nell'armamento dei motori, richimando la funzione \textbf{HAL\_TIM\_PWM\_Start()}.
+Si ricorda che la gestione del \textit{top motor} è affidata al \textbf{TIM4 CH2}, mentre, il \textit{bottom motor} è affidato al \textbf{TIM4 CH3}.
+Il \textbf{sample\_time} del regolatore PID dei motori è pari a: \textbf{0.5 [s]}. Per approfondire le regioni dietro alla scelta di tal valore, si rimanda alla lettura del paragrafo \textit{Descrizione e configurazione delle periferiche della NUCLEO-H745ZI-Q} della sottosezione corrente (\ref{Motors_PID_and_manager.c}).\\
+A seguire, la definizione della funzione.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=76, lastline=92, caption={\footnotesize Estratto di codice C dal file \textit{Motors\_PID\_and\_manager.c}: La definizione della funzione motors\_pid\_turner\_and\_turn\_on}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.c}
+
+
+\paragraph{Sezione di definizione delle funzioni: pid\_motors()}\mbox{}\\
+La funzione si serve della teoria del regolatore PID per computare il valore di ingresso da iniettare negli \textit{ESC} controllanti i motori.\\
+Il valore prodotto dalla computazione, deve essere inserito direttamente nel \textit{compare register} dei canali del \textbf{TIM4} interessati, modificando così il \textit{duty cycle}
+del segnale PWM, variando, conseguentemente, la velocità di rotazione del motore.\\
+In analogia a \textit{pid\_servo()} (\ref{ServosPIDandManager_c}), il PID implementato è basilare, include il filtro \textit{anti-windup} mediante il \textit{clamping method}, adotta la \textbf{forma parallela}, utilizza il metodo di integrazione di \textbf{eulero in avanti} e la \textbf{differenza all'indietro} per il calcolo del termine derivativo.\\
+Nella sottosezione dedicata all'\textbf{anti-windup}, la \textit{macro} \textbf{UPPER\_LIMIT\_TOP\_MOTOR\_SATURATION} rappresenta il valore massimo scrivibile nel \textit{compare register} del \textit{timer} responsabile del controllo dei motori, corrispondente alla massima velocità di rotazione che il motore può raggiungere.
+Al contrario, \textbf{LOWER\_LIMIT\_MOTOR\_SATURATION} indica il valore minimo scrivibile nel \textit{compare register}, corrispondente alla vecocità minima del motore.
+Il valore di ritorno della funzione rappresenta il valore da caricare nel \textit{compare register} dei due motori, al fine di garantire una velocità di attuazione identica.\\
+Tale scelta, seppur banale, consente, grazie alla configurazione controrotante degli attuatori, di minimizzare la generazione di momenti torcenti residui, prevenendo rotazioni attorno all'asse z, \textit{yaw}.\\
+A seguire, la sua definizione.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=93, lastline=134, caption={\footnotesize Estratto di codice C dal file \textit{Motors\_PID\_and\_manager.c}: La definizione della funzione pid\_motors()}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.c}
+
+\paragraph{Sezione di definizione delle funzioni: motor\_actuation()}\mbox{}\\
+La funzionalità della procedura è qurlla di implementare l'ingresso di controllo, computato in \textit{pid\_motors()}.\\
+A seguire, la sua definizione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=134, lastline=141, caption={\footnotesize Estratto di codice C dal file \textit{Motors\_PID\_and\_manager.c}: La definizione della funzione motor\_actuation()}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.c}
+
+\paragraph{Sezione di definizione delle funzioni: motor\_safe\_turn\_off()}\mbox{}\\
+La funzione è stata pensata per operare nel contesto dei \textit{test} in \textbf{gabbia di contenimento}.\\
+La procedura termina il processo di controllo del comparto motori, riportandoli nello stati di armamento. A seguito del \textit{delay} di \textbf{0.5 [s]}, la funzione ferma l'emissione del segnale PWM di controllo.\\
+A seguire, la sua definizione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=141, lastline=153, caption={\footnotesize Estratto di codice C dal file \textit{Motors\_PID\_and\_manager.c}: La definizione della funzione motors\_safe\_turn\_off()}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.c}
+
+\paragraph{Integrazione HAL: HAL\_GPIO\_EXTI\_Callback()}\mbox{}\\
+
+
+
+\paragraph{Integrazione HAL: HAL\_TIM\_PeriodElapsedCallback()}\mbox{}\\
+La funzione del panorama \textit{HAL}, rappresenta la \textit{callback} chiamata automaticamente ad ogni aggiornamento del \textit{timer} configurato in \textit{interrupt mode}.\\
+La funzione riceve come parametro un puntatore alla struttura \textbf{TIM\_HandleTypeDef}, identificante il \textit{timer} che ha generato l'\textit{interrupt}.\\
+Nel caso in cui la richiesta di \textit{interrupt} dovesse provenire dal \textbf{TIM7}, verrà impostata a \texttt{true} la \textit{flag}: \textbf{flag\_int\_servo\_control}, indicando al \textit{main flow} che è ora di eseguire il controllo dei servomotori.
+Se, invece, l'\textit{interrupt} dovesse provenire dal \textbf{TIM3}, verrà configurata \textit{true} la \textit{flag}: \textbf{flag\_int\_motor\_control}, segnalando al codice principale di provvedere al controllo dei motori.\\
+Per approndire l'\textbf{ISR} del \textbf{TIM6} si rimanda alla lettura del paragrafo esplicante la funzione \textit{safe\_startup()}.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=159, lastline=176, caption={\footnotesize Estratto di codice C dal file \textit{Motors\_PID\_and\_manager.c}: La definizione della funzione HAL\_TIM\_PeriodElapsedCallback()}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.c}
+
+\paragraph{Integrazione HAL: HAL\_GPIO\_EXTI\_Callback()}\mbox{}\\
+La funzione \textit{HAL} rappresenta la \textit{callback} chiamata automaticamente quando si verifica un'\textit{interrupt} esterno su un terminale \textit{GPIO}. La procedura riceve
+come parametro il numero del \textit{GPIO\_pin} che ha generato l'\textit{interrupt}.
+La funzione implementa l'\textbf{ISR} relativa alla \textit{safe\_startup} del \textit{D.P.D.F}. Difatti, la \textit{callback} permette di rilevare la pressione dello \textit{User Button (PC13)}, modificando la stato della variabile \textbf{flag}, soddisfando la condizione di uscita dal \texttt{while()} presente nel \textit{main flow}, avviando il \textit{firmware}.\\
+A seguire, la sua definizione.
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=176, lastline=184, caption={\footnotesize Estratto di codice C dal file \textit{Motors\_PID\_and\_manager.c}: La definizione della funzione HAL\_TIM\_PeriodElapsedCallback()}]{chapters/chapter3-SOFTWARE/codeFiles/Motors_PID_and_manager.c}
+
+\begin{comment}
+tim2 ch1 e ch2, ch1 del servo di roll e ch2 del servo di pitch tim2ch1=PA5, tim2ch2=PA1
+per i motori invece abbiamo, tim4ch2 e tim4ch3, per cui abbiamo ti4ch2 = PD13 e tim4ch3 = PD14
+
+Le funzioni sono state sviluppate ed implementate nell'obiettivo di ottenere un soddisfacente controllo di quota del \textit{D.P.D.F}, oltre che 
+oltre che implementare funzioni utili alla  sicurezza dell'operatore durante \test singoli e di volo.
+
+Per perseguire gli scopi del firmware, sono stati integrati i servizi offerti dalla libreria (H.A.L)
+\end{comment}

@@ -1,0 +1,45 @@
+\section{Turnigy AereoDrive SK3-3536 1400KV}
+\label{MotoriBrushless}
+Il Turnigy AereoDrive SK3 3536 1400kv è un motore \textit{Brushless} alimentato a corrente continua e pilotato a trifase con correnti alternate.\\
+Il rotore contiene magneti permanenti disposti con polarità alternata lungo la sua circonferenza. Lo statore invece, ospita tre avvolgimenti elettrici (fasi) disposti generalmente a 120 gradi elettrici l'uno rispetto l'altro, connessi ai tre terminali d'uscita che si identificano come A,B e C.\\
+Il rotore, essendo formato da magneti permanenti, non necessita di alimentazione: è lo statore a generare il campo magnetico rotante che induce il moto.\\
+Il cambio di polarità degli avvolgimenti deve essere gestito da un sistema elettronico esterno, \textit{l'Elettronic Speed Controller (ESC)}, che nella successiva sezione verrà approfondito.\\
+I tre conduttori che fuoriescono dal motore rappresentano i terminali delle tre fasi dello statore. Ciascun filo è collegato a uno degli avvolgimenti, e nessuno di essi costituisce un riferimento comune.
+Per far ruotare il motore è necessario che tali fasi vengano alimentate secondo una precisa sequenza temporale, generando un campo magnetico rotante. 
+Se si dovesse scambiare due dei tre cavi, l'ordine di commutazione si invertirebbe con conseguente variazione del senso di rotazione.\\
+Nel progetto sono stati impiegati due motori del tipo precedentemente citato, disposti in configurazione \textbf{controrotante}, con il fine di compensare le rotazioni indesiderate di \textbf{yaw}.
+Tale scelta consente di bilanciare le coppie di reazione generate dalle eliche, riducendo il momento torcente sul velivolo. Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo
+attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste.
+
+\subsection{Turnigy AereoDrive SK3-3536 1400 KV.\@ Caratteristiche fisiche e tecniche:}
+\begin{itemize}
+    \item Tensione operativa: \textbf{[11.1$\div$16.8] [V]}.
+    \item Valore KV: \textbf{1400 $(\frac{RPM}{V})$}.
+    \item Potenza massima: \textbf{590 [W]}.
+    \item Corrente massima: \textbf{40 [A]}.
+    \item Resistenza interna: \textbf{[0.021$\div$0-025] [Ohm]}.
+    \item Corrente a vuoto: \textbf{0.021 [A]}.
+    \item Diametro dell'albero motore: \textbf{5 [mm]}.
+    \item Peso: \textbf{111 [g]}.
+    \item Spaziatura fori di montaggio: \textbf{25$\times$25 [mm]}.
+    \item Connettori \textit{bullet} \textbf{da 3.5 [mm]}.
+    \item Numero dei poli: \textbf{12}.
+\end{itemize}
+
+Il valore "KV" è comune nel contesto del modellismo ed indica il numero di giri al minuto (RPM) che il motore compie per ogni \textit{volt} applicato a vuoto, in formula:
+\begin{equation}
+    RPM = KV\cdot V
+\end{equation}
+A tensioni di alimentazione maggiori rispetto a quelle specificate il motore rischia di assorbire troppa corrente e surriscaldarsi.\\
+I giri al minuto massimi dipenderanno dalla tensione applicata e dalle dimensioni delle eliche.\\
+Nel presente progetto, il motore in interesse deve essere alimentato a batteria, vale a dire in corrente continua, lasciando spazio alla necessità di un dispositivo che trasformi la tensione continua erogata dalle batterie in un segnale trifase a corrente alternata.
+Il dispositivo in questione è il precedentemente citato \textit{Electronic Speed Controller}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{chapters/Chapter2-HARDWARE/Figures/TurnigyAereoDriveSK3-3536_1400KV.jpg}
+    \caption{Turnigy Aereo Drive SK3 3536 1400 KV}
+    \label{fig:Hardware drone}
+\end{figure}
+
+

@@ -1,0 +1,131 @@
+\section{VL53L1X ST. Sensore Time-of-Flight per la misurazione a lunga distanza}
+Al fine di ottenere il comportamento desiderato del \textbf{D.P.D.F}, è necessario conoscere la distanza da terra mentre quest'ultimo è in volo.
+Bisogna, dunque, includere un sensore apposito.\\
+Il \textbf{VL53L1X di STMicroelectronics} è pienamente coerente con i requisiti precedentemente espressi. Tuttavia, non si è optato per l'integrazione
+diretta del sensore della casa STMicroelectronics, si è preferito aquistare il modulo \textbf{IRIS11A0J9776} prodotto da \textbf{Pololu}. La \textit{breakout board} di Pololu, contenente
+il sensore VL53L1X è stata scelta per semplificare la fase di configurazione elettronica del dispositivo.\\
+Per comprendere il suo principio di misura, è opportuno dedicare un'intera sezione alla sua descrizione.
+
+\subsection{Il principio di misura di un sensore \textit{Time-of-flight,ToF}}
+La modalità di misura conosciuta come \textit{Time-of-Flight} si basa sulla determinazione del tempo impiegato da un segnale, generalmente un impulso luminoso nella banda dell'infrarosso, per compiere un viaggio
+di andata e ritorno tra un emettitore ed un bersaglio riflettente. In particolare, per il dispositivo in analisi, la sorgente di emissione luminosa è costituita da un laser a cavità verticale (VCSEL), che emette 
+brevi impulsi di luce modulata. Il segnale emesso si propaga nell'ambiente fino ad incontrare un oggetto. Parte della radiazione viene riflessa e raccolta da un rilevatore sensibile alla luce, generalmente un \textit{SPAD array} o
+\textit{"Single-Photon Avalanche Diode"}. Questo rilevatore è in grado di registrare fino all'arrivo di singoli fotoni, consentendo una misura estremamente sensibile del tempo di volo.
+Una volta noto l'intervallo temporale tra l'istante di emissione dell'impulso e quello di ricezione del suo \textit{"eco"}, il calcolo della distanza si ottiene applicando la relazione:
+\begin{equation}
+    d=\frac{c\cdot \Delta{t}}{2}
+\end{equation}
+dove $d$ è la distanza dell'oggetto dalla superficie, $c$ è la velocità della luce nel vuoto e $\Delta{t}$ è il tempo di volo misurato. Il fattore 2 al denominatore tiene conto che il segnale percorre il tragitto due volte, andata e ritorno.
+I "ToF" moderni possono utilizzare tecniche avanzate di correlazione temporale o modulazione di fase per migliorare la precisione e la resistenza al rumore ambientale.\\
+Nel caso in esame, il VL53L1X utilizza la tecnologia base ToF o dToF, \textit{"Direct Time-of-Flight"}.
+
+\subsection{VL53L1X STMicroelectronics. Caratteristiche fisiche}
+A seguire, un breve elenco delle principali caratteristiche fisiche:
+\begin{itemize}
+    \item dimensioni del chip: $4.90\times 1.25\times 1.56$ [mm].
+    \item dimensioni del modulo: $17.50\times 12\times 2.56$ [mm].
+    \item massa del chip: 30 [mg].
+    \item massa del modulo: 0.5 [g] (senza i \textit{pin header}).
+\end{itemize}
+
+\subsection{VL53L1X STMicroelectronics. Catatteristiche tecniche}
+\paragraph{\small{Alimentazione}}\mbox{}\\
+Il sensore presenta un unico ingresso di alimentazione il cui nome è $V_{DD}$. L'intervallo di tensione di alimentazione è: \textbf{[2.6$\div$3.5][V]}
+
+\paragraph{\small{Protocollo di comunicazione}}\mbox{}\\
+Il dispositivo è stato sviluppato per comunicare con il microcontrollore utilizzando esclusivamente il protocollo di comunicazione $I^2C$. Il sensore dispone della capacità di comunicare in \textit{Fast Mode}, scambiando byte ad una frequenza di 400 [kHz].\\
+Il \textit{VL53L1X} fornisce i pin di \textbf{Serial DAta (SDA)} e di \textbf{Serial CLock (SCL)}. 
+
+\paragraph{\small{XSHUT e GPIO 1 (Interrupt)}}\mbox{}\\
+Il \textit{VL53L1X} dispone di un ingresso denominato \textbf{XSHUT}, che consente di spegnere o riavviare il dispositivo a livello \textit{hardware}, indipendentemente dall'\textit{Host}.
+Portando l'ingresso al livello logico basso, il sensore entra in modalità di \textit{shutdown}, interrompendo le misurazioni e riducendo il consumo di corrente. Al contrario, appliccando
+un livello di tensione alto, il sensore viene inizializzato e reso operativo.\\
+Oltre che l'ingresso \textbf{XSHUT}, il sensore dispone di un'\textbf{uscita} denominata \textbf{GPIO1}, spesso indicata anche come \textbf{INT (interrupt)}, la cui funzione principale è segnalare al microcontrollore 
+eventi o stati del sensore.\\
+Nel presente progetto, il pin XSHUT è stato utilizzato esclusivamente per il \textit{reset} forzato del sensore, mentre il GPIO1 è stato impiegato per segnalare la disponibilità della misura,
+semplificando il firmware, riducendo il carico computazionale e consentendo la gestione della temporizzazione, aspetti che verrano approfonditi nella dedicata sezione nel capitolo \textit{Software}.
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapters/Chapter2-HARDWARE/Figures/PinConfigurationModuloPololu.jpg}
+        \caption{P.C}
+        \label{fig:img1}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chapters/Chapter2-HARDWARE/Figures/PinCongifVL53L1X.png}
+        \caption{S.B.D}
+        \label{fig:img2}
+    \end{minipage}
+\end{figure}\\
+L'immagine a sinistra, specifica la disposizione della piedinatura del modulo \textit{Pololu} (\textit{P.C: Pin  Configuration}), mentre, la figura di destra, rappresenta la suddivisione modulare del \textit{VL53L1X} (\textit{S.B.D: System Block Diagram}).
+\paragraph{\small{Emettitore}}\mbox{}\\
+Il \textit{VL53L1X} monta un emettitore \textbf{laser ad infrarossi con lunghezza d'onda pari a 940 [nm] appartenente alla \textit{classe uno}}. Quest'ultimo fa riferimento alla classificazione di sicurezza stabilita dalla norma internazionale \textbf{IEC 60825-1}.
+La classificazione ha il dovere di descrivere quanto un emissione laser possa essere pericolosa per l'interazione umana (occhi, pelle ecc). La normativa organizza gli emettitori in \textit{classi}, dove 
+ogni classe rappresenta un livello crescente di rischio. Per un laser di \textit{classe uno}, come quello emesso dal dispositivo, le condizoni operative normali, sono considerate sicure per occhi e pelle.\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{chapters/Chapter2-HARDWARE/Figures/Emetittore_VL53L1X.png}
+    \caption{VL53L1X, dettaglio sull'emettitore}
+    \label{fig:Hardware drone}
+\end{figure}
+
+\paragraph{\small{Field of View  (FoV)}}\mbox{}\\
+Il \textit{Field of View} è l'angolo massimo entro il quale il dispositivo rileva un oggetto. Per quanto riguarda l'emettitore in esame, il \textbf{FoV} è all'incirca di \textbf{27\degree}.\\
+A seguire, un'immagine esplicativa del \textit{FoV}:
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{chapters/Chapter2-HARDWARE/Figures/cone.jpg}
+    \caption{Field of View del VL53L1X}
+    \label{fig:Hardware drone}
+\end{figure}
+
+\paragraph{\small{Region-of-interest (R.O.I)}}\mbox{}\\
+Con \textit{Region-Of-Interest} si fa riferimento ad un'opzione offerta dal \textit{VL53L1X} che permette di restringere il \textit{Field of View} utilizzato nella misura.
+La funzione è utile nel caso in cui si voglia migliorare la precisione di misura su oggetti piccoli.\\
+Nel presente progetto, il sensore è responsabile della misura dell'altidudine del \textit{D.P.D.F}, per 
+cui la tecnologia \textit{(R.O.I)} non è mai stata utilizzata, lasciando il \textit{FoV} a 27\degree.
+
+\paragraph{\small{Prestazioni di misura, Timing Budget e modalità operative di misura}}\mbox{}\\
+Il \textit{VL53L1X} vanta di ottime prestazioni di misura, di fatti questa è accurata e veloce. Il dispositivo ha la capacità di misurare distanze fino ai 4 [m] ad una frequenza di 50 [Hz].
+Con il fine di coprire una più vasta gamma di applicazioni, il dispositivo fornisce la possibilità di selezionare la modalità di misura più adatta alla specifica applicazione, oltre che la velocità e l'accuratezza.
+A seguire, una tabella esplicante le varie modalità di misura offerte dal dispositivo:
+\begin{table}[htb] 
+	\centering
+	\caption{VL53L1X. Modalità di misura}
+    \resizebox{\textwidth}{!}{
+	\begin{tabular}{l c c}
+		\toprule
+        \textit{Modalità} & Range massimo in codizioni di scarsa luce (approssimato) & Range massimo con luce ambientale \\
+        \midrule
+        \textit{Short} & 136 [cm] & 135 [cm]\\
+        \textit{Medium} & 290 [cm] & 76 [cm]\\
+        \textit{Long} & 360 [cm] & 73 [cm]\\
+		\bottomrule
+	\end{tabular}
+    }
+\label{tab:VL53L1X. Hardware}
+\end{table}
+\begin{center}
+    \footnotesize \textit{Tabella riportata dal datasheet ufficiale del VL53L1X. I valori presentati, sono stati ricavati sotto le seguenti condizioni : \textit{timing budget} = 100 [ms], bersagio bianco, riflettanza : 88\%, luce ambientale : 200 [kcps/SPAD].}
+\end{center}
+
+La \textit{Short ranging mode} è stata sviluppata per misure ravvicinate ad alta stabilità e in ambienti luminosi. La \textit{Long range mode} è pensata, invece, per la massimizzazione della portata, al costo di accettare segnali più "nervosi". Oltre a quelle precedenti,
+il dispositivo offe la possibilità di selezionare la \textit{Medium range mode}, che rappresenta un buon compromesso tra distanza operativa e robustezza al rumore.\\
+L'ambiente in cui sono stati effettuati i test di volo è molto luminoso, inoltre, i fili di sostegno, si sono rilevati un vincolo per l'altitudine massima raggiungibile, così da non superare i 60 [cm].\\
+Dunque, ai fini progettuali, la \textbf{\textit{Short ranging mode}} è stata privilegiata, diventando l'unica modalità operativa utilizzata per tutto l'arco del progetto.\\
+Con il fine di minuziosa gestione della temporizzazione e dell'accuratezza, è stata sfuttata la funzione di \textbf{Timing Budget} del sensore. Con \textit{Timing Budget} si fa riferimento al tempo totale che il sensore impiega per 
+eseguire una singola misurazione di distanza. Il \textit{Timing Budget} è espresso in [ms] e può assumere i seguenti valori: \textbf{[20$\div$1000] [ms]}.
+Un aumento del \textit{Timing Budget} comporta una riduzione della frequenza di misura ma, al tempo stesso, ne migliora l'accuratezza e la stabilità.\\
+La documentazione, suggerisce che un \textit{Timing Budget} di \textbf{33 ms} offre ottime prestazioni in termine di velocità ed accuratezza, per cui, ai fini progettuali, è stato selezionato tale valore. Per la gestione dell'effetiva temporizzazione
+è stato variato \textit{l'Inter-Measurement Period}, approfondito nella sezione \textit{Software}.\\
+A seguire, un'immagina riportata direttamente dallo \textit{User Manual} del \textit{VL53L1X}, raffigurante le prestazioni di misura a fronte di diversi valori del \textit{Timing Budget}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{chapters/Chapter2-HARDWARE/Figures/Esperimento TimingBudget.png}
+    \caption{VL53L1X, dettaglio sull'emettitore}
+    \label{fig:Hardware drone}
+\end{figure}

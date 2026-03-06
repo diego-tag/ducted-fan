@@ -1,0 +1,25 @@
+\chapter{Approfondimenti}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Turnigy Plush 40A}
+
+\paragraph{Approfondimento sulle caratteristiche tecniche}\mbox{}\\
+
+\paragraph{SRAM}\mbox{}\\
+SRAM è l'acronimo di \textit{Static Random Access Memory}
+
+\paragraph{Eliche Controrotanti}\mbox{}\\
+Quando una singola elica ruota, essa impartisce al flusso d'aria non solo una velocità assiale (che genera la spinta), ma anche una componente rotazionale.\\
+Questo moto di \textit{swirl} rappresenta energia sprecata, parte della potenza del motore non diventa spinta utile, ma viene dissipata in turbolenze. 
+In più per il principio di azione e reazione, l'elica genera un momento torcente opposto sulla struttura (di fatti un drone del genere, con una sola elica dovrebbe compensare quel momento con superfici di controllo o un giroscopio potente).
+La soluzione di queste problemi sta proprio nell'introduzione di una seconda elica subito a valle della prima, che ruota in senso opposto, ottenendo due effetti preziosi:
+\begin{itemize}
+    \item \textbf{Recupero dell'energia del flusso vorticoso}: di fatti la seconda elica "riprende" il flusso swirlato della prima e lo raddrizza, convertendo parte di quella rotazione in spinta assiale utile.
+    \item \textbf{Cancellazione del momento torcente complessivo}: i due rotori generano coppie opposte uguali, quindi idealmente la struttura del drone non viene "torcigliata" da nessuna parte.
+\end{itemize}
+
+\section{Flusso di pensiero per il sistema di controllo del drone}
+
+\paragraph{Sistema di controllo passato}
+Dalle tesi emerge che il sistema di controllo del drone prevedeva tre PID, un PID per entrambi i motori (di fatti hanno le stesse caratteristiche alla finem dunque è necessario inserire solamente un PID), un PID per il servomotre incaricato di sorvegliare l'angolo
+di \textit{pitch} e uno per il \textit{roll}. Di vitale importanza è dunque capire l'orientamento del drone rispetto all'angolo di pitch e roll.\\

@@ -1,0 +1,150 @@
+\graphicspath{{chapters/chapter1/}}
+\chapter{Il mio primo capitolo con \LaTeX} \label{chapter1}
+
+\section{Introduzione}
+
+Benvenuto! Se sei alle prime armi con il linguaggio \LaTeX, di seguito troverai le informazioni di base per iniziare la scrittura della tua tesi e per capire come organizzarla. Per un maggiore approfondimento, si consiglia la lettura di due guide (in italiano): \emph{L'arte di scrivere con \LaTeX} e \emph{\LaTeX~ per l'Impaziente} di Lorenzo Pantieri. Inoltre, sul web sono presenti un gran numero di forum dedicati: con una semplice ricerca è possibile esaurire ogni curiosità e risolvere qualsiasi problema.
+
+\section{Organizzazione dei files}
+
+Come puoi notare da questa demo, nella cartella di lavoro sono presenti due file: il primo, chiamato \texttt{univpmthesis.cls}, definisce tutti i comandi della classe, e gestisce tutte le feature grafiche e di formattazione che caratterizzeranno la tua tesi. Non modificarlo se non sei un utente esperto!
+
+Il file \texttt{UNIVPMthesis.tex} invece rappresenta il file principale (in gergo chiamato \textbf{main file}) da cui iniziare la scrittura del tuo testo. Fondamentalmente, questo gestisce l'organizzazione del tuo lavoro di tesi e contiene tutte le informazioni per la corretta compilazione del manoscritto. \'E qui, infatti, che andrai a definire la \underline{classe} del documento, il suo \underline{preambolo}, e la successione dei capitoli e del materiale iniziale e finale.
+
+Noterai che nel main file non è esplicitato il contenuto di ogni singolo capitolo, bensì vengono importati i dati di scrittura da files .tex secondari con il comando \texttt{input}. Tale approccio risulta particolarmente comodo di fronte alla gestione di elaborati molto lunghi, in cui ciascun capitolo può essere scritto in un file .tex dedicato. 
+
+Tutti i capitoli che costituiscono il corpo della dessertazione si trovano nella cartella \texttt{chapters}, per ognuno dei quali è stata creata una sottocartella ad hoc. Ciascuna delle sottocartelle conterrà dunque il corrispondente documento del capitolo e le immagini che vengono incluse nello stesso. Questo modo di procedere, sebbene possa sembrare laborioso, è di enorme aiuto qualora ti trovassi a gestire un gran numero di immagini e grafici. L'unica accortezza consta nel dichiarare la locazione dei file immagine che si vogliono includere nel capitolo all'inizio dello stesso mediante il comando \texttt{graphicpath} (un esempio è dato alla primissima riga del file \texttt{chapter1.tex}).
+
+Analogamente, la cartella \texttt{frontbackmatters} racchiude tutto ciò che non costituisce il corpo del testo, come la Bibliografia ed il capitolo di Appendice.
+
+Poichè il template deriva dalla classe KOMA-script scrbook, la dichiarazione del capitolo segue sia il tradizionale comando \texttt{chapter} sia il comando \texttt{addchap}. Quest'ultimo, infatti, è utile qualora si volesse inserire un capitolo (come l'Introduzione o le Conclusioni) senza la numeriazione progressiva automatica. 
+
+\subsection{Opzioni della classe}
+
+Poichè \texttt{univpmthesis.cls} si basa su \texttt{univpmphdthesis.cls}, le opzioni offerte dalla classe sono le seguenti:
+
+\begin{description}
+	\item[a4print] definisce le dimensioni del foglio di scrittura in formato A4, permettendo
+	all'utente di controllare meglio l'occupazione degli spazi. Il margine sinistro varia da pagina pari a dispari per tener conto dello spazio extra necessario per la rilegatura;
+	\item[italian, english] definisce la lingua di stampa del documento;
+	\item[lof] include la lista delle figure;
+	\item[lot] include la lista delle tabelle;
+	\item[oneside, twoside] definisce l'impaginazione su singola pagina (\texttt{oneside}) o su fronte-retro (\texttt{twoside}). \\
+	\textbf{Nota bene}: non vi è alcuna disposizione od obbligo su tale impostazione (almeno ad oggi!); è, dunque, fortemente consigliata la selezione del formato \texttt{twoside}. \emph{D'altronde, ciò che ha valore del tuo manoscritto sono i contenuti, non il volume della tesi una volta stamapata!}
+\end{description}
+
+\subsection{Pacchetti di supporto}
+
+Nel preambolo sono stati inclusi i pacchetti più utilizzati per la scrittura di un documento di tesi, puoi aggiungere ulteriori pacchetti in base alle tue esigenze.
+ 
+
+\section{Brevissimi esempi sull'inserimento degli oggetti di testo}
+
+\subsection{Equazioni}
+
+Come puoi osservare, \eqname~\ref{eq:sigma} rappresenta un semplice esempio di come scrivere un'equazione numerata: 
+
+\begin{equation} \label{eq:sigma}
+\bm{\sigma}=\bm{\sigma}(\bm{\varepsilon}, \xi_i)
+\end{equation}
+% approfodnimento sui comandi : \bm serve a rendere in grassetto, \bold un simbolo matematico, inclusi simboli greci mantenendo il formato matematico corretto
+
+
+\subsection{Tabelle} 
+
+Le tabelle costituiscono una categoria di oggetti flottanti, ovvero oggetti di testo che possono essere "spostati" dal compilatore al fine di garantire la massima leggibilità e chiarezza dell'intero testo. \tablename~\ref{tab:Test} ne è un rapido esempio, e si raccomanda di posizionare la didascalia della tabella in alto rispetto alla stessa. 
+
+\begin{table}[htb] 
+	\centering
+	\caption{Esempio Tabella.}
+	\begin{tabular}{l c c}
+		\toprule
+		Test & Campioni & Risultati\\
+		\midrule
+		a & 1 & 2\\
+		b & 4 & 5\\
+		\bottomrule
+	\end{tabular}
+\label{tab:Test}
+\end{table}
+
+\subsection{Figure}
+
+Le figure sono il secondo tipo di oggetto flottante che viene frequentemente utilizzato nella scrittura della tesi; di seguito è ripostato un esempio di figura singola (\figurename~\ref{fig:Figura}), e di sottofigure (\figurename~\ref{fig:sf1} e \figurename~\ref{fig:sf2}).
+
+%\begin{figure}[htbp]
+%	\centering
+%	\includegraphics[width=0.49\textwidth]{}
+%	\caption{Esempio figura.}
+%	\label{fig:Figura}
+%\end{figure}
+
+%\begin{figure}[htb]
+%	\centering
+%	\subfloat[][Sottofigura 1. \label{fig:sf1}]
+%	{\includegraphics[width=0.49\textwidth]{Figura.pdf}} 
+%	\subfloat[][Sottofigura 2. \label{fig:sf2}]
+%	{\includegraphics[width=0.49\textwidth]{Figura.pdf}}\\
+%	\caption{Esempio sottofigure.} \label{fig:sottofigure}
+%\end{figure}
+
+Nel caso di figure e sottofigure, la didascalia è posta sotto l'immagine a cui si riferisce. 
+
+
+\section{Inserimento della bibliografia}
+
+L'inserimento della bibliografia rappresenta, con buona probabilità, una delle operazioni più criptiche per un utente alle primissime armi con \LaTeX, soprattutto se si è prossimi alla cosegna del lavoro di tesi. A tal proposito, il main file qui riportato è già organizzato per accogliere qualsiasi file di bibliografia, l'unica operazione richiesta è la creazione della lista dei riferimenti mediante un file in formato .bib. Per rendere tale compito più semplice possibile, il consiglio è quello di impiegare tool e software dedicati come \emph{JabRef} - gratuito - o \emph{Mendeley} (esistono però molti altri References Manager software!). In questo modo dovrai preoccuparti solamente di inserire correttamente  campi relativi alle pubblicazioni che vuoi inserire, il software produrrà in uscita il file già formattato per essere letto dal main file.
+
+A questo punto puoi richiamare nel testo la citazione mediante il comando \texttt{cite} facendo riferimento alla bibtexkey che identifica il documento desiderato. In questo modo il file .bib si comporta come un database di riferimenti bibliografici: nel testo verranno inclusi solo quelli effettivamente richiamati con il comando \texttt{cite}.
+
+Un esempio: come riportato da Von Mises in \cite{Mises1928} \dots tale teoria è confermata anche dagli studi in \cite{Hill1948,Bridgman1952}. 
+    
+Un ultimo dettaglio: può capitare che bibliografia e references non vengano compilate immediatamente dopo esser state inserite. Per risolvere questo problema basta compilare il main file due volte consecutive: la prima per far "leggere" al compilatore le modifiche effettuate e stabilire quali sono i documenti invocati nel testo, la seconda per produrre la modifica sul file .pdf di output.
+
+\section{Esempio di codice in python}
+\begin{lstlisting}[language=Python, caption="Codice in Python"]
+import numpy as np
+    
+def incmatrix(genl1,genl2):
+    m = len(genl1)
+    n = len(genl2)
+    M = None #to become the incidence matrix
+    VT = np.zeros((n*m,1), int)  #dummy variable
+    
+    #compute the bitwise xor matrix
+    M1 = bitxormatrix(genl1)
+    M2 = np.triu(bitxormatrix(genl2),1) 
+
+    for i in range(m-1):
+        for j in range(i+1, m):
+            [r,c] = np.where(M2 == M1[i,j])
+            for k in range(len(r)):
+                VT[(i)*n + r[k]] = 1;
+                VT[(i)*n + c[k]] = 1;
+                VT[(j)*n + r[k]] = 1;
+                VT[(j)*n + c[k]] = 1;
+                
+                if M is None:
+                    M = np.copy(VT)
+                else:
+                    M = np.concatenate((M, VT), 1)
+                
+                VT = np.zeros((n*m,1), int)
+    
+    return M
+\end{lstlisting}
+
+\section{Esempio di codice in C}
+\lstinputlisting[language=Cpp, firstline=3, lastline=8, caption="Codice in C"]{Code/Codice.cpp}
+
+\vspace{10mm}
+
+\begin{center} 
+\textcolor{red}{\textbf{Buona fortuna per il tuo lavoro!}}
+\end{center}
+
+
+
+%% CHE COSA è UN FILE CLS %%
+% .cls è un file di classe (concetto di classi in Java), questo tipo di file definisce la struttura e il formato generale di un documento.
+% layout della pagina, struttura dei capitoli, stili di carattere e dimensioni, pacchetti da caricare automaticamente, comandi personalizzati

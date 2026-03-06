@@ -1,0 +1,52 @@
+
+
+\section{DFRobot Power Module. Convertirore di tensione}
+Ai fini progettuali sono stati implementati diversi dispositivi, ciascuno dei quali richiedente di una specifica tensione di alimentazione.
+Si è reso necessario ricorrere a convertitori di tensione per distribuire nella maniera corretta le tensioni di alimentazione ai vari dispositivi.\\
+Il \textbf{DFRobot Power Module}, riceve in ingresso la tensione proveniente dal pacco batterie, erogando quattro diversi valori di tensione a seconda del terminale che si sceglie di utilizzare.\\
+La prima soluzione offerta dal dispositivo, fornisce in uscita la stessa tensione che si ha in ingresso, diventando così, un ponte per il passaggio della tensione.\\
+Un'altra soluzione consiste nell'utilizzo degli appositi \textit{pin} sul dispositivo, dai quali può essere erogata una tensione di \textbf{5 [V]}, selezionabile mediante un apposito \textit{switch}.\\
+Infine, il dispositivo presenta un terminale che eroga una tensione variabile il cui valore è controllato da un \textit{dimmer}. Il \textit{dimmer} permette di selezionare valori intermedi fino ad un massimo
+pari alla tensione di ingresso. Quest'ultima è stata utilizzata nell'alimentazione dei servomotori.
+La presenza di due servomotori ha richiesto l'integrazione di due convertitori di tensione.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{chapters/Chapter2-HARDWARE/Figures/Convertitore_di_tensione_foto_tecnica.png}
+    \caption{DFRobot Power Module. Disposizione dei terminali di uscita}.
+    \label{fig:etichetta}
+\end{figure}
+
+\paragraph{Caratteristiche fisiche}
+\begin{itemize}
+    \item Dimensioni: $46\times 50\times 20$ [mm].
+    \item Peso: 35 [g].
+\end{itemize}
+
+\paragraph{Caratteristiche tecniche}
+\begin{itemize}
+    \item Intervallo di tensione in ingresso: \textbf{[3.6$\div$25] [V]}.
+    \item Intervallo di tensione esprimibile in uscita: \textbf{[3.3$\div$25] [V]}.
+    \item Massima potenza erogabile: \textbf{25 [W]}.
+    \item Frequenza di variazione: \textbf{350 [kHz]}.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{chapters/Chapter2-HARDWARE/Figures/Convertitore_Tensione_foto_reale.jpg}
+    \caption{DFRobot Power Module}.
+    \label{fig:etichetta}
+\end{figure}
+
+\section{Power Distribution Board}
+Con \textit{Power Distribution Board} si fa riferimento ad un sottosistema elettrico la cui principale funzione è la \textbf{distribuzione in modo sicuro ed efficiente dell'energia fornita dal pacco batterie} agli \textit{E.S.C} e, conseguentemente, ai motori.
+Ai fini progettuali, è stata selezionata una \textit{P.D.B}, il cui punto di prelievo del segnale presenta un connettore \textbf{XT60}, adatto al pacco batterie.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{chapters/Chapter2-HARDWARE/Figures/PowerDistributionBoardQuad.jpg}
+    \caption{Power Distribution Board}.
+    \label{fig:etichetta}
+\end{figure}
+
+Il \textit{P.B.C} integrato nel contesto operativo, possiede quattro uscite eroganti al massimo una corrente di \textbf{20 [A]} ed un peso di: \textbf{27.3 [g]}.

@@ -1,0 +1,15 @@
+%%%%%%%%%% INTRODUZIONE DA SCRIVERE DIRETTAMENTE SOLLO IL TITOLO DEL CAPITOLO SOFTWARE  
+\chapter{Firmware}
+Il \textit{firmware} di controllo del \textit{D.P.D.F}, è stato sviluppato con l'obiettivo di ottenere un \textit{hovering} del velivolo sufficentemente stabile.\\
+L'inseguimento dell'obiettivo ha portato alla creazione di una libreria di funzioni utilizzando il linguaggio di programmazione \textbf{C}. Il \textit{firmware} è stato interamente creato nell'\textbf{STCubeIDE}, l'ambiente di sviluppo integrato offerto da
+STMicroelectronics per la programmazione dei microcontrollori \textbf{STM32} da essa prodotti. La \textbf{versione} dell'\textit{IDE} che ha accompagnato tutto lo sviluppo è stata la \textbf{1.16.1}.\\
+L'\textit{IDE} di \textit{ST} integra in un'unica piattaforma, software: per la configurazione \textit{hardware}, la generazione di codice basata sulle librerie \textbf{H.A.L} (\textit{Hardware abstraction layer}) e strumenti di compilazione e \textit{debug}.\\
+Per la configurazione delle periferiche presenti sul microcontrollore \textit{STM32H745ZI-TQ6} è stata utilizzata l'interfaccia di programmazione grafica messa a disposizione da \textit{STCubeIDE}, \textbf{STCubeMX}. Lo sviluppo è stato completato usando la \textbf{versione 6.12.1} del \textit{STCubeMX}.\\
+Per la sviluppo \textit{firmware}, invece, sono state implementate molte funzioni appartenenti alla libriea \textit{H.A.L}.
+In corso d'opera, si è reso necessario uno studio e un successivo sviluppo di \textit{sub-firmware} per ciascuna componente \textit{hardware} richiedente di programmazione, per poi, effettuare in un secondo momento, il \textit{merge} del codice completo.\\
+Per la gestione dei sensori \textbf{BNO-055 BoshSensortec} e \textbf{VL53L1X STMicroelectronics} sono stati integrati i \textit{driver} ufficiali delle aziende produttrici, per cui l'unica azione di sviluppo intrapresa per queste componenti è stata l'adattamento al contesto \textbf{H.A.L} (\textit{Hardware Abstraction Layer}).\\
+La descrizione del modulo \textbf{\textit{firmware}} relativo alla \textbf{regolazione degli attuatori} del \textit{D.P.D.F}, è divisa in due parti. La \textbf{prima} è incentrata sull'analisi dei \textit{file} di intestazione del \textit{sub-firmware}, nei quali viene messa in evidenza la natura dichiarativa delle interfacce ed il ruolo che esse svolgono
+nell'organizzazione logica del codice. La \textbf{seconda} parte, invece, è rivolta al percorso di sviluppo del modulo, con particolare attenzione alla \textbf{configurazione delle periferiche} della NUCLEO-H745ZI-Q mediante \textbf{STCubeMX} e alla motivazione delle scelte implementative adottate.\\
+
+\textbf{Il \textit{firmware} è stato redatto in lingua inglese, in quanto tale scelta consente una maggiore flessibilità dal punto di vista comunicativo e tecnico}.\\\\
+Nel presente elaborato, i termini ''\textit{procedura}'' e ''\textit{funzione}'' saranno utilizzati come sinonimi, in quanto indicano la medesima entità.

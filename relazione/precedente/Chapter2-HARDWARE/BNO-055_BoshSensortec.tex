@@ -1,0 +1,170 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TO DO LIST SPIEGAZIONE DEL BOSH SENSORTEC 
+% Presentazione del sensore nell'ambito del progetto 
+% Presentazione del sensore generale  [OK]
+% Principio di misura del sensore: accelerometro, giroscopio e magnetometro [OK]
+% Dati tecnici: Dimensioni, peso, alimentaizione, collegamenti, comunicazione 
+% Modalità operative del sensore spingendo sulla sensor fusion 
+
+\section{BNO-055 Bosch Sensortec. Unità di misura inerziale e magnetometro}
+Al fine di controllare l'orientamento nello spazio del \textit{D.P.D.F} mediante servomotori, si necessita dell'informazione di rotazione del sistema nello spazio di riferimento. Si richiede, dunque, un dispositivo
+capace di ottenere tale informazione. Il \textbf{BNO-055} della casa \textbf{Bosch Sensortec}, con la sua accuratezza, è il miglior canditato per tale responsabilità.
+Il \textbf{BNO-055} è un sensore di orientamento assoluto a 9 assi sviluppato da \textbf{Bosch Sensortec}.
+Il dispositivo è un \textit{System in Package}\textcolor{blue}{[A]} che integra un accelerometro triassiale a 14 bit, un giroscopio triassiale a 16 bit, un sensore geomagnetico triassiale e un
+microcontrollore Cortex $M0^+$ a 32 bit incaricato nell'eseguire il \textit{software di sensor fusion} integrato.\\
+Il \textit{software}, poc'anzi citato, combina i dati provenienti da accelerometro, giroscopio e magnetometro, fornendo: \textbf{Quaternioni, Angoli di Eulero come pitch, roll e yaw e Vettori di orientamento lineari e gravitazionali}.
+Nel presente progetto, il \textit{chip} BNO-055 è stato acquistato con montaggio su \textit{scheda di breakout} incluso, dunque nel paragrafo sottostante sono state aggiunte sia le dimensioni/peso del modulo che le dimensioni/peso del chip.
+
+\subsection{BNO-055 Bosch Sensortec. Catatteristiche fisiche}
+\begin{itemize}
+    \item dimensioni del modulo: $20\times24\times2$ mm.
+    \item dimensioni del chip: $3.8\times5.2\times1.1$ mm.
+    \item massa del modulo: 3 g.
+    \item massa del chip: $\approx 150 mg$.
+\end{itemize}
+
+\subsection{BNO-055 Bosch Sensortec. Infrastruttura di alimentazione, comunicazione ed integrazione del senore}
+\paragraph{\small{Alimentazione}}\mbox{}\\
+Il sensore ha due distinti ingressi di alimentazione: Il \textbf{$V_{DD}$} e il \textbf{$V_{DDIO}$}.\\
+Il $V_{DD}$ è il principale terminale di alimentazione dei sensori. Il valore di tensione iniettabile nell'ingresso in analasi appartiene al seguente intervallo: \textbf{[2.4$\div$3.6] [V]}.\\
+Il \textbf{$V_{DDIO}$}, invece, è il distinto ingresso di alimentazione del \textit{$\mu C$} e delle interfacce digitali. In questo caso, il valore di tensione può assumere valori di questo intervallo: \textbf{[1.7$\div$3.6] [V]}.\\
+Tuttavia, il dispositivo è montato su di una \textit{breakout board} che offre a disposizione solamente un terminale di alimentazione, chiamato $V_{IN}$, il quale fornisce, mediante un micro regolatore di tensione, l'alimentazione sia al $V_{DD}$ che al $V_{DDIO}$.
+Il valore di tensione in ingresso al terminale $V_{IN}$ appartiene all'intervallo: \textbf{[2.4$\div$3.6] [V]}.
+Il BNO-055, inoltre, supporta tre differenti modalità di alimentazione: \textit{Normal mode}, \textit{Low power mode} and \textit{Suspend mode}. Per lo sviluppo è stata scelta la \textbf{\textit{Normal mode}}.\\
+
+\paragraph{\small{Protocollo di comunicazione}}\mbox{}\\
+Il \textit{BNO-055} offre la possibilità di utilizzare due distinti protocolli di comunicazione seriale, \textit{$I^{2}C$} e \textit{UART}. Nel presente progetto è stato utilizzato esclusivamente il protocollo \textit{$I^{2}C$}.
+Come per il \textit{VL53L1X di STMicroelectronics}, precedentemente trattato, il sensore dispone della capacità di comunicare in \textit{Fast Mode}, scambiando byte a 400 [kHz] (oltre che in \textit{Standard Mode a 100 [kHz]}).
+Anche in questo caso, sia la \textit{breakout board} che il sensore forniscono i terminali di \textbf{Serial DAta (SDA)} e \textbf{Serial CLock (SCL)}.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.4\textwidth]{chapters/Chapter2-HARDWARE/Figures/sensors_BNO055_STEMMA_pinouts_top.jpg}
+    \caption{\textcolor{black}{BNO-055 Bosch Sensortec. Configuraizone dei pin e breakout board}}
+    \label{fig:etichetta}
+\end{figure}
+
+
+
+\subsection{Principio di misura dell'accelerometro, giroscopio e magnetometro}
+Prima di descrivere le \textit{features} dell'accelerometro, giroscopio e magnetometro installati nel \textit{BNO-055}, si ritiene necessario dedicare una sezione di approfondimento circa i principi di funzionamento dei sensori precedentemente citati.
+\paragraph{Accelerometro}\mbox{}\\
+L'accelerometro integrato nel BNO-055 Bosch Sensortec è di tipo capacitivo M.E.M.S, \textit{Micro-Eletro-Mechanical System}. Il dispositivo consente la misura dell'accelerazione lungo i tre assi cartesiani.\\
+Il principio di funzionamento si basa sulla rilevazione delle variazioni di capacità tra microstrutture mobili e fisse realizzate su un substrato di silicio.\\
+L'elemento sensibile di ciascun asse è costituito da una massa sospesa, \textit{proof mass}, vincolata da microtravi elastiche ad una cornice ancorata al substrato. In condizioni di quiete, la massa è in equilibrio e la capacità tra le piastre interdigitate\textcolor{blue}{[A]} rimangono simmetriche.\\
+Quando il dispositivo è sottoposto ad un'accelerazione lungo uno degli assi sensibili, la massa inerziale si sposta in direzione opposta a quella dell'accelerazione, generando una variazione differenziale delle capacità tra le piastre.\\
+La variazione di capacità viene rilevata da un circuito integrato, che la converte in un segnale elettrico, proporzionale alla velocità applicata.\\
+Il segnale analogico prodotto, viene successivamente digitalizzato da un convertirore analogico digitale integrato nel chip.
+
+\paragraph{Giroscopio}\mbox{}\\
+Il giroscopio integrato nel dispositivo fa parte della categoria M.E.M.S di tipo vibrante, \textit{vibrating structure gyroscope}, e consente la misura della velocità angolare lungo i tre assi cartesiani.\\
+Il principio di funzionamento si basa sull'effetto Coriolis, che si manifesta quando una massa in moto oscillatorio subisce una rotazione rispetto ad un sistema di riferimento inerziale.
+All'interno del sensore, ciascun asse dispone di una o più masse vibranti, le quali vengono mantenute in oscillazione a frequenza costante, mediante un circuito di attuazione elettrostatica. Quando il dispositivo ruota attorno ad uno degli assi
+la massa subisce una forza di Coriolis data da:
+\begin{equation}
+    \vec{F_c}=2m(\vec{v}\times \vec{\omega }) 
+\end{equation}
+dove $m$ è la massa oscillante, $\vec{v}$ è la velocità della massa nella sua traiettoria vibrante, $\vec{\omega}$ è la velocità angolare del corpo.\\
+Questa forza induce uno spostamento trasversale rispetto alla direzione di vibrazione, che viene rilevato attraverso variazioni di capacità tra elettrodi fissi e mobili, similmente a quanto avviene nell'accelerometro.\\
+Tali variazioni, proporzionali alla velocità angolare, vengono convertite in un segnale elettrico mediante un circuito di lettura differenziale e successivamente digitalizzate tramite un convertitore analogico digitale integrato.
+
+\paragraph{Magnetometro}\mbox{}\\
+Il sensore integra inoltre un \textbf{magnetometro ad effetto Hall}, sfruttante il fenomeno fisico della tensione di Hall per misurare l'orientamento del dispositivo rispetto al campo magnetico terrestre.\\
+Nella sua forma più semplice, un elemento di Hall è una sottilissima lamina di materiale conduttore o semiconduttore attraversata da una corrente continua controllata. Se su questa lamina agisce un campo magnetico con componente perpendicolare alla direzione della corrente,
+i portatori di carica vengono deviati lateralmente della \textbf{forza di Lorentz}:
+\begin{equation}
+    F = q(\vec{v}\times\vec{B})
+\end{equation}
+con $\vec{v}$ vettore velocità della carica e $\vec{B}$ vettore campo magnetico. Questa deviazione procude un accumulo di carica ai bordi opposti della lamina, e, in regime stazionario, un campo elettrico trasversale 
+che equilibria la forza magnetica. Il risultato è una differenza di potenziale trasversale, la \textbf{tensione di Hall}: $V_H$ che risulta proporzionale alla componente di campo magnetico normale alla superficie del 
+sensore e alla corrente che lo attraversa. Per un elmento \textit{Hall} omogeneo abbiamo:
+\begin{equation}
+    V_H = \frac{I\vec{B_{\perp}}}{nqs}
+\end{equation}
+dove $\vec{B_{\perp}}$ è la componente del campo perpendicolare al piano della lamina, $n$ la densità di portatori, $q$ il valore di carica elementare e $s$ lo spessore del \textit{film} attivo.
+Nel magnetometro ogni elemento di Hall è disposto in modo da avere la propria normale allineata con uno degli assi cartesiani del sistema di riferimento del sensore. Quando il campo magnetico terrestre
+attraversa il dispositivo, ciascun elemento rileva la proiezione del vettore $\vec{B}$ lungo il proprio asse, trasformandola in una tensione di Hall proporzionale.\\
+Dopo un'opportuna amplificazione della tensione di Hall percepita e una conversione analogico-digitale si ottiene un tripletto di valori numerici che rappresentano le tre componenti cartesiane del campo magnetico locale.\\
+Il vettore tridimensionale ottenuto viene ricostruito e poi confrontato con il valore atteso del campo geomagnetico.\\
+Attraverso il \textit{sensor fusion}, il magnetometro fornisce quindi il riferimento assoluto per l'\textit{azimut}, vale a dire, la direzione del Nord magnetico rispetto al sistema di riferimento solidale del sensore.
+
+\subsection{BNO-055 Bosch Sensortec. Accelerometro, giroscopio e magnetometro integrati}
+L'accelerometro, il giroscopio e il magnetometro sono tutti prodotti da Bosch Sensortec.
+
+\paragraph{Accelerometro}\mbox{}\\
+L'accelerometro installato sul \textit{BNO-055} appartiene alla famiglia \textit{Bosch Sensortec}. La sua \textbf{risoluzione} è di \textbf{14 bit}.
+L'accelerometro, per adattarsi ad una vasta gamma di esigenze progettuali, mette a disposizione diversi intervalli di misura:
+\begin{itemize}
+    \item $[\pm 2]$ [g]. Modalità utile nella rilevazione di piccolissime accelerazioni.
+    \item $[\pm 4]$ [g]. Rappresenta un compromesso equilibrato. Adatto alla magior parte della applicazioni, di fatti, quando attiva la \textit{sensor fusion}, viene impostato tale intervallo di misura.
+    \item $[\pm 8]$ [g] e [$\pm 16$] [g]. Le modalità vengono utilizzate in applicazioni dinamiche estremamente veloci. Questi intervalli difficilmente vengono saturati. Nel presente progetto non sono stati nemmeno presi in considerazioni.
+\end{itemize}
+L'accelerometro, con attiva la \textit{sensor fusion}, ha una banda passante di \textbf{62.5 Hz}.
+
+\paragraph{Giroscopio}\mbox{}\\
+Come per l'accelerometro, anche il giroscopio appartiene alla casa \textit{Bosch Sensortec}. La sua \textbf{risoluzine}, però, è di \textbf{16 bit}.
+Anche in questo caso si dispone di diversi intervalli di misura:
+\begin{itemize}
+    \item $[\pm 125]$\degree/s. Modalità pensata per movimenti lenti e precisi, di fatti, possono essere rilevate minime variazioni d'angolo.
+    \item $[\pm 250]$\degree/s. Viene conservata la precisione a fronte di un intervallo più permissivo rispetto al precedente.
+    \item $[\pm 500]$\degree/s. Questa modalità è adottata dalla maggioranza delle applicazioni.
+    \item $[\pm 1000]$\degree/s. La modalità è stata pensata per azionionamenti energici.
+    \item $[\pm 2000]$\degree/s. Quest'ampio intervallo è adatto ad applicazioni estremamente veloci. I dati in questa modalità sono estremamente rumorosi. Nonostante questo, è la modalità operativa impostata, quando la \textit{sensor fusion} è attiva. L'estremo rumore di questa modalità, viene attuanuato dalla \textit{sensor fusion}.
+\end{itemize}
+Ad un'aumento dell'ampiezza dell'intervallo, corrisponde una diminuzione della qualità del dato.
+Il giroscopio, nel mentre che la \textit{sensor fusion} è attiva,  ha una banda passante di \textbf{32 Hz}.
+
+\paragraph{Magnetometro}\mbox{}\\
+Anche il magnetometro porta il marchio \textit{Bosh Sensortec}. Il dispositivo misura campi nell'ordine dei \textbf{$\pm$ 1300\,\,$[\mu T]$} sugli assi X e Y, e \textbf{$\pm$ 2500\,\,$[\mu T]$} sull'asse Z. Seguendo il precedente ordinamento degli 
+assi, la \textbf{risoluzione} è rispettivamente di \textbf{13 bit} e \textbf{15 bit}. La documentazione suggerisce un'elevata sensibilità ai disturbi (\textit{soft iron}, \textit{hard iron}). Difetto che può essere corretto attivando la \textit{sensor fusion}.\\
+La banda passante del dispositivo, quando è attivata la\textit{sensor fusion} è di \textbf{10 Hz}.
+
+\paragraph{Sensor fusion}\mbox{}\\
+Se presi singolarmente, nessuno dei sensori trattati fornisce misure accurate e complete. Il progetto necessita di un sensore che possa fornire la rotazione del sistema intorno agli assi. 
+Questa rotazione è ottenuta dall'integrazione della grandezza estratta dal giroscopio, tuttavia, è intrinsecamente suscettibile ad errori (amplificazione di rumore o \textit{bias}).\\
+L'accelerometro fornisce un'informazione assoluta circa la direzione del vettore gravità, da cui possono essere ricavati gli angoli di \textit{roll} e \textit{pitch}. Tuttavia, il limite principale 
+risiede nella presenza di accelerazioni non dovute alla gravità, di fatti, rapidi movimenti o vibrazioni producono rumore che interferiscono con la determinazione del vettore gravità.\\
+Infine, il magnetometro è suscettibile alla presenza di elementi ferromagnetici o correnti elettriche, determinando, così, errori significativi nella misura.\\
+La \textit{sensor fusion} nasce con l'obiettivo di superare tali limiti, combinado coerentemente le informazioni disponibili. Nei sistemi più evoluti, utilizzati nelle piattaforme di navigazione di veicoli
+e velivoli, si impiegano filtri come \textit{EKF} (Filtro di Kalman esteso) o \textit{UKF} (Filtro di Kalman a Punti Sigma). La documentazione ufficiale del BNO-055 riporta che il microcontrollore presenta un
+algoritmo di \textit{sensor fusion} utilizzate il \textbf{Filtro di Kalman esteso}.\\
+Nel presente progetto, con il fine di aumentare l'attendibilità, l'accuratezza e la stabilità della misura, la \textbf{\textit{sensor fusion} è stata sempre tenuta attiva}.\\
+A seguire una rappresentazione schematica del \textit{System in package BNO-055 Bosch Sensortec}.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.4\textwidth]{chapters/Chapter2-HARDWARE/Figures/IMG3-Architettura BNO-055.png}
+    \caption{\textcolor{black}{BNO-055 Bosch Sensortec. Architettura di sistema}}
+    \label{fig:etichetta}
+\end{figure}
+
+\subsection{BNO-055 Bosch Sensortec. Modalità operative}
+Il dispositivo di misura fornisce una grande varietà di segnali di \textit{output}, che possono essere scelti selezionando l'appropiata modalità operativa.\\
+Le modalità operative vengono classificate in base all'attivazione o meno del \textit{software di sensor fusion}, nello specifico distinguiamo tra le \textit{Non-Fusion modes} e le \textit{Fusion modes}.
+\paragraph{Fusion-modes}\mbox{}\\
+Nel momento in cui viene impostata una delle seguenti modalità, l'algoritmo di fusione \textbf{esegue automaticamente, in \textit{background}, la calibrazione dei sensori}.
+\begin{itemize}
+    \item \textbf{IMU (Inertial Measurement Unit)}. In questa modalità di fusione, l'orientamento relativo del \textit{BNO-055} nello spazio, è determinato utilizzado i dati estratti dall'accelerometro e dal giroscopio. La computazione è veloce, di fatti è suggerita nelle applicazioni ad alta velocità.
+    \item \textbf{M4G (Magnet for Gyroscope)}. Simile alla precedente modalità, tuttavia, il giroscopio non viene più utilizzato per la rilevazione della rotazione bensì la variazione dell'orientamento del magnetometro nel campo magnetico terrestre.
+    \item \textbf{COMPASS}. In questa modalità, il \textit{BNO-055} si comporta come una bussola, determinando l'orientamento del sensore rispetto al polo nord magnetico.
+    \item \textbf{NDOF}. In questa modalità, la computazione dell'orientamento del dispositivo, è eseguita servendosi di tutti i dati provenienti dai sensori. La presente modalità è quella con il più alto consumo di corrente.
+\end{itemize}
+Nel presente progetto, la modalità \textbf{NDOF} è sempre stata scelta come modalità operativa del \textit{BNO-055}.
+A seguire, un'immagine riportata dalla documentazione ufficiale, specificante la frequenza con cui il sensore produce dati in uscita, nel mentre che la \textit{sensor fusion} è attiva.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.0\textwidth]{chapters/Chapter2-HARDWARE/Figures/Frequenza di aggiornamento del BNO-055.png}
+    \caption{\textcolor{black}{BNO-055 Bosch Sensortec. Architettura di sistema}}
+    \label{fig:etichetta}
+\end{figure}
+\paragraph{Non-Fusion Modes}
+\begin{itemize}
+    \item \textbf{ACCONLY}. Il dispositivo fornisce solamente dati grezzi di provenienti dall'accelerometro, ponendo magnetometro e giroscopio nella modalità a basso consumo.
+    \item \textbf{MAGONLY}. Se impostata, il dispositivo fornisce solamente i dati del magnetometro, sospendendo l'accelerometro e il magnetometro.
+    \item \textbf{GYROONLY}. La modalità è simile alle precedenti, però, in questo caso il dispositivo fornisce solo le misure del giroscopio, sospendendo l'accelerometro ed il magnetometro.
+    \item \textbf{ACCMAG}. In questa modalità, il sistema fornisce sia le misure dell'accelerometro che quelle del magnetometro. Il giroscopio è sospeso.
+    \item \textbf{ACCGYRO}. Simile alla precedente, ma il sensore rende disponibili solo le misure dell'accelerometro e del giroscopio.
+    \item \textbf{MAGGYRO}. In questo caso, il sensore fornisce le misure del magnetometro e del giroscopio, sospendendo l'accelerometro.
+    \item \textbf{AMG (ACC-MAG-GYRO)}. Con la presente modalità, il $\mu C$ attiva tutti i sensori, fornendo le misure di accelerometro, giroscopio e magnetometro. 
+\end{itemize}
+
+
+

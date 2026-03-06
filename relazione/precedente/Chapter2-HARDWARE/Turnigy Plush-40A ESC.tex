@@ -1,0 +1,137 @@
+\section{Turnigy Plush 40A.\@ \textit{Electronic Speed Controller}}
+Il Turnigy Plush 40A è un controllore elettronico di velocità per motori \textit{brushless} a corrente continua (BLDC).\\
+Trasforma la tensione continua in ingresso in tensioni alternate sfasate di 120 gradi elettrici.\\
+L'applicazione della corretta sequenza di correnti alle fasi dello statore richiede la conoscenza della posizione angolare in ogni istante di tempo. Il Turnigy Plush 40A stima tale informazione in maniera indiretta, misurando la forza controelettromotrice indotta dal rotore, evitando così l'uso di sensori di posizione; il dispositivo in interesse può dunque essere definito \textit{sensorless}.
+L'E.S.C in questione può essere concettualmente suddiviso in due sezioni principali: la sezione di potenza e la sezione di controllo.
+La \textbf{sezione di potenza} è responsabile della conversione \textit{continua-trifase}. Tale conversione è mediata da un ponte trifase a sei MOSFET, suddiviso a sua volta in tre mezzi ponti, ciascuno associato ad una fase del motore.
+Ogni mezzo ponte è composto da un trasnistor di alto lato e da un transistor di basso lato, collegati rispettivamente al potenziale positivo della batteria e a massa. L'opportuna commutazione di apertura e chiusura dei sei MOSFET comporta la generazione di un segnale di tensione alternato per ogni fase.\\
+La \textbf{sezione di controllo} ha come protagonista un microcontrollore che si occupa della generazione di segnali di pilotaggio e della stima della posizione del rotore. Il microcontrollore riceve in ingresso il comando di velocità di rotazione del motore sotto forma di segnale PWM.
+Sulla base di tale comando, il microcontrollore determina il \textit{duty cycle} del PWM e calcola la sequenza di commutazione dei sei MOSFET, con conseguente generazione del campo magnetico rotante dello statore.\\
+Il \textit{Double Propeller Ducted Fan} monta due Turnigy Plush 40A, uno per ogni motore.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Turnigy Plush 40A.\@ Caratteristiche fisiche:}
+\begin{itemize}
+    \item Corrente nominale: 40 [A].
+    \item Corrente di picco: 55 [A].
+    \item Presenza di un \textit{Battery Eliminator Circuit} (BEC): 5 [V] a 3 [A].
+    \item Celle di batteria necessarie per il corretto funzionamento del dispositivo: $[2\div6]$.
+    \item Peso: 39 [g].
+    \item Dimensioni in [mm]: $60\times24\times15$.
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{chapters/Chapter2-HARDWARE/Figures/TurnigyPlush40A.jpg}
+    \caption{Turnigy Plush 40A}
+    \label{fig:Hardware drone}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Turnigy Plush 40A. Programmazione}
+Il Turnigy Plush 40A offre la possibilità di programmare il suo comportamento operativo, soddisfando così un vasto spettro di possibili esigenze progettuali.\\
+Al fine di ottenere uno specifico comportamento dei motori, tale da adeguarsi alle particolari esigenze di un UAV come il \textit{Double Propeller Ducted Fan}, entrambi gli E.S.C sono stati minuziosamente riprogrammati.\\
+L'accesso alla \textit{Programming Mode} e l'effettiva programmazione sono state effettuate mediante l'apposita \textit{Turnigy Programming card}, acquistata separatamente.
+Per effettuare la programmazione, è necessario disporre i collegamenti elettrici come in figura:
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{chapters/Chapter2-HARDWARE/Figures/SchemaCollegamentiProgrammazioneEsc.png}
+    \caption{Schema dei collegamenti per la programmazione dell'E.S.C}
+    \label{fig: Hardware drone}
+\end{figure}\\
+La \textit{Turnigy Programming Card} richiede di essere alimentata da un segnale continuo di tensione appartenente al seguente intervallo: $[4.8\div 6] [V]$. Per la navigazione fra i parametri è necessario utilizzare il pulsante \textit{up/down}, mentre, per la selezione dei corrispondenti valori, deve essere utilizzato il pulsante \textit{left/right}.\\
+Nel momento in cui verrà selezionato il valore desiderato del parametro in programmazione, il LED  blu, che risponde al nome di \textit{connecting}, lampeggerà, segnalando così il successo dell'operazione.
+A seguire, una piccola spiegazione del significato dei parametri e i valori attualmente selezionati:
+
+\paragraph{\small{Brake}}\mbox{}\\
+Il parametro \textit{Brake} si riferisce alla modalità con cui viene gestita la mancanza di segnale PWM di controllo. Nel caso in cui dovesse essere impostato ad "ON" il motore verrà immediatamente frenato.\\
+Il parametro in analisi non ha grande valenza ai fini progettuali dal momento che qualsiasi prova di volo è stata effettuata nell'apposita gabbia, per cui qualunque combinazione del parametro è accettabile. Nello svolgersi del progetto il parametro è stato impostato ad "OFF". 
+
+\paragraph{\small{Battery Type}}\mbox{}\\
+Il \textit{Battery Type} riferisce al dispositivo la tipologia di batteria in utilizzo, questo perché L'E.S.C monitora costantemente la tensione della batteria, quando questa scende sotto una certa soglia, entra in azione il \textit{Low Voltage Cut-off}, riducendo o interrompendo la potenza fornita al motore con il fine di evitare il danneggiamento delle celle.
+Diverse tipologie di batterie hanno diverse curve di scarica.
+L'E.S.C può gestire solamente due tipologie di batterie, LiPo e NiHM. Il progetto prevede l'utilizzo delle \textbf{Tattu LiPo} perciò il parametro è stato impostato ad Li-xx.
+
+\paragraph{\small{Low Voltage Protection Mode (Cut-off Type)}}\mbox{}\\
+Come già riferito in precedenza, la \textit{Low Voltage Cut Off} evita il danneggiamento delle celle delle batterie quando queste scendono sotto una certa soglia impostabile.\\
+Il dispositivo permette di scegliere tra \textit{Soft Cut-Off} e \textit{Cut-Off}. Se si dovesse scegliere la modalità \textit{Soft}, al superamento della soglia, l'E.S.C ridurrà gradualmente la potenza in uscita. Se si dovesse, invece, scegliere l'altra modalità, il dispositivo interromperà immediatamente la linea di fornitura di potenza al motore.\\
+Al fine di evitare il danneggiamento del sistema, dovuto a un'interruzione improvvisa della fornitura di potenza ai motori durante il volo, seppur all'interno della gabbia, è stata impostata la modalità \textit{Soft Cut-Off}.
+
+\paragraph{\small{Cut Off Voltage}}\mbox{}\\
+Il parametro permette di impostare la soglia al di sotto della quale entra in azione la \textit{Low Voltage Protection Mode}.
+\begin{itemize}
+    \item \textit{Low}: 2.6 [V].
+    \item \textit{Medium}: 2.85 [V].
+    \item \textit{High}: 3.1 [V].
+\end{itemize}
+Con il fine di limitare il danneggiamento delle batterie, ottenendo contemporanemante una discreta autonomia di volo, il parametro è stato impostato a \textit{\textbf{Medium}}.\\
+Numericamente, considerando le batterie \textbf{Tattu LiPo} a 4 celle, la soglia di attivazione del L.V.C è: $2.85 V\cdot4 = 11.4 V$.
+
+\paragraph{\small{Start Mode}}\mbox{}\\
+la \textit{Start Mode} gestisce la modalità di accelerazione del motore da fermo. Sono disponibili tre diverse modalità di partenza, pensate per adattarsi a qualsiasi applicazione.\\
+La \textit{Normal Start Mode} costituisce la modalità di accelerazione più reattiva. L'E.S.C applica una rampa di potenza relativamente breve, nel giro di $[0.3\div0.5] [s]$ il motore raggiunge i primi giri utili. L'appena descritta modalità è stata scartata a priori dal momento che, come conseguenza di un'accelerazione repentina, si ha forte stress meccanico sull'albero motore,
+inoltre l'improvvisa accelerazione delle eliche può generare forze indesiderate.\\
+Nella \textit{Soft Start} la rampa di ingresso è più dolce, di fatti il motore, sotto il controllo dell'E.S.C, impiega $[1\div1.5] [s]$ per arrivare a regime. Infine, nella \textit{Very Soft Start} la potenza viene incrementata nell'arco di $[2\div3] [s]$.\\
+Qualsiasi prova di volo del \textit{D.P.D.F} è stata eseguita nell'apposita gabbia di contenimento, in cui il sistema è stato sospeso mediante funi di sostegno, perciò, con il fine di evitare movimenti indesiderati, stress meccanico ed errori di misurazione è stata impostata la \textit{Very Soft Start}.
+
+\paragraph{\small{Timing Mode}}\mbox{}\\
+L'E.S.C, con il fine di genesi di rotazione, genera campi magnetici rotanti commutando le tre fasi in sequenza. Le commuttazioni devono avvenire in sincronia con la posizione del rotore. Il \textit{Timing} è l'anticipo angolare con cui l'E.S.C commuta le fasi rispetto alla posizione stimata del rotore.\\
+Se il \textit{Timing} dovesse essere basso, il campo magnetico rotante sarebbe quasi allineato con il rotore, disposizione che aumenterebbe l'\textbf{efficienza ellettro-meccanica} complessiva del sistema ma diminuirebbe coppia e velocità. Al contrario, se dovesse essere alto, si avrebbe più potenza e velocità ma anche più dispersione di calore e meno efficienza.\\
+L'\textit{High Timing Mode}, a cui corrisponde un anticipo angolare di $[16\div30]^{\circ}$, favorisce potenza e velocità, utile per dispositivi ad alto numero di giri o da corsa. La \textit{Low Timing Mode}, con un'anticipo angolare di $[0\div7]^{\circ}$, garantisce una coppia stabile con minima dispersione di calore con una leggere diminuzione della velocità massima.\\
+La \textit{Medium Timing Mode} ($[8\div15]^{\circ}$) costituisce un buon compromesso fra efficienza e prestazioni, dunque è stata scelta ai fini progettali.
+
+\paragraph{\small{Music Li-Po Cells}}\mbox{}\\
+La funzionalità è puramente estetica e non influisce sulle prestazioni, per cui non è stata impostata alcuna musica.
+
+\paragraph{\small{Governor Mode}}\mbox{}\\
+La \textit{Governor Mode} ha lo scopo di mantenere la velocità di rotazione del motore costante indipendentemente dalle variazioni di carico o tensione della batteria. Non essendo utile ai fini progettuali, il parametro è stato impostato su "OFF".
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{chapters/Chapter2-HARDWARE/Figures/TurnigyProgrammingCard.jpg}
+    \caption{Turnigy Programming Card}
+    \label{fig: Hardware Drone}
+    \vspace{2mm}
+    {\footnotesize L’immagine riportata sopra non è riferita alla configurazione attuale degli ESC, ma ha esclusivamente scopo illustrativo.}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Turnigy Plush 40A. Risoluzione e controllo dei motori}
+\label{ESCRisoluzioneEControllo}
+\textit{Il Turnigy Plush 40A}, al fine di controllare la velocità di rotazione dei motori, richiede un segnale del tipo PWM alla frequenza tipica del modellismo, vale a dire, $50 [Hz]$.\\
+In primo luogo, è necessaria una procedura di armamento dei motori, che consiste nell'invio del segnale PWM con \textit{duty cycle} del $4.75\%$. L'esito dell'operazione di armamento può
+essere stabilito mediante delle segnalazioni acustiche emesse dall'E.S.C. A seguire, le emissioni acustiche più comuni:
+
+\paragraph{\small{Attesa di un segnale di armamento valido}}\mbox{}\\
+Un'emissione ogni due secondi, segnala l'attesa di un segnale PWM idoneo all'armamento iniziale dei motori. L'emissione viene attivata dal dispositivo immediatamente dopo la connessione di questo all'alimentazione.
+
+\paragraph{\small{Esito positivo dell'operazione di armamento}}\mbox{}\\
+Tre emissioni sonore consecutive seguite da un'emissione prolungata, indicano l'esito positivo dell'operazione di armamento.
+
+\paragraph{\small{Esito negativo dell'operazione di armamento}}\mbox{}\\
+Una rapida ripetizione di emissioni sonore (una ogni 0.25 [s]) segnala il mancato armamento dei motori, dovuto ad un segnale di ingresso errato. Comunemente l'esito negativo di armamento si può presentare 
+nel caso in cui il segnale PWM dovesse avere un \textit{duty cycle} superiore al $4.75 \%$ oppure nel caso in cui il \textit{duty cycle} dovesse repentinamente variare dal $4.75 \%$ a valori superiori.
+Si consiglia di attendere $[2\div 6]\, [s]$ prima di iniziare la variazione del \textit{duty cycle} del segnale per il controllo della velocità dei motori.
+\\\\
+Al seguito di vari accertamenti empirici, è stato stabilito l'intervallo di lavoro dei motori espresso in \textit{duty cycle}: $[6\%\div 12\%]$.
+
+\paragraph{Risoluzione}\mbox{}\\
+Quando si tratta di E.S.C, con il termine "risoluzione" non ci si riferisce al numero di campioni di tensione logica distringuibili dal dispositivo, bensì allo "\textit{span}" di valori del \textit{duty cycle} distringuibili.\\
+La conoscenza della risoluzione del dispositivo è utile nella determinazione della variazione minima del \textit{duty cycle} del segnale PWM di controllo, che a sua volta permette lo sviluppo di un algoritmo di controllo più efficace.
+Per quanto riguarda il \textit{Turnigy Plush 40A}, la documentazione ufficiale non specifica la risoluzione del dispositivo; pertanto, si è fatto riferimento a fonti non ufficili, che indicano una risoluzione compresa trai 8 e 12 bit.\\
+Si è optato per uno sviluppo del controllore capace di trascurare la risoluzione del dispositivo, a causa dell'ambiguità di tale informazione.  
+
+
+
+
+%Poiché la batteria fornisce corrente continua e il motore richiede correnti alternate sfasate è indispensabile l'uso di un ESC.\\
+%L'ESC trasforma la tensione continua della batteria (14.8 [V] della batteira utilizzata nel progetto) in tensioni alterante sfasate di 120 gradi elettrici. Questo avviene tramite una rete di transistor di potenza (MOSFET) organizzata in un ponte trifase.\\
+%L'ESC deve conoscere in ogni istante la posizione angolare del rotore per applicare alla fasi dello statore la sequenza corretta di correnti. L'informazione in questo tipo di applicazioni è spesso stimata indirettamente mediante la misura della forza controelettromotrice indotta dal rotore, evitando l'uso di sensori.\\
+%L'ESC riceve un comando esterno (tipicamente un segnale PWM di tipo RC, con impulsi di durata compresa tra 1 [ms] e 2 [ms]). L'ESC agisce da \textit{blackbox} e proporzionalmente al PWM in ingresso modula velocità del motore.\\
+%La coppia, e quindi la potenza erogata, dipendono dal duty cycle della modulazione della tensione fornita. 

@@ -1,0 +1,134 @@
+
+
+\section{Hitec HS-82MG Gear micro servo}
+\label{Hitec HS-82MG Gear micro servo}
+Il disegno strutturale rende il \textit{D.P.D.F} suscettibile a rotazioni indesiderate sul piano definito dagli assi X ed Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinandone così, una completa perdita di controllo del mezzo.\\
+Al fine di limitare tali perturbazioni, sono stati integrati due \textit{flap}, uno relativo al controllo lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.\\
+I \textit{flap} operano come superfici aereodinamiche di controllo dedicate alla compensazione dei distrubi di \textit{rollio} e \textit{beccheggio}. Sono posizionati sulla parte terminale del condotto ed interagiscono con il getto generato
+dai motori controrotanti. L'intervento si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso. Il \textit{flap}, ruotando di un piccolo angolo, genera una deviazione del getto che lo investe. Tale deviazione produce una variazione
+della distribuzione di pressione tra il lato esposto al flusso (lato di pressione) e il lato opposto (lato di depressione). La differenza di pressione genera una forza aerodinamica risultante che produce un momento correttivo sull'assetto del velivolo.
+Nella prima approssimazione utile al controllo, la forza può essere considerata perpendicolare alla superficie del \textit{flap}. La direzione e il verso della forza devono essere tali da contrastare il momento perturbativo.\\
+Per il controllo del movimento dei \textit{flap}, sono stati selezionati sei servomotori sulla base di alcuni parametri fondamentali, tra cui, coppia di stasi e peso. Dopo un'attenta ricerca, è stato selezionato l'\textbf{HS-82MG Gear Micro Servo} della casa \textbf{Hitec}.
+Nel progetto, sono stati integrati due servomotori del tipo sopra citato, uno per ogni \textit{flap}.
+
+\subsection{HS-82 MG Hitec. Caratteristiche fisiche}
+\begin{itemize}
+    \item Dimensioni: $29.8\times 12.0\times 29.6$ [mm].
+    \item Peso: 19.0 [g].
+    \item 
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.4\textwidth]{chapters/Chapter2-HARDWARE/Figures/HS-82 MG_caratteristiche fisiche.jpg}
+    \caption{HS-82 MG Hitec. Misure}
+    \label{fig:Hardware drone}
+\end{figure}
+
+\paragraph{Coppia di stasi}\mbox{}\\
+Con \textit{coppia di stasi} si fa riferimento alla coppia massima che il servomotore può mantenere in posiziona statica mentre oppone resistenza ad una forza esterna.\\
+\textit{l'HS-82} offre una coppia di stasi pari a: \textbf{2.2 [Kg$\cdot$cm]} con \textbf{4.8 [V]} in ingresso e \textbf{2.7 [Kg$\cdot$cm]} a \textbf{6.0 [V]}.
+
+\paragraph{Coppia di stallo}\mbox{}\\
+La coppia di stallo è la massima coppia teorica che il servomotore può generare a velocità angolare nulla, vale a dire con carico irremovibile.\\
+Per il dispositivo, la coppia di stallo assume i seguenti valori: \textbf{2.8 [Kg$\cdot$cm]} a \textbf{4.8 [V]} e \textbf{3.4 [Kg$\cdot$cm]} a \textbf{6.0 [V]}.
+
+\paragraph{Velocità angolare}\mbox{}\\
+La velocità angolare del dispositivo senza carico è di \textbf{60\degree\,\,in 0.12 [s]} a \textbf{4.8 [V]}, mentre, è di \textbf{60\degree\,\,in 0.10 [s]} a \textbf{6.0 [V]}.
+Rapportando ad un'unico grado di variazione, si ha: \textbf{1\degree\,\,in 0.0020 [s]} a \textbf{4.8 [V]} e \textbf{1\degree\,\,in 0.0017 [s]} a \textbf{6.0 [V]}.
+
+\paragraph{Corrente operativa}\mbox{}\\
+La corrente operativa è la corrente assorbita dal servomotore mentre questo è in movimento. Le informazioni qui sotto riportate si riferiscono al servomotore privo di carico.\\
+Si ha un assorbimento di \textbf{220 [mA] per 60\degree} a \textbf{4.8 [V]} e un assorbimento di \textbf{280 [mA] per 60\degree} a \textbf{6.0 [V]}.
+
+\paragraph{Corrente di stallo}\mbox{}\\
+Con \textit{corrente di stallo} si fa riferimento alla massima corrente che il dispositivo assorbe quando è alimentato in condizione di blocco meccanico.
+Con questa configurazione, l'assorbimento di corrente ammonta a \textbf{1450 [mA]} a \textbf{4.8 [V]} e \textbf{1800 [mA]} a \textbf{6.0 [V]}.
+
+\paragraph{Corsa operativa}\mbox{}\\
+La \textit{corsa operativa} fa riferimento all'intervallo angolare che il servomotore copre in risposta ad un segnale PWM \textbf{standard}.
+Nel caso del \textit{HS-82}, l'intervallo è pari a \textbf{120\degree}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{chapters/Chapter2-HARDWARE/Figures/HS-82MG_foto.jpg}
+    \caption{HS-82 MG}
+    \label{fig:Hardware drone}
+\end{figure}
+
+\subsection{HS-82 MG Hitec. Caratteristiche tecniche e controllo}
+\label{HS-82 MG Hitec. Controllo ed alimentazione}
+
+\paragraph{Alimentazione}\mbox{}\\
+L'intervallo di tensione operativa è il seguente: \textbf{[4.8$\div$6.0] [V]}.\\
+Per valori di tensione prossimi all'estremo superiore dell'intervallo si hanno dei miglioramenti sulle prestazioni generali del disposito. Tuttavia, aumentano anche gli effetti dei comportamenti indesiderati, come un aumento della dispersione di calore per effetto joule o dello stress sull'elettronica interna di controllo.\\
+Per evitare complicazioni, il valore di tensione in ingresso è stato impostato a \textbf{5.5 [V]}. 
+
+\paragraph{Controllo}\mbox{}\\
+Il controllo della posizione angolare del rotore avviene tramite segnale PWM. Analogamente al \textit{Turnigy Plush 40A}, si è optato per una frequenza di \textbf{50 [Hz]}, mentre l'ampiezza è pari a \textbf{3.3 [V]}.
+Con il fine di ottenere il posizionamento dei \textit{flap} in configurazione perpendicolare al terreno, è necessario fornire un impulso di attivazione pari a \textbf{1.5 [ms]}. Con la frequenza scelta, tale valore corrisponde ad un \textbf{duty cycle del 7.5\%}, che rappresenta la posizione centrale del servomotore.\\
+La documentazione indica una \textit{Dead Band Width} pari a \textbf{5 [$\mu$s]}, ovvero la minima variazione di impulso che il servomotore è in grado di rilevare. Da ciò si deduce che la minima variazione angolare attuabile col servomotore è di \textbf{0.5\degree}. Nel contesto applicativo ciò equivale ad una variazione minima del \textit{duty cycle} pari a \textbf{0.025\%}.
+Per ottenere una rotazione oraria del rotore, il comando deve operare nel seguente intervallo di impulsi: \textbf{1.5$\div$2.1 [ms]}. L'effetto di rotazione antioraria si ha per: \textbf{0.9$\div$1.5 [ms]}.
+Analizzando il dato di velocità dei servomotori, è possibile determinare il tempo necessario affinché il servo compia la minima variazione angolare. Da questa informazione, si può calcolare la frequenza massima di variazione della posizione
+del rotore, che si aggira intorno ai \textbf{400 [Hz]}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{chapters/Chapter2-HARDWARE/Figures/Collegamenti elettrici .png}
+    \caption{HS-82 MG Hitec. Disposizione dei terminali}
+    \label{fig:Hardware drone}
+\end{figure}
+
+
+
+%\section{Approfondimenti}
+\begin{comment}
+%\paragraph{Controllo}\mbox{}\\
+Il controllo del servo avviene tramite un segnale PWM, la frequenza di questo è arbitraria ma manteniamoci sui 50 Hz con un'ampizza del segnale di 3.3 [V].\\
+Dal datasheet estraiamo l'informazione del duty cycle. Al fine di posizionare il servomotore a 90° bisogma riservare un impulso di 1.5 ms, vale a dire un duty cycle del 7.5\%.\\
+Dalla navigazione internet deduciamo la sua \textit{sensibilità}: variaizone di $0.103°$ per ogni microsecondo di variazione del PWM. Per ogni variazione di grado il segnale PWM deve variare il suo impulso di $9.7087*10^{-6}$ secondi e quindi 9,7 microsecondi.\\
+In generlae per ottenere una variazione di 40° è necessario variare il segnale PWM di 400 microsecondi.
+
+\paragraph{Velocità di rotazione}\mbox{}\\
+ a $4.8V è 500° al sec \,\,\,  6.0V è 600° al sec \implies 8.7266 rad/s \,\,\, 10.4720 rad/s$.
+
+\paragraph{Coppia di stallo}\mbox{}\\
+è la massima coppia che il servomotore può generare quando il suo albero è bloccato e non si muove, vale a dire che se viene applicata una coppia maggiore a quella di stallo nel mentre che il servo è in posizione ferma allora si sposta. La coppia nel nostro caso viene misurata in funzione della distanza dal perno, kg*cm, vale a dire che se la coppia di stallo è 3.0kg x 1cm allora per 2 cm è 1.5kg.\\
+Usare il servo al limite della sua \textit{Stall torque} è sconsigliato: può portare a surriscaldamento, può aumentare l'usura dell'ingranaggio, può bruciare il motore o il driver interno.\\
+Esempio: supponiamo di inviare un segnale PWM specifico per posizionare il servomotore a 30°, il servo si posizione, se appliccassi una forza equivalente a una coppia di 3.1 kg a 1 cm dal perno il servo non riuscirebbe a contrastarla: va in stallo(cerca di ruotare ma la coppia applicata è troppo grande e impedisce la rotazione) oppure comincia a cedere.
+
+\paragraph{Coppia di stasi}\mbox{}\\
+La coppia di stasi rappresenta la coppia massima che il servomotore può mantenere in posizione statica, cioè senza muoversi, mentre oppone resistenza a una forza esterna.
+Riprendendo l'esemio del paragrafo precedente, se il servomotore è stato programmato in quell'istante di tempo per posizionarsi a 30° e a questo viene applicata una forza leggera, il servo riesce a resistere e non si muove, questo è quello che vogliamo.
+    
+\paragraph{Corrente a vuoto}\mbox{}\\
+La corrente a vuoto è la corrente minima che il servomotore consuma per essere pronto a ricevere comandi.\\
+Nello specifico è la corrente elettrica assorbita dal servo quando è alimentato e non copie alcun lavoro: non ruota, non applica coppia, non è sotto carico e non riceve comandi di movimento attivi.
+
+\paragraph{Corrente di operatività}\mbox{}\\
+La corrente di operatività è la corrente assorbita dal servomotore mentre è in movimento, quindi mentre ruota per raggiungere una posizione o contrastare un carico dinamico.
+
+\paragraph{Corrente di stallo}\mbox{}\\
+La corrente di stallo è la massima corrente che il servomotore (o un motore) assorbe quando è alimentato ma bloccato meccanicamente, ovvero non riesce a muoversi nonostante stia cercando di farlo.\\
+(Il motore riceve il comando di rotazione ma è bloccato da un carico esterno troppo elevato, il motore dunque non gira ma continua a consumare corrente).\\
+\textbf{GESTIRE LO STALLO DEL SERVOMOTORE}.
+
+\paragraph{Zona morta}\mbox{}\\
+La zona morta è la zona neutra in microsecondi di un segnale PWM attorno al valore centrale attorno al quale il servo non reagisce.\\
+Il servomotore in questione ha una Dead Band Width di 5 microsecondi, sto inviando un PWM a 1500 microsecondi, se questo cambia a 1496 il servo non si muove, ma se dovesse cambiare a 1490 il servomotre si muove.
+
+\paragraph{Corsa operativa}\mbox{}\\
+La corsa operativa indica l'intervallo angolare (in gradi) che il servomotore copre normalmenete in risposta al segnale PWM standard.
+
+\paragraph{Resistenza degli ingranaggi}\mbox{}\\
+La \textit{Gear Strenght} è il carico massimo sopportabile dagli ingranaggi prima della deformazione o della rottura.
+
+\paragraph{Motor type: Cored Metal Brush}\mbox{}\\
+Motore con avvolgimento a nucleo e spazzole metalliche. Il motore ha un rotore con nucleo di ferro. Vengono utilizzate spazzole di metallo per commutare la corrente nel collettore.\\
+Questo provoca usura meccanica nel tempo e possibile generazione di scintille. Il disturbo è conosciuto come \textit{EMI disturbance}. \textbf{Potrebbero causare tensioni di disturbo per i sensori MEMS a bordo e anche le linee di comunicazione}.
+
+\paragraph{Come funzione il sermotore: potenziometro}\mbox{}\\
+Nei servomotori di tipo analogico, la misurazione della posizione angolare dell'albero di uscita è affidata a un potenziometro integrato.\\
+La dicitura nel \textit{datasheet} descrive sia la struttura meccanica del potenziometro, sia le modalità di accoppiamento con l'albero di uscita del servo.\\
+Il riferimento \textit{2 slider} indica che il potenziometro è progettato con due elmenti di contatto mobili, che scorrono simultaneamente su una o più piste resistive. Questa configurazione ha lo scopo di: migliorare la stabilità elettrica del segnale di feedback, riducendo il rumore di misura, fornire maggiore precisione o ridondanza rispetto ad un potenziometro a cursore singolo e offire maggiore affidabilità nel tempo.\\
+\textit{Direct drive} indica che il potenziometro è collegato direttamente all'albero motore del servo, senza alcuna interposizione di riduttori o ingranaggi. Questo tipo di accoppiamento diretto comporta numerosi vantaggi funzionali: assenza di giochi metallici tra albero e sensore, risposta immediata al segnale e semplicità costruttiva.
+\end{comment}

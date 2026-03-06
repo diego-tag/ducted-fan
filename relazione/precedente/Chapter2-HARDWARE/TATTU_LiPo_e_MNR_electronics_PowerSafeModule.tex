@@ -1,0 +1,98 @@
+\section{TATTU LiPo. Batteria ricaricabile}
+Motori, Servomotori e E.S.C richiedono specifici livelli di tensione per il loro funzionamento, tensioni che non possono essere fornite dalla NUCLEO H745ZI-Q.
+Si rende, quindi, necessario l'inserimento nel progetto di batterie ricaricabili.\\
+La selezione delle batterie disponibili sul mercato è stata condotta a seguito di un'analisi approfondita delle caratteristiche elettriche di motori, servomotori ed E.S.C, 
+unitamente ad uno studio dettagliato delle esigenze di autonomia necessarie per le prove di volo, rapportando il tutto al \textit{budget} disponibile.\\
+Le \textbf{TATTU LiPo} possiedono le prestazioni richieste dal progetto.
+
+\subsection{TATTU LiPo. Caratteristiche fisiche.}
+\begin{itemize}
+    \item Dimensioni: $74\times 35.5\times 29$ [mm].
+    \item Peso: 155 [g].
+    \item Numero di celle: 4.
+\end{itemize}
+
+\subsection{TATTU LiPo. Caratteristiche tecniche e considerazione operative.}
+\paragraph{\small{LiPo}}\mbox{}\\
+La sigla \textit{LiPo}, sta ad indicare la tecnologia elettrochimica utilizzata nella costruzione della batteria. \textit{LiPo} nasce da \textit{Lithium-Polymer}, ovvero polimero di litio. 
+La particolare nominazione deriva dal componente chimico utilizzato come elttrolita, che, nel caso in esame, non è liquido, ma un polimero gelificato. Malgrado nelle fonti ufficiali non venga
+specificato il polimero usato nel progetto delle \textit{TATTU LiPo},con il fine di informazione, è stato deciso di riportare quello più comunemente utilizzato per la tipologia di batterie in esame, il
+\textit{polivinildenfluoro esafluoropropilene} (PVDF-HFP).\\
+Rispetto ad altri sistemi elettrochimici presenti sul mercato (come ad esempio: Li-ion, $LiFePo_4$, NiMH ecc..), le batterie LiPo presentano un'elevata densità di potenza, una bassa resistenza interna e una
+notevole flessibilità nelle geometrie costruttive, oltre ad un contenuto peso. Tali attributi risultano vantaggiosi nell'ambito della progettazione di UAV, come il \textit{D.P.D.F}.
+
+\paragraph{{\small{Tensione}}}\mbox{}\\
+La \textit{TATTU LiPo} possiede \textbf{4} celle da \textbf{3.7 [V]}. Le celle sono collegate in serie, perciò la tensione nominale è circa \textbf{14.8 [V]}.\\
+A carica completa, ogni cella può raggiungere i \textbf{4.2 [V]}, emettendo un'uscita di \textbf{16.8 [V]}.
+Il mantenimento della tensione delle celle nell'intorno dei 3.7 [V], contribuisce a preservare la stabilità chimica interna delle batterie,
+riducendone l'erosione delle celle e prolungandone la vita utile. Si consiglia di non mantenere le celle a 4.2 [V] per periodi prolungati di tempo, evitandone così il danneggiamento.\\
+Nella fase iniziale e di sviluppo \textit{firmware}, le batterie sono state tenute in bilancimento alla tensione nominale di 14.8 [V], mentre, 
+nella fase finale, in cui i \textit{test} di volo sono stati protagonisti, al fine di ottenere un'aumento dell'autonomia delle batterie e della prestazione dei motori, queste venivano caricate, mantenendo il bilanciamento tra celle, fino a 4.2 [V] per cella.
+Infine, è necessario adottare un'ulteriore accortezza per evitare danni. È consigliabile non far scendere la tensione della batteria al di sotto dei \textbf{12 [V]}, mantendo così il valore di tensione di ogni cella sopra i \textbf{3 [V]}.
+
+\paragraph{\small{Capacità}}\mbox{}\\
+La \textit{capacità} di una batteria, misurata in [mAh], \textit{milliAmpere-ora}, definisce la quantità di carica elettrica che la batteira può immagazzinare e fornire nel tempo. 
+Nel caso in esame, la capacità è di \textbf{1300 [mAh]}, vale a dire che la batteria può fornire \textbf{1.3 [A]} per un'ora. In generale si può utilizzare la seguente formula approssimata per il calcolo del tempo di funzionamento:
+\begin{equation}
+    t_h = \frac{C\,\,[mAh]}{A\,\,[mA]}
+\end{equation} 
+dove $t_h$ rappresenta il tempo di funzionamento in ore, $C$ la capacità della batteria espressa in milliAmpere-ora e $A$ la corrente assorbita espressa in milliAmpere.
+Con il fine di aumentare l'autonomia di volo, si è optato per l'accoppiamento in parallelo di \textbf{due} \textit{TATTU LiPo}, così da ottenere una capacità totale di \textbf{2600 [mAh]}.
+L'accoppiamento in sicurezza è stato effettuato utilizzando il \textit{\textbf{PowerSafe Twin della MNR-electronics}}, il quale verrà approfondito nella successiva sezione.
+
+\paragraph{\small{Capacità di scarica}}\mbox{}\\
+Con il termine \textit{capacità di scarica} ci si riferisce alla quantità di corrente massima che la batteria può fornire, in sicurezza e in maniera continuativa, senza danneggiarsi.
+La \textit{TATTU LiPo} possiede una capacità di scarica pari a \textbf{75C}, vale a dire che può erogare:
+\begin{equation}
+    A_{max} = C_s\cdot C \implies A_{max} = 75\,\,[C]\cdot 1.3\,\,[A]= 97.5\,\,[A]
+\end{equation}
+senza surriscaldarsi o danneggiarsi.\\
+ Nella precedente formula, $A_{max}$ si riferisce alla corrente massima erogabile dalla batteria in sicurezza, espressa in [A], \textit{Ampère}. $C_s$ e $C$, invece, si riferiscono rispettivamente alla capacità
+di scarica e alla capacità di erogazione di corrente in'ora, espressa sempre in [A].
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{chapters/Chapter2-HARDWARE/Figures/T.png}
+    \caption{TATTU LiPo 4S 1300mAh 75C}
+    \label{fig:Hardware drone}
+\end{figure}
+
+%% RIFERIMENTO : https://www.dronezine.it/50082/powersafe-twin-avanced-sistema-ridondanza-le-batterie-dei-droni/
+\section{PowerSafe Twin ADV. MNR-electronics}
+Per garantire la sicurezza e l'affidabilità dell'alimentazione a due pacchi batteria, si è deciso per l'implementazione del
+\textbf{modulo di ridondanza, PowerSafe Twin ADV di MNR-electronics}.\\
+Il dispositivo incarna un'avanzata soluzione di \textit{ridondanza attiva}. Quest'ultima fa riferimento alla capacità del sistema di intervenire attivamente nel funzionamento del circuito con il fine di garantire continuità di alimentaizone.
+Il modulo, di fatti, monitora continuamente alcune variabili di stato, come tensione e corrente, selezionando, in tempo reale, il pacco alimentante il carico. Per esempio, se dovesse abassarsi la tensione di una batteria sotto 
+una certa soglia critica, il dispositivo commuterebbe automaticamente sull'altra, evitando così, una significativa interruzione della potenza fornita.\\
+Nell'architettura del sistema è possibile distinguere tre moduli distinti.
+
+\paragraph{\small{Modulo di potenza}}\mbox{}\\
+Il modulo di potenza è il circuito elettrico responsabile: della commuttazione tra i pacchi batteria, del bilanciamento e della distribuzione di corrente verso il carico.\\
+Inoltre, il dispositivo implementa circuiti di protezione, isolando la sorgente guasta, qualora si dovesse presentare un malfunzionamento, ed evitando il trasferimento di corrente fra i pacchi batteria.
+
+\paragraph{\small{Modulo di controllo}}\mbox{}\\
+Il modulo di controllo rappresenta il "centro di comando" del dispositivo. L'implementazione di un microprocessore permette la continua misura di parametri decisionali fondamentali, quali: la tensione delle batterie, la corrente di carico
+e l'eventuale squilibrio. L'inserimento del modulo di controllo nell'architettura circuitale, permette l'implementazione della, precedentemente citata, tecnologia di \textit{ridondanza attiva}.
+
+\paragraph{\small{Modulo di allarme}}\mbox{}\\
+Il modulo di allarme provvede alla segnalazione di eventuali guasti mediante emissioni luminose (LED) ed acustiche (Buzzer).
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{chapters/Chapter2-HARDWARE/Figures/Schema collegamenti PowerSafeTwinADVMNRele.png}
+    \caption{PowerSafe Twin ADV MNR-electronics. Schema dei collegamenti}
+    \label{fig:Hardware drone}
+\end{figure}
+\subsection{PowerSafe Twin ADV. Caratteristiche fisiche e tecniche}
+A seguire, un breve elenco delle caratteristiche fisiche e tecniche del dispositivo:
+\begin{itemize}
+\item Dimensioni con involucro protettivo: $80\times 59\times 26$ [mm].
+\item Peso, considernado sia l'involucro protettivo che i cablaggi (connettori XT60): 100 [g].
+\item Corrente massima gestibile: 100 [A] (in continua).
+\item Numero di celle per pacco batteria gestibili: $[3S-8S]$
+\item Tensione massima ammessa in ingresso: $\approx 33.6$ [V]. Considerando il minimo 3.7 [V] e il massimo 4.2 [V] per cella: $[11,1\div 33,6]$ [V].
+\end{itemize}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{chapters/Chapter2-HARDWARE/Figures/POWERSAFWMOD.png}
+    \caption{PowerSafe Twin ADV MNR-electronics}
+    \label{fig:Hardware drone}
+\end{figure}

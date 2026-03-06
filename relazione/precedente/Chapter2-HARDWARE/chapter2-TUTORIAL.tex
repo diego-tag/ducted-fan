@@ -1,0 +1,135 @@
+
+\section*{Introduzione}
+La qualità della vita dipende sempre di più dai sistemi infrastrutturali, i quali influenzano la società contemporanea fornendo ogni tipo di bene. Tuttavia, queste sono soggette a deterioramento e, per evitare guasti o problemi più gravi, è necessario affrontare diverse problematiche nelle procedure di manutenzione.
+L'elevato costo, unito alla difficoltà per gli operatori umani di raggiungere i luoghi di intervento, specialmente considerando gli aspetti legati alla sicurezza, costituiscono forti limiti all'applicazione reale.
+Ragion per cui, i ricercatori hanno esplorato nuove modalità per automatizzare le procedure di ispezione e, attualmente [A1],la maggior parte degli \textbf{Unmanned Aerial Vehicles (UAV)} proposti per supportare le ispezioni infrastrutturali sono droni.\\
+Nonostante le innovative soluzioni, persistono ancora importanti limitazioni da superare: queste vanno dal miglioramento delle prestazioni dei sistemi robotici, fino alle problematiche cooperative e di sicurezza. I limiti principali nelle missioni di ispezione riguardano in primo luogo le eliche dei droni, pericolose ed inadatte alle ispezioni non distruttive a contatto.
+Inoltre, quando questi UAV vengono impiegati in compiti cooperativi con l'essere umano, è necessaria un'interazione sicura, che non può essere garantita da droni convenzionali.\\
+Un'ulteriore sfida consiste nel controllo preciso di questi \textit{robot} a base flottante: in molti casi è richiesta un'elevata precisione e, attualmente, per ottenere una buona stabilità, si ricorre a soluzioni con molteplici eliche, a discapito degli elevati costi.
+Il \textbf{Dipartimento di ingegneria dell'informazione} dell'Università Politecnica delle Marche si è impegnato ad affrontare questi problemi presentando un'architettura alternativa di \textbf{UAV} il \textit{Double Propeller Ducted-Fan}, considerata vantaggiosa per le ispezioni sicure e l'interazione uomo-macchina.\\
+Il progetto, attualmente, è nella mani del laboratorio di automazione nel D.I.I dell'Università Politecnica delle Marche, a portata degli studenti dei corsi di ingegneria.\\
+L'architettura \textit{hardware} e \textit{software} del \textit{D.P.D.F} non ha subito variazioni di grande portata nel tempo. Tuttavia, lo sviluppo tecnologico ha registrato notevoli avanzamenti e dunque si rende necessario un aggiornamento significativo del profilo tecnologico del drone.
+Ergo, il fine ultimo del progetto di tesi è stato lo \textit{"Sviluppo e porting di firmware per un drone di tipo D.P.D.F"}.\\
+Con il termine \textit{porting} si fa riferimento al processo di adattamento di un \textit{firmware} sviluppato per una piattaforma \textit{hardware} specifica, così che possa funzionare su un'altra piattaforma, diversa dalla precedente. 
+Nel presente caso è stato eseguito il \textit{porting} dalla scheda di controllo \textbf{Renesas Demonstration Kit YRDKRX63N} alla scheda \textbf{STM NUCLEO-H745ZI-Q}. Inoltre, sono stati apportati degli aggiornamenti al comparto servomotori e sensori.
+I precedenti \textit{'servos'}, \textbf{DS3115 MG Digital Servo}, sono stati sostituiti con gli \textbf{HItec HS-82MG}, di minor peso.
+In merito ai sensori, il pregresso modulo di misura inerziale (I.M.U) \textbf{MPU6050 InvenSense} è stato aggiornato con il \textbf{BNO-055 Bosch Sensortec}, integrante di un microcontrollore deputato all'esecuzione di un algoritmo di fusione sensoriale [A2].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% FINIRE LA PARTE DELL'INTRODUZIONE 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+ 
+\chapter{Sistema}
+\textcolor{red}{NOTA valido per ogni capitolo: }inserire all'inizio di ogni capitolo una brevissima descrizione del contenuto del capitolo stesso.
+\newline
+\textcolor{red}{NOTA:} capitolo opzionale.
+Solo se necessario per comprendere quanto svolto, inserite un capitolo dedicato al sistema su cui avete lavorato (es drone quadrirotore, ballbot ..) dove descrivete ad esempio come è fatto il sistema, come si modella matematicamente e come si può controllare. Nel capitolo inserite solo le informazioni che avete effettivamente utilizzato per svolgere il task assegnatovi (\textcolor{red}{evitate il copia e incolla dalle vecchie relazioni}). Mettete la fonte da cui avete preso le informazioni (es vecchia relazione \cite{Relazione1}).
+\section{Modello matematico}
+\section{Controllo}
+
+\newpage
+\chapter{Hardware}
+\label{Hardware}
+Inserire sempre un capitolo "Hardware" dove si descrivono tutti i componenti hardware utilizzati (schede, sensori, attuatori..). Dedicare un paragrafo ad ogni componente. Per ogni componente riportare le seguenti informazioni: modello specifico, riferimento bibliografico con link ad un sito web con la documentazione del componente (es \cite{DCdriver}), immagine, pinout, solo le informazioni rilevanti per lo svolgimento del task.
+\section{Componente1}
+\section{Componente2}
+\section{Schema dei collegamenti}
+Inserire uno schema dei collegamenti analogo a quello in Figura \ref{fig:schema}. Si suggerisce per lo scopo di usare il software "draw.io". Nello schema riportare tutti i collegamenti tra i componenti, specificando quale pin di un componente1 si collega con quale pin di un componente2 (per la maggior parte dei collegamenti dovete cioè avere una linea con 2 label). \\
+Inserire anche una descrizione testuale dello schema.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth,keepaspectratio]{chapters/chapter2-HARDWARE/Figures/Schema.JPG}
+\caption{Schema dei collegamenti}
+\label{fig:schema}
+\end{figure}
+
+\chapter{Software}
+Nell'introduzione al capitolo specificate anche la versione dell'STM32CubeIDE e dell'STM32CubeMX che avete usato (se avete cambiato versione nel corso del progetto mettete l'ultima, quella su cui è sviluppato il codice che consegnate).
+
+\section{Diagramma di flusso}
+Inserire un diagramma di flusso analogo a quello in Figura \ref{fig:diagramma} che spiega il funzionamento generale del codice sviluppato. Inserire anche una descrizione testuale del funzionamento.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth,keepaspectratio]{chapters/chapter2-HARDWARE/Figures/diagramma.JPG}
+\caption{Diagramma di flusso del codice sviluppato}
+\label{fig:diagramma}
+\end{figure}
+
+\section{Gestione singoli componenti}
+Dedicare un pagagrafo ad ogni componente in cui viene spiegato il codice che lo gestisce. Inserite prima una descrizione generale di come si gestisce un componente di quel tipo (aiutandovi con schemi o altro). Poi le configurazioni che sono state fatte sul .ioc per poterlo utilizzare (quale periferiche sono state abilitate, come sono state configurate.. mettete degli screen del .ioc). Infine inserite e spiegate le parti di codice che lo gestiscono.\newline
+\textcolor{red}{NOTA per il codice}: per rendere il codice modulare e riutilizzabile è buona prassi non caricare troppo il main ma creare una libreria per ogni componente. Quindi il componente1 avrà un header file "componente1.h" e un source file "componente1.c", nel source file sono implementate le funzioni che gestiscono il componente, nell'header file ci sono i prototipi di tali funzioni in modo che esse possano essere usate nel main includendolo. \newline
+\textcolor{red}{NOTA per il codice}: non inserire mai nel codice dei parametri numerici senza contesto ma renderli delle costanti definite (usando la direttiva \%define). Se sono delle costanti relative ad uno specifico componente vanno inserite nel relativo header file.\newline
+\textcolor{red}{NOTA per il codice}: per inserire il codice, anziché utilizzare screenshot utilizzate i seguenti comandi.\\
+Per codice scritto in latex (con linguaggio Python):
+\begin{lstlisting}[language=Python, caption="Codice in Python"]
+import numpy as np
+    
+def incmatrix(genl1,genl2):
+    m = len(genl1) # The length of the first array
+    n = len(genl2) # The length of the second array
+    sum = 0
+    
+    # Compute 
+    for i in range(0,n):
+        for j in range(0, m):
+            sum += genl1[n]*genl2[m]
+
+    # Print
+    print("The sum is %2d" %(sum))   
+    
+    return M
+\end{lstlisting}
+Funziona anche per codice MATLAB:
+\begin{lstlisting}[language=MATLABc, caption="Codice in MATLAB"]
+%% PREPARE WORKSPACE
+close all
+clearvars
+clc
+
+%% OPERATIONS
+sayhello;
+
+%% FUNCTIONS
+function sayhello
+    fprintf("Hello world!");
+end
+
+\end{lstlisting}
+
+
+\subsection{Gestione componente1}
+
+\subsection{Gestione componente2}
+
+\section{Funzionamento complessivo}
+Dopo aver spiegato il codice che gestisce i singoli componenti, inserire e commentare le porzioni di codice relative al funzionamento complessivo del programma.
+
+\chapter{Test e risultati}
+Dedicate un capitolo a tutti i test effettuati con relativi risultati, includete sia i test finali relativi al funzionamento complessivo, sia i test delle singole parti (se significativi). \\
+Descrivete in dettaglio le condizioni in cui sono stati svolti i test in modo che siano ripetibili. Durante i test fate dei video e acquisite i dati (es usando la funzione di log di Putty), per i test più rilevanti è opportuno consegnare anche questo materiale per documentare i test effettuati. Nella relazione riportate i risultati con dei grafici come quello in Figura \ref{fig:grafico} (inserite sempre nei grafici le label sugli assi con grandezza e relativa unità di misura). Commentate in modo critico i risultati ottenuti, evidenziando sia quelli positivi sia quelli negativi. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth,keepaspectratio]{chapters/chapter2-HARDWARE/Figures/grafico.JPG}
+\caption{Esempio di grafico}
+\label{fig:grafico}
+\end{figure}
+\section{Test1}
+Per ogni test riportate: cosa state testando, in che condizioni si è svolto il test, riferimenti a video/file di log che consegnate insieme a relazione e codice, grafici dei risultati, commento dei risultati.
+
+\section{Test2}
+
+\newpage
+\addcontentsline{toc}{chapter}{Conclusioni e sviluppi futuri}
+\section*{Conclusioni e sviluppi futuri}
+Riassumere brevemente il lavoro svolto rispetto al task assegnato, evidenziando quali risultati sono stati raggiunti e quali no. Se ci sono aspetti del task non completati spiegare quali sono stati i problemi riscontrati in merito.\\
+Inserire considerazioni personali su possibili sviluppi futuri dell'attività svolta (idee per migliorarla che non avete avuto modo di sperimentare, aspetti che suggerite di approfondire, problemi da risolvere..).
+
+\addcontentsline{toc}{chapter}{Appendici}
+\appendix
+\chapter{Appendice1}
+Se necessario ricorrete alle appendici per spiegare le parti "di contorno" dell'attività svolta e/o ciò che non riuscite ad inserire nello schema generale dei capitoli della relazione (es acquisizione dei dati con Matlab).

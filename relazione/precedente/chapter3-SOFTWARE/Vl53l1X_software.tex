@@ -1,0 +1,223 @@
+
+\section{Descrizione del sub-firmware di gestione del VL53L1X STMicroelectronics. STSW-IMG007 FULL API}
+STMicroelectronics, produttore del VL53L1X, fornisce il \textit{sub-firmware} ufficiale di gestione del dispositivo, chiamto \textbf{STSW-IMG007 FULL API}.\\
+Con il fine di risparmiare tempo per il completamento del progetto, è stata preferita l'implementazione del \textit{sub-firmware} ufficiale piuttosto che lo sviluppo in autonomo.\\
+Il \textit{sub-firmware} di ST è \textbf{multi piattaforma}, vale a dire che è stato concepito per operare, oltre che su STCubeIDE, anche su altri ambienti di sviluppo. In virtù di ciò, si è reso 
+necessario un adattamento all'ambiente di sviluppo utilizzato.\\
+I produttori del \textit{sub-firmware} hanno ridotto il lavoro necessario all'adattamento, difatti, per raggiungere tal fine è sufficiente metter mano alla cartella \textit{platform}. Nello specifico, è risultata 
+sufficiente la modifica di \textbf{vl53l1\_platform.c}.\\
+Al fine di garantire la corretta operatività del \textit{sub-firmware}, si è optato per un adattamento tramite funzioni \textit{H.A.L}.
+
+\subsection{STSW-IMG007. \textit{vl53l1\_platform.c}, il \textit{source file di adattamento}}
+\label{Software_altezza}
+Le funzioni dell'\textbf{A.P.I} la cui definizione è a carico del consumatore finale, sono state individuate durante l'esecuzione del codice.
+Le segnalazioni di errore di \textit{STCubeIDE} sono state utili alla localizzazione di tali \textbf{indefinite} funzioni.\\
+Lo studio del contesto delle procedure da definire, è stato la chiave del corretto funzionamento.\\
+Con il fine di migliorare la leggibilità del codice, si è optato per la divisione del \textit{file} in due sezioni. La prima corrispondente al \textit{sub-firmware} ufficiale,
+la seconda legata alla definizione delle funzioni di adattamento.
+Nel presente elaborato non verrano mezionati altri \textit{file} al di fuori di \textit{vl53l1\_platform.c}, inoltre non verrano discusse procedure che non sono state sviluppate al fine dell'adattamento.
+La comunicazione \textit{$I^2C$} con il dispositivo è gestita dalla periferica I2C2 del'STM32H745ZIQ-TQ6, figura (\ref{fig:Software_I2C_VL53L1X}).\\
+%immagine dell'impostazione I2C 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{chapters/chapter3-SOFTWARE/Figures/I2C2.png}
+    \caption{Configurazione mediante STCubeMX dell'I2C2}
+    \label{fig:Software_I2C_VL53L1X}
+\end{figure}
+Al fine di verificare la corretta operatività delle funzioni implementate, si è optato per l'utilizzo di un terminale per la stampa a video delle informazioni. Il terminale in questione è fornito dal \textit{software} esterno \textbf{PuTTy}.
+Per comunicare i risultati circa l'operatività delle implementazioni, è stata utilizzata la capacità di \textit{PuTTy} di stampare ciò che viene inviato tramite protocollo seriale UART. Nello specifico, è stato utilizzata la periferica USART/UART3 della NUCLEO-H745ZI-Q, figura (\ref{fig:Software_UART3}).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{chapters/chapter3-SOFTWARE/Figures/USART3_Finale.png}
+    \caption{Configurazione mediante STCubeMX dell'USART3}
+    \label{fig:Software_UART3}
+\end{figure}
+Entrambe le periferiche di comunicazione vengono gestite dall'\textit{H.A.L}, tramite le strutture \textbf{I2C\_HandleTypeDef} e \textbf{UART\_HandleTypeDef}.\\
+Con il fine di includere la libreria di funzioni \textit{H.A.L}, è stata necessaria l'inclusione di ''stm32h7xx\_hal.h'' in ''vl53l1\_platform.c''.\\
+Per evitare problemi di compilazione, nel \textit{file} ''vl53l1\_platform.c'' sono state ri-definite le variabili di controllo di tali periferiche con direttiva ''\textbf{extern}''.
+A seguire, le direttive di inclusione ed \text{extern} aggiunte nel file.\\
+\begin{lstlisting}[language = Cpp, caption={\footnotesize \textit{path} delle direttive di inclusione di \textit{vl53l1\_platform.c}, in aggiunta la ridefinizione delle variabili di gestione della comunicazione}]
+
+    //direttive di inclusione aggiunte
+   #include "stdio.h"
+   #include "stdint.h"
+   #include "stm32h7xx_hal.h"
+    
+    //direttive di inclusione originali
+    #include "vl53l1_platform.h"
+    #include "vl53l1_platform_log.h"
+
+    //direttive extern
+    extern I2C_HandleTypeDef hi2c2;
+    extern UART_HandleTypeDef huart3;
+
+\end{lstlisting}
+
+
+\paragraph{Modalità di gestione delle eccezioni}\mbox{}\\
+Il \textit{sub-firmware}, per ragioni deducibili, non gestisce le eccezioni mediante implementazione \textit{H.A.L}.
+Possiede invece un sistema di gestione delle eccezioni originale.\\
+La struttura utilizzata per segnalare l'insorgenza di eccezioni è un \textit{alias} di tipo: \textbf{VL53L1\_Error} rappresenta infatti
+il tipo di dato impiegato dal \textit{sub-firmware} a tale scopo. Di conseguenza tutte le funzioni di ''\textit{vl53l1\_platform.c}'' restituiscono il 
+tipo di dato citato in precedenza.\\
+Lo stesso sistema di gestione delle eccezioni è stato utilizzato durante lo sviluppo, con il fine di verificare il corretto funzionamento delle implementazioni.\\
+In alcune definizioni, è stata forzata la ''collaborazione'' tra la struttura di gestione delle eccezioni della libreria \textit{H.A.L} e quella presente nel \textit{sub-firmware}
+sotto analisi. Questa ''collaborazione'' si è resa necessaria per garantire il corretto funzionamento della libreria all'interno dell'IDE.\\
+
+\begin{lstlisting}[language=Cpp, caption={\footnotesize Dettaglio sulla struttura di gestione delle eccezioni presente in \textit{vl53l1\_error\_codes.h} da notare, il cast a dato VL53L1\_Error nelle direttive \textit{define}}]
+    
+typedef int8_t VL53L1_Error;
+
+#define VL53L1_ERROR_NONE                       ((VL53L1_Error)  0)
+#define VL53L1_ERROR_CALIBRATION_WARNING        ((VL53L1_Error) - 1)
+	/*!< Warning invalid calibration data may be in used
+		\a  VL53L1_InitData()
+		\a VL53L1_GetOffsetCalibrationData
+		\a VL53L1_SetOffsetCalibrationData */
+#define VL53L1_ERROR_MIN_CLIPPED                ((VL53L1_Error) - 2)
+	/*!< Warning parameter passed was clipped to min before to be applied */
+
+define VL53L1_ERROR_UNDEFINED                   ((VL53L1_Error) - 3)
+
+#define VL53L1_ERROR_INVALID_PARAMS             ((VL53L1_Error) - 4)
+	/*!< Parameter passed is invalid or out of range */
+#define VL53L1_ERROR_NOT_SUPPORTED              ((VL53L1_Error) - 5)
+	/*!< Function is not supported in current mode or configuration */
+#define VL53L1_ERROR_RANGE_ERROR                ((VL53L1_Error) - 6)
+	/*!< Device report a ranging error interrupt status */
+#define VL53L1_ERROR_TIME_OUT                   ((VL53L1_Error) - 7)
+	/*!< Aborted due to time out */
+#define VL53L1_ERROR_MODE_NOT_SUPPORTED         ((VL53L1_Error) - 8)
+	/*!< Asked mode is not supported by the device */
+#define VL53L1_ERROR_BUFFER_TOO_SMALL           ((VL53L1_Error) - 9)
+	/*!< ... */
+#define VL53L1_ERROR_COMMS_BUFFER_TOO_SMALL     ((VL53L1_Error) - 10)
+
+\end{lstlisting}
+
+\subsection{STSW-IMG007. Procedure di adattamento}
+A seguire, la descrizione delle procedure implementate con il fine di ottenere il coretto interfacciamento nel contesto \textit{H.A.L}.
+
+\paragraph{Funzione: RANGING\_SENSOR\_COMMS\_Init\_CCI}\mbox{}\\
+Nell'analisi della funzione ''\textbf{VL53L1\_CommsInitialise}'', il cui compito è quello di inizializzare le periferiche di comunicazione in utilizzo, è stata individuata la prima procedura utile all'adattamento.\\
+La funzione \textbf{RANGING\_SENSOR\_COMMS\_Init\_CCI} è invocata dalla precedente procedura, con lo scopo di ottenere la verifica della corretta operatività della periferica di comunicazione in uso. Per lo sviluppo
+della definizione della funzione è stata necessaria l'integrazione dell'\textit{H.A.L}.\\
+La componente \textit{H.A.L} utilizzata per l'adattamento è \textbf{HAL\_I2C\_GetState}, che restituisce lo stato interno della periferica $I^2C$ richiesta mediante un tipo di dato enumerato definito nel panorama ''HAL\_I2C\_StateTypeDef''. 
+Se nei tempi pattuiti viene restituito il valore \textit{HAL\_I2C\_STATE\_READY}, allora la periferica di comunicazione è pronta per condurre informazioni.
+''VL53L1\_CommsInitialise'' è stata, inoltre, modificata per adattarsi al valore di restituzione di\\
+RANGING\_SENSOR\_COMMS\_Init\_CCI.\\
+Se dovesse verificarsi la restituzione di ''HAL\_I2C\_STATE\_READY'' da parte di ''RANGING\_SENSOR\_COMMS\_Init\_CCI'', ''VL53L1\_CommsInitialise'' risulterebbe invocata con successo, altrimenti verrà gestita l'eccezione tramite 
+restituzione di un parametro ''VL53L1\_Error''.\\
+
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=881, lastline=889, caption={\footnotesize Estratto di codice C dal file \textit{vl53l1\_platform.c}: la funzione \textit{RANGING\_SENSOR\_COMMS\_Init\_CCI}}]{chapters/chapter3-SOFTWARE/codeFiles/vl53l1_platform.c}
+
+\begin{lstlisting}[language=Cpp, caption={\footnotesize Dettaglio dell'implementazione di \textit{RANGING\_SENSOR\_COMMS\_Init\_CCI} in \textit{VL53L1\_CommsInitialise}}]
+    
+    if(RANGING_SENSOR_COMMS_Init_CCI(0, 0, 0) != HAL_I2C_STATE_READY){
+ 
+         RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
+         status = VL53L1_ERROR_CONTROL_INTERFACE;
+ 
+     }
+ \end{lstlisting}
+
+\paragraph{Funzione: RANGING\_SENSOR\_COMMS\_Get\_Error\_Text}\mbox{}\\
+La funzione intitolante appare nell'ambito contestuale di ''VL53L1\_CommsInitialise''. Il suo ruolo è quello di restituire al \textit{main flow} il messaggio di errore associato a ''RANGING\_SENSOR\_COMMS\_Init\_CCI.\\
+Con il fine di stampare a video, sul terminale offerto da \textit{PuTTy}, è stato sviluppato un'adattamento utilizzando la funzione \textbf{HAL\_UART\_Transmit}. La funzione della libreria \textit{H.A.L} gestisce 
+la trasmissione dei dati sulla periferica \textit{UART} in modalità \textit{polling}. Essa blocca l'esecuzione del microcontrollore fino al completamento della trasmissione, monitorandone lo stato della periferica ed interrompendo l'operazione in caso di \textit{timeout} o errore.\\
+La procedura ''RANGING\_SENSOR\_COMMS\_Get\_Error\_Text non restituisce alcun parametro. A seguire la sua definizione.\\
+
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=891, lastline=895, caption={\footnotesize Estratto di codice C dal file \textit{vl53l1\_platform.c}: la funzione \textit{RANGING\_SENSOR\_COMMS\_Get\_Error\_Text}}]{chapters/chapter3-SOFTWARE/codeFiles/vl53l1_platform.c}
+
+\paragraph{Funzione: RANGING\_SENSOR\_COMMS\_Fini\_CCI}\mbox{}\\
+Lo ''stile'' di collocazione della funzione intitolante, è analogo a quello analizzato poc'anzi in ''RAGING\_SENSOR\_COMMS\_Init\_CCI''.\\
+La procedura è stata individuata in ''VL53L1\_CommsClose'', il cui compito è la chiusura della comunicazione con il dispositivo.\\
+''RANGING\_SENSOR\_COMMS\_Fini\_CCI'' è stata sviluppata al fine di \\
+de-inizializzare la periferica di comunicazione in utilizzo, interrompendo lo scambio di informazioni.\\
+L'operatività della procedura è nelle mani della funzione ''HAL\_I2C\_DeInit. Quest'ultima disabilita la periferica utilizzata, ripristina i \textit{pins}, cancella eventuali \textit{interrupt} attive e ripristina le configurazioni
+\textit{hardware} della periferica \textit{$I^2C$}.\\
+''HAL\_StatusTypeDef'' è il valore restituito da ''HAL\_I2C\_DeInit'' e, in questo caso, anche di ''RANGING\_SENSOR\_COMMS\_Fini\_CCI''.\\
+In analogia con la precedente implementazione, la funzione invocatrice è stata modificata per l'adattamento.\\
+A seguire, la definizione della funzione e un breve frammento specificante il suo ruolo in ''VL53L1\_CommsClose''.\\
+
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=897, lastline=901, caption={\footnotesize Estratto di codice C dal file \textit{vl53l1\_platform.c}: la funzione \textit{RANGING\_SENSOR\_COMMS\_Fini\_CCI}}]{chapters/chapter3-SOFTWARE/codeFiles/vl53l1_platform.c}
+\begin{lstlisting}[language=Cpp, caption={\footnotesize Dettaglio sull'invocazione di \textit{RANGING\_SENSOR\_COMMS\_Fini\_CCI} in \textit{VL53L1\_CommsClose}}]
+    
+    if(RANGING_SENSOR_COMMS_Fini_CCI() != HAL_OK){
+
+        RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
+        status = VL53L1_ERROR_CONTROL_INTERFACE;
+
+    }
+\end{lstlisting}
+
+\paragraph{Funzione: RANGING\_SENSOR\_COMMS\_Write\_CCI}\mbox{}\\
+La procedura intitolante, è situata nel contesto della funzione \textbf{VL53L1\_WriteMulti}.\\
+''VL53L1\_WriteMulti'' è centrale nel corretto esercizio del dispositivo. La funzione, difatti, scrive più \textbf{byte} consecutivi in un registro interno del sensore \textbf{VL53L1X}, partendo da uno specifico indirizzo.\\
+''RAGING\_SENSOR\_COMMS\_Write\_CCI'' è stata sviluppata al fine adattare questa necessità alla piattaforma in utilizzo.\\
+Per l'adattamento, si è optato per uno sviluppo integrante la funzione\\
+\textbf{HAl\_I2C\_Master\_Transmit}. La funzione della libreria \textit{H.A.L}, invia al dispositivo solamente dati, mentre l'altra in aggiunta, anche l'indirizzo interno.\\
+Tornando all'analisi di ''RANGING\_SENSOR\_COMMS\_Write\_CCI'', la funzione costruisce un \textit{buffer} temporaneo di dimensioni pari alla somma del numero di dati da inviare a due \textbf{byte} aggiuntivi.\\
+Successivamente, i dati da scrivere, puntati dall'argomento \textit{pData}, vengono copiati nel \textit{buffer} a partire della terza posizione.\\
+Il \textit{buffer} così composto viene infine inviato al dispositivo \textit{slave} specificato.\\
+Il valore di ritorno di ''RANGING\_SENSOR\_COMMS\_Write\_CCI è lo stesso di ''HAL\_I2C\_Master\_Transmit''.\\
+Al fine di implementare ''RANGING\_SENSOR\_COMMS\_Write\_CCI'' è stata sviluppata una modifica di ''VL53L1\_WriteMulti''.\\
+A seguire, la definizione della funzione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=903, lastline=917, caption={\footnotesize Estratto di codice C dal file \textit{vl53l1\_platform.c}: la funzione \textit{RANGING\_SENSOR\_COMMS\_Write\_CCI}}]{chapters/chapter3-SOFTWARE/codeFiles/vl53l1_platform.c}
+\begin{lstlisting}[language=Cpp, caption={\footnotesize Dettaglio sull'implementazione di \textit{RANGING\_SENSOR\_COMMS\_Write\_CCI} in \textit{VL53L1\_WriteMulti} }]
+    
+    if(RANGING_SENSOR_COMMS_Write_CCI(pdev->i2c_slave_address, 0, index+position, pdata+position, data_size) != HAL_OK){
+        
+        status = VL53L1_ERROR_CONTROL_INTERFACE;
+
+    }
+
+\end{lstlisting}
+
+\paragraph{Funzione: RANGING\_SENSOR\_COMMS\_Read\_CCI}\mbox{}\\
+La procedura ha il compito di leggere informazioni da uno specifico registro interno del \textbf{VL53L1X}.\\
+Al fine di adempire al compito, è stata integrata la funzione ''HAL\_I2C\_Mem\_Read''.\\
+''RANGING\_SENSOR\_COMMS\_Read\_CCI'' è invocata internamente alla funzione ''VL53L1\_ReadMulti''.\\
+Anche in questo caso, l'ambiente interno della funzione invocatrice è stato adattato all'implementazione.
+A seguire, la definizione e il frammento dell'implementazione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=919, lastline=925, caption={\footnotesize Estratto di codice C dal file \textit{vl53l1\_platform.c}: la funzione \textit{RANGING\_SENSOR\_COMMS\_Read\_CCI}}]{chapters/chapter3-SOFTWARE/codeFiles/vl53l1_platform.c}
+\begin{lstlisting}[language=Cpp, caption={\footnotesize Dettaglio sull'implementazione di \textit{RANGING\_SENSOR\_COMMS\_Read\_CCI} in \textit{VL53L1\_ReadMulti}}]
+    
+    if(RANGING_SENSOR_COMMS_Read_CCI(pdev->i2c_slave_address, 0, index+position, pData+position, data_size) != HAL_OK){
+
+        status = VL53L1_ERROR_CONTROL_INTERFACE;
+
+    }
+
+\end{lstlisting}
+
+\paragraph{Funzione: RANGING\_SENSOR\_COMMS\_GPIO\_Set\_Mode}\mbox{}\\
+Il titolo presenta una procedura situata nella funzione ''VL53L1\_GpioSetMode'', il cui compito è quello di configurare la modalità operativa di uno dei \textit{pin} di GPIO del sensore \textit{VL53L1X}.\\
+La funzione non utilizza procedure \textit{H.A.L} per adempiere al compito, modifica direttamente la struttura \textit{H.A.L} ''GPIO\_InitStruct. ''GPIO\_InitStruct'' è modificata in modo tale da configurare la modalità operativa
+dei \textit{pin} \textbf{GPIO} utilizzati nel sensore \textit{VL53L1X}.\\
+La funzione riceve come parametri l'identificatore del \textit{pin} e la modalità di configurazione desiderata. In base al \textit{pin} specificato, la funzione configura il relativo registro ''GPIO''.\\
+Nel caso in cui venga passato un \textit{pin} non riconosciuto, la funzione restituisce un errore di tipo ''\textbf{HAL\_ERROR}'', inviando un messaggio di errore sulla porta \textbf{USART/UART3}.\\
+Se la configurazione ha successo, viene eseguita la funzione ''HAL\_GPIO\_Init()'' per applicare le modifiche ai \textit{pin}. Anche in questa sede è stata modificata la funzione invocatrice per la corretta implementazione.\\
+A seguire, la definizione della funzione e il frammento dell'implementazione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=927, lastline=966, caption={\footnotesize Estratto di codice C dal file \textit{vl53l1\_platform.c}: la funzione \textit{RANGING\_SENSOR\_COMMS\_GPIO\_Set\_Value}}]{chapters/chapter3-SOFTWARE/codeFiles/vl53l1_platform.c}
+\begin{lstlisting}[language=Cpp, caption={\footnotesize Dettaglio sull'implementazione di \textit{RANGING\_SENSOR\_COMMS\_GPIO\_Set\_Value} in \textit{VL53L1\_GpioSetMode}}]
+    
+   if(RANGING_SENSOR_COMMS_GPIO_Set_Mode(pin, value) != HAL_OK){
+        
+        status = VL53L1_ERROR_CONTROL_INTERFACE;
+
+    }
+
+\end{lstlisting}
+
+\paragraph{Funzione: RANGING\_SENSOR\_COMMS\_GPIO\_Set\_Value}\mbox{}\\
+La funzione è invocata in molte posizioni nel \textit{file}.\\
+Il suo compito è quello di impostare il valore desiderato sul \textit{pin} specificato. A seguire, la sua definizione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=969, lastline=979, caption={\footnotesize Estratto di codice C dal file \textit{vl53l1\_platform.c}: la funzione \textit{RANGING\_SENSOR\_COMMS\_GPIO\_Set\_Value}}]{chapters/chapter3-SOFTWARE/codeFiles/vl53l1_platform.c}
+
+\paragraph{Funzione: RANGING\_SENSOR\_COMMS\_GPIO\_Get\_Value}\mbox{}\\
+La funzione è invocata in ''VL53L1\_GpioGetValue'', il cui compito è restituire il valore impostato sul \textit{pin} richiesto.\\
+La procedura intitolante, serve solo all'adattamento con la piattaforma.\\
+La definizione sfrutta la funzione, ''HAl\_GPIO\_ReadPin'', che legge lo stato del \textit{pin} passato come parametro. A seguire, la sua definizione.\\
+\lstinputlisting[language=Cpp, inputencoding=utf8, firstline=981, lastline=991, caption={\footnotesize Estratto di codice C dal file \textit{vl53l1\_platform.c}: la funzione \textit{RANGING\_SENSOR\_COMMS\_GPIO\_Get\_Value}}]{chapters/chapter3-SOFTWARE/codeFiles/vl53l1_platform.c}
+
