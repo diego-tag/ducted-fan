@@ -52,7 +52,6 @@ I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
 TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
@@ -78,7 +77,6 @@ static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -137,7 +135,6 @@ int main(void)
   MX_I2C2_Init();
   MX_TIM4_Init();
   MX_TIM2_Init();
-  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
 	/*-------------------------------------------------------------------------------------------------------*/
@@ -147,12 +144,8 @@ int main(void)
 	char msg_bno[STANDARD_MESSAGE_LENGTH];
 	char msg_VL53L1X[STANDARD_MESSAGE_LENGTH];
 
-	uint16_t ing_roll;
-	uint16_t ing_pitch;
-	uint16_t ing_motors;
-
-	uint32_t ref_roll = 0;
-	uint16_t ref_high = 450;
+	uint32_t ref_roll_pitch = 0;
+	uint16_t ref_altitude = 450;
 
 	/*------------------------------ CONTROL-RELATED STRUCTURES ------------------------------*/
 
@@ -164,14 +157,10 @@ int main(void)
 	DPDF_axis_rot_t axis_rot;
 	DPDF_axis_rotation axis_rotation_ist = &axis_rot;
 
-	pid_prmts_t pointer_motor;
-	pid_pars pid_pars_motor = &pointer_motor;
+	pid_prmts_t motor_pid_params;
 
-	pid_prmts_t pointer_servo_roll;
-	pid_pars pid_pars_servo_roll = &pointer_servo_roll;
-
-	pid_prmts_t pointer_servo_pitch;
-	pid_pars pid_pars_servo_pitch = &pointer_servo_pitch;
+	pid_controller_t pid_roll;
+	pid_controller_t pid_pitch;
 
 	VL53L1_RangingMeasurementData_t rangingData;
 	VL53L1_Dev_t vl53l1_c;
@@ -181,13 +170,18 @@ int main(void)
 	/*					  		    			  SAFE STARTUP				      			 				 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Waiting safe startup (press user button)...\n",strlen("Waiting safe startup (press user button)...\n"), HAL_MAX_DELAY);
+
 	while (flag == 0) {
 		__WFI();
 	}
 
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Initialization starting in 5 seconds\n", strlen("Initialization starting in 8 seconds\n"),
+			HAL_MAX_DELAY);
+
 	safe_startup(&htim6);
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_SET); // only visual
-	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_12, GPIO_PIN_SET); // for powering the altitude sensor
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_SET); // turn on LD2 (yellow led)
+	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_12, GPIO_PIN_SET); // Power the altitude sensor
 
 	/*-------------------------------------------------------------------------------------------------------*/
 	/*					  		    	 SENSOR INITIALIZATION				      			 				 */
@@ -195,7 +189,20 @@ int main(void)
 
 	/*------------------------------ VL53L1X INITIALIZATION ------------------------------*/
 
-	VL53L1_total_platform_init(Dev, 0x52, VL53L1_I2C, 400, 33000, 467);
+	// Hardware reset the sensor with XSHUT (PE14 starts LOW from MX_GPIO_Init)
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, GPIO_PIN_SET);
+	HAL_Delay(10);
+
+	VL53L1_Error status = VL53L1_total_platform_init(Dev, 0x52, VL53L1_I2C, 400, 20000, 25);
+
+	if(status == VL53L1_ERROR_NONE) {
+		HAL_UART_Transmit(&huart3, (uint8_t*) "Altitude sensor (VL53L1X) initialized\n", strlen("Altitude sensor (VL53L1X) initialized\n"),HAL_MAX_DELAY);
+	} else {
+		sprintf(msg_VL53L1X, "Altitude sensor (VL53L1X) initialization error: %d\n",status);
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X),HAL_MAX_DELAY);
+		return 1;
+	}
+
 
 	/*------------------------------ BNO055 INITIALIZATION ------------------------------*/
 
@@ -207,29 +214,45 @@ int main(void)
 	bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
 	//bno055_calibration();
 	DPDF_BNO055_firmware_read_init(axis_zero_rot);
+	HAL_UART_Transmit(&huart3, (uint8_t*) "IMU (BNO055) initialized\n", strlen("IMU (BNO055) initialized\n"), HAL_MAX_DELAY);
 
 	/*-------------------------------------------------------------------------------------------------------*/
 	/*					  		    	 PID INITIALIZATIONS				      			 				 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
-	pid_servo_roll_turner_and_turn_on(12, 0.1, 0.01, 0.01, pid_pars_servo_roll);
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); // Start PWM associated with TIM1-CH2 (roll servo)
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); // Start PWM associated with TIM2-CH2 (pitch servo)
 
-	pid_servo_pitch_turner_and_turn_on(12, 0.1, 0.01, 0.01,pid_pars_servo_pitch);
+	pid_servo_init(&pid_roll, 2.0f, 0.0f, 0.0f, 0.01f);
+	pid_servo_init(&pid_pitch, 2.0f, 0.0f, 0.0f, 0.01f);
 
-	motors_pid_turner_and_turn_on(6, 0, 0, 0.5, pid_pars_motor);
+	motors_pid_turner_and_turn_on(6, 0, 0, 0.025f, &motor_pid_params);
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Initialization completed!\n", strlen("Initialization completed!\n"), HAL_MAX_DELAY);
+
+	/*-------------------------------------------------------------------------------------------------------*/
+	/*					  		    	 ESC SETUP           				      			 				 */
+	/*-------------------------------------------------------------------------------------------------------*/
 
 	// Setup signal for ESC (duty cycle at 4.75%)
 	motor_actuation(712);
 
-	HAL_UART_Transmit(&huart3, (uint8_t*) "Wait 5 seconds for ESC setup...\n", strlen("Wait 5 seconds for ESC setup...\n"),HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Wait 5 seconds for ESC setup...\n", strlen("Wait 5 seconds for ESC setup...\n"), HAL_MAX_DELAY);
 
 	// Delay for ESC setup
 	HAL_Delay(5000);
 
-	HAL_UART_Transmit(&huart3, (uint8_t*) "Initialization completed\n",strlen("Initialization completed\n"), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart3, (uint8_t*) "ESC setup completed (ensure no more beeps are emitted)\n",
+			strlen("ESC setup completed (ensure no more beeps are emitted)\n"), HAL_MAX_DELAY);
 
-	HAL_TIM_Base_Start_IT(&htim7);  // start interrupt servo control
-	HAL_TIM_Base_Start_IT(&htim3);  // start interrupt motor control
+	HAL_TIM_Base_Start_IT(&htim7);  // start interrupt for servo control actuation
+
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_RESET); // turn off LD2 (yellow led)
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET); // turn on LD1 (green led)
+
+
+
+	// Start measurement LAST — first edge arrives ~25ms from NOW ──
+	VL53L1_StartMeasurement(Dev);
 
   /* USER CODE END 2 */
 
@@ -239,39 +262,41 @@ int main(void)
 
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (flag_int_motor_control == true && false) {
+		if (flag_int_motor_control == true) {
+			flag_int_motor_control = false;
 
 			VL53L1_GetRangingMeasurementData(Dev, &rangingData);
 
 			VL53L1_ClearInterruptAndStartMeasurement(Dev);
 
-			ing_motors = pid_motors(pid_pars_motor, rangingData.RangeMilliMeter,ref_high);
+			uint16_t pwm_motors = pid_motors(&motor_pid_params, rangingData.RangeMilliMeter, ref_altitude);
 
-			motor_actuation(ing_motors);
+			motor_actuation(pwm_motors);
 
-			flag_int_motor_control = false;
 
-			sprintf(msg_VL53L1X, "%d,%d\n", rangingData.RangeMilliMeter,ing_motors); // Current_height, command_sent_to_the_motors
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_VL53L1X,strlen(msg_VL53L1X), HAL_MAX_DELAY);
+
+			// Only for debug: remove these lines in production to avoid slowing down the control
+			sprintf(msg_VL53L1X, "%d,%d,%d\n",HAL_GetTick(), rangingData.RangeMilliMeter, pwm_motors); // Current_height, command_sent_to_the_motors
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X), HAL_MAX_DELAY);
 
 		}
 
 		/*--------------------------------------------- SERVO-MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (flag_int_servo_control == true) {
+		if (flag_int_servo_control == true && false) {
 
 			DPDF_BNO055_firmware_read(axis_zero_rot, axis_rotation_ist);
 
-			ing_roll = pid_servo(pid_pars_servo_roll, ref_roll,axis_rotation_ist->rot_x);
+			uint16_t pwm_roll = pid_servo_compute(&pid_roll, ref_roll_pitch, axis_rotation_ist->rot_x);
+			uint16_t pwm_pitch = pid_servo_compute(&pid_pitch, ref_roll_pitch, axis_rotation_ist->rot_y);
 
-			ing_pitch = pid_servo(pid_pars_servo_pitch, ref_roll,axis_rotation_ist->rot_y);
-
-			execution_servo(ing_roll, ing_pitch);
+			execution_servo(pwm_roll, pwm_pitch);
 
 			flag_int_servo_control = false;
 
-			sprintf(msg_bno, "%ld,%ld,%d,%d\n", axis_rotation_ist->rot_x,axis_rotation_ist->rot_y, ing_roll, ing_pitch);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_bno, strlen(msg_bno),HAL_MAX_DELAY);
+			// Only for debug: remove these lines in production to avoid slowing down the control
+			sprintf(msg_bno, "%ld,%ld,%d,%d\n", axis_rotation_ist->rot_x, axis_rotation_ist->rot_y, pwm_roll, pwm_pitch);
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_bno, strlen(msg_bno), HAL_MAX_DELAY);
 
 		}
 
@@ -298,7 +323,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x00909FCE;
+  hi2c1.Init.Timing = 0x00301242;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -428,51 +453,6 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 2 */
   HAL_TIM_MspPostInit(&htim2);
-
-}
-
-/**
-  * @brief TIM3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM3_Init(void)
-{
-
-  /* USER CODE BEGIN TIM3_Init 0 */
-
-  /* USER CODE END TIM3_Init 0 */
-
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM3_Init 1 */
-
-  /* USER CODE END TIM3_Init 1 */
-  htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 999;
-  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 37499;
-  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM3_Init 2 */
-
-  /* USER CODE END TIM3_Init 2 */
 
 }
 
@@ -673,13 +653,13 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_12, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOE, VL53L1X_XSHUT_Pin|LD2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(POWER_VL53L1X___BNO055_GPIO_Port, POWER_VL53L1X___BNO055_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin : PC13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;
@@ -687,32 +667,38 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : LD1_Pin LD3_Pin */
+  GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /*Configure GPIO pin : PE7 */
   GPIO_InitStruct.Pin = GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LD3_Pin */
-  GPIO_InitStruct.Pin = LD3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LD3_GPIO_Port, &GPIO_InitStruct);
+  /*Configure GPIO pin : VL52L1X_GPIO1_Pin */
+  GPIO_InitStruct.Pin = VL52L1X_GPIO1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(VL52L1X_GPIO1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PG12 */
-  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  /*Configure GPIO pins : VL53L1X_XSHUT_Pin LD2_Pin */
+  GPIO_InitStruct.Pin = VL53L1X_XSHUT_Pin|LD2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LD2_Pin */
-  GPIO_InitStruct.Pin = LD2_Pin;
+  /*Configure GPIO pin : POWER_VL53L1X___BNO055_Pin */
+  GPIO_InitStruct.Pin = POWER_VL53L1X___BNO055_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(POWER_VL53L1X___BNO055_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);

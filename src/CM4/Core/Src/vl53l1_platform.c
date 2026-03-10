@@ -32,18 +32,15 @@
  * 		   su "NUCLEO-H745ZI-Q"
  *         RANGING SENSOR VERSION
  * @version 1.0
- * @author Robert Laurentiu Mincu
  * @date 20/03/2025
  *
  *
  */
 
-
 #include <stdio.h>      // sprintf(), vsnprintf(), printf()
 #include <stdint.h>
 #include <string.h>     // strncpy(), strnlen()
 #include "stm32h7xx_hal.h"
-
 
 #ifdef _MSC_VER
 #define snprintf _snprintf
@@ -55,10 +52,8 @@
 #ifdef PAL_EXTENDED
 	#include "vl53l1_register_strings.h"
 #else
-	#define VL53L1_get_register_name(a,b)
+#define VL53L1_get_register_name(a,b)
 #endif
-
-
 
 // flag to indicate if power board has been accessed
 const uint32_t _power_board_in_use = 0;
@@ -70,19 +65,17 @@ uint32_t _power_board_extended = 0;
 uint8_t global_comms_type = 0;
 
 //introduzione del principale portare di comunicazione : hi2c2
- extern I2C_HandleTypeDef hi2c2;
+extern I2C_HandleTypeDef hi2c2;
 //Terminale visualizzazione stati ed errori
- extern UART_HandleTypeDef huart3;
-
+extern UART_HandleTypeDef huart3;
 
 #define  VL53L1_COMMS_CHUNK_SIZE  56
 #define  VL53L1_COMMS_BUFFER_SIZE 64
 //da modificare in caso di cambiamente nella struttura
 
-#define  GPIO_XSHUTDOWN GPIO_PIN_14
+#define  GPIO_XSHUTDOWN GPIO_PIN_13
 #define  GPIO_POWERENABLE GPIO_PIN_12
 #define  GPIO_INTERRUPT GPIO_PIN_7
-
 
 #define HIGH  1
 #define LOW 0
@@ -106,12 +99,7 @@ uint8_t global_comms_type = 0;
 	_LOG_TRACE_PRINT(VL53L1_TRACE_MODULE_NONE, \
 	VL53L1_TRACE_LEVEL_NONE, VL53L1_TRACE_FUNCTION_I2C, ##__VA_ARGS__)
 
-
-VL53L1_Error VL53L1_CommsInitialise(
-	VL53L1_Dev_t *pdev,
-	uint8_t       comms_type,
-	uint16_t      comms_speed_khz)
-{
+VL53L1_Error VL53L1_CommsInitialise(VL53L1_Dev_t *pdev, uint8_t comms_type, uint16_t comms_speed_khz) {
 	VL53L1_Error status = VL53L1_ERROR_NONE;
 	char comms_error_string[ERROR_TEXT_LENGTH];
 
@@ -120,27 +108,21 @@ VL53L1_Error VL53L1_CommsInitialise(
 
 	global_comms_type = comms_type;
 
-	if(global_comms_type == VL53L1_I2C)
-	{
-		if (RANGING_SENSOR_COMMS_Init_CCI(0, 0, 0) != HAL_I2C_STATE_READY)
-		{
+	if (global_comms_type == VL53L1_I2C) {
+		if (RANGING_SENSOR_COMMS_Init_CCI(0, 0, 0) != HAL_I2C_STATE_READY) {
 			RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
 			status = VL53L1_ERROR_CONTROL_INTERFACE;
 		}
-	}
-	else if(global_comms_type == VL53L1_SPI)
-	{
+	} else if (global_comms_type == VL53L1_SPI) {
 
 		/*if ((CP_STATUS)RANGING_SENSOR_COMMS_Init_SPI_V2W8(0, 0, 0) != CP_STATUS_OK)
-		{
-			RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
-			trace_i2c("VL53L1_CommsInitialise: RANGING_SENSOR_COMMS_Init_SPI_V2W8() failed\n");
-			trace_i2c(comms_error_string);
-			status = VL53L1_ERROR_CONTROL_INTERFACE;
-		}*/
-	}
-	else
-	{
+		 {
+		 RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
+		 trace_i2c("VL53L1_CommsInitialise: RANGING_SENSOR_COMMS_Init_SPI_V2W8() failed\n");
+		 trace_i2c(comms_error_string);
+		 status = VL53L1_ERROR_CONTROL_INTERFACE;
+		 }*/
+	} else {
 
 		status = VL53L1_ERROR_CONTROL_INTERFACE;
 	}
@@ -148,36 +130,27 @@ VL53L1_Error VL53L1_CommsInitialise(
 	return status;
 }
 
-
-VL53L1_Error VL53L1_CommsClose(
-	VL53L1_Dev_t *pdev)
-{
+VL53L1_Error VL53L1_CommsClose(VL53L1_Dev_t *pdev) {
 	VL53L1_Error status = VL53L1_ERROR_NONE;
 	char comms_error_string[ERROR_TEXT_LENGTH];
 
 	SUPPRESS_UNUSED_WARNING(pdev);
 
-	if(global_comms_type == VL53L1_I2C)
-	{
-		if(RANGING_SENSOR_COMMS_Fini_CCI() != HAL_OK)
-		{
+	if (global_comms_type == VL53L1_I2C) {
+		if (RANGING_SENSOR_COMMS_Fini_CCI() != HAL_OK) {
 			RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
 
 			status = VL53L1_ERROR_CONTROL_INTERFACE;
 		}
-	}
-	else if(global_comms_type == VL53L1_SPI)
-	{
+	} else if (global_comms_type == VL53L1_SPI) {
 		/*if((CP_STATUS)RANGING_SENSOR_COMMS_Fini_SPI_V2W8() != CP_STATUS_OK)
-		{
-			RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
-			trace_i2c("VL53L1_CommsClose: RANGING_SENSOR_COMMS_Fini_SPI_V2W8() failed\n");
-			trace_i2c(comms_error_string);
-			status = VL53L1_ERROR_CONTROL_INTERFACE;
-		}*/
-	}
-	else
-	{
+		 {
+		 RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
+		 trace_i2c("VL53L1_CommsClose: RANGING_SENSOR_COMMS_Fini_SPI_V2W8() failed\n");
+		 trace_i2c(comms_error_string);
+		 status = VL53L1_ERROR_CONTROL_INTERFACE;
+		 }*/
+	} else {
 
 		status = VL53L1_ERROR_CONTROL_INTERFACE;
 	}
@@ -189,51 +162,34 @@ VL53L1_Error VL53L1_CommsClose(
  * ----------------- COMMS FUNCTIONS -----------------
  */
 
-VL53L1_Error VL53L1_WriteMulti(
-	VL53L1_Dev_t *pdev, //puntatore che contiene qualisasi info
-	uint16_t      index, // Indice del registro a cui scrivere
-	uint8_t      *pdata, //puntatori ai dati da scrivere
-	uint32_t      count) //numero di byte da scrivere
+VL53L1_Error VL53L1_WriteMulti(VL53L1_Dev_t *pdev, //puntatore che contiene qualisasi info
+		uint16_t index, // Indice del registro a cui scrivere
+		uint8_t *pdata, //puntatori ai dati da scrivere
+		uint32_t count) //numero di byte da scrivere
 {
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-	uint32_t     position       = 0;
-	uint32_t     data_size      = 0;
+	VL53L1_Error status = VL53L1_ERROR_NONE;
+	uint32_t position = 0;
+	uint32_t data_size = 0;
 
-	char   comms_error_string[ERROR_TEXT_LENGTH];
+	char comms_error_string[ERROR_TEXT_LENGTH];
 
-	_LOG_STRING_BUFFER(register_name);
-	_LOG_STRING_BUFFER(value_as_str);
+	_LOG_STRING_BUFFER(register_name); _LOG_STRING_BUFFER(value_as_str);
 
-	if(global_comms_type == VL53L1_I2C)
-	{
-		for(position=0; position<count; position+=VL53L1_COMMS_CHUNK_SIZE)
+	if (global_comms_type == VL53L1_I2C) {
+		for (position = 0; position < count; position += VL53L1_COMMS_CHUNK_SIZE)
 		{
-			if (count > VL53L1_COMMS_CHUNK_SIZE)
-			{
-				if((position + VL53L1_COMMS_CHUNK_SIZE) > count)
-				{
+			if (count > VL53L1_COMMS_CHUNK_SIZE) {
+				if ((position + VL53L1_COMMS_CHUNK_SIZE) > count) {
 					data_size = count - position;
-				}
-				else
-				{
+				} else {
 					data_size = VL53L1_COMMS_CHUNK_SIZE;
 				}
-			}
-			else
-			{
+			} else {
 				data_size = count;
 			}
 
-
-			if (status == VL53L1_ERROR_NONE)
-			{
-				if( RANGING_SENSOR_COMMS_Write_CCI(
-								pdev->i2c_slave_address,
-								0,
-								index+position,
-								pdata+position,
-								data_size) != HAL_OK)
-				{
+			if (status == VL53L1_ERROR_NONE) {
+				if (RANGING_SENSOR_COMMS_Write_CCI(pdev->i2c_slave_address, 0, index + position, pdata + position, data_size) != HAL_OK) {
 					status = VL53L1_ERROR_CONTROL_INTERFACE;
 				}
 			}
@@ -274,77 +230,61 @@ VL53L1_Error VL53L1_WriteMulti(
 			}
 #endif // VL53L1_LOG_ENABLE
 
+/*if(status != VL53L1_ERROR_NONE)
+ {
+ RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
+ trace_i2c("VL53L1_WriteMulti RANGING_SENSOR_COMMS_Write_CCI() failed\n");
+ trace_i2c(comms_error_string);
+ }else if(global_comms_type == VL53L1_SPI)
+ {
+ if((CP_STATUS)RANGING_SENSOR_COMMS_Write_SPI_16I(0, 0, index, pdata, count) != CP_STATUS_OK)
+ {
+ status = VL53L1_ERROR_CONTROL_INTERFACE;
+ }
 
-		/*if(status != VL53L1_ERROR_NONE)
-		{
-			RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
-			trace_i2c("VL53L1_WriteMulti RANGING_SENSOR_COMMS_Write_CCI() failed\n");
-			trace_i2c(comms_error_string);
-		}else if(global_comms_type == VL53L1_SPI)
-		{
-		if((CP_STATUS)RANGING_SENSOR_COMMS_Write_SPI_16I(0, 0, index, pdata, count) != CP_STATUS_OK)
-		{
-			status = VL53L1_ERROR_CONTROL_INTERFACE;
-		}
+ if(status != VL53L1_ERROR_NONE)
+ {
+ RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
+ trace_i2c("VL53L1_WriteMulti RANGING_SENSOR_COMMS_Write_SPI_16I() failed\n");
+ trace_i2c(comms_error_string);
+ }
+ }else
+ {
+ trace_i2c("VL53L1_WriteMulti: Comms must be one of VL53L1_I2C or VL53L1_SPI\n");
+ status = VL53L1_ERROR_CONTROL_INTERFACE;
+ }
 
-		if(status != VL53L1_ERROR_NONE)
-		{
-			RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
-			trace_i2c("VL53L1_WriteMulti RANGING_SENSOR_COMMS_Write_SPI_16I() failed\n");
-			trace_i2c(comms_error_string);
-		}
-	}else
-	{
-		trace_i2c("VL53L1_WriteMulti: Comms must be one of VL53L1_I2C or VL53L1_SPI\n");
-		status = VL53L1_ERROR_CONTROL_INTERFACE;
-	}
+ return status;
 
-	return status;
+ }*/
 
-			}*/
-
-VL53L1_Error VL53L1_ReadMulti(
-	VL53L1_Dev_t *pdev, //puntaore alla struct principale di gestione
-	uint16_t      index, //registro da dove leggere
-	uint8_t      *pdata, //dove salvare le cose lette
-	uint32_t      count) //numero di byte da leggere
+VL53L1_Error VL53L1_ReadMulti(VL53L1_Dev_t *pdev, //puntaore alla struct principale di gestione
+		uint16_t index, //registro da dove leggere
+		uint8_t *pdata, //dove salvare le cose lette
+		uint32_t count) //numero di byte da leggere
 {
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-	uint32_t     position       = 0;
-	uint32_t     data_size      = 0;
+	VL53L1_Error status = VL53L1_ERROR_NONE;
+	uint32_t position = 0;
+	uint32_t data_size = 0;
 
-	char   comms_error_string[ERROR_TEXT_LENGTH];
+	char comms_error_string[ERROR_TEXT_LENGTH];
 
-	_LOG_STRING_BUFFER(register_name);
-	_LOG_STRING_BUFFER(value_as_str);
+	_LOG_STRING_BUFFER(register_name); _LOG_STRING_BUFFER(value_as_str);
 
-	if(global_comms_type == VL53L1_I2C)
-	{	//come per il caso precedente la lettura avviene in semplici blocchi di dati ?
-		for(position=0; position<count; position+=VL53L1_COMMS_CHUNK_SIZE)
+	if (global_comms_type == VL53L1_I2C) {	//come per il caso precedente la lettura avviene in semplici blocchi di dati ?
+		for (position = 0; position < count; position += VL53L1_COMMS_CHUNK_SIZE)
 		{
-			if(count > VL53L1_COMMS_CHUNK_SIZE)
-			{
-				if((position + VL53L1_COMMS_CHUNK_SIZE) > count)
-				{
+			if (count > VL53L1_COMMS_CHUNK_SIZE) {
+				if ((position + VL53L1_COMMS_CHUNK_SIZE) > count) {
 					data_size = count - position;
-				}
-				else
-				{
+				} else {
 					data_size = VL53L1_COMMS_CHUNK_SIZE;
 				}
-			}
-			else
+			} else
 				data_size = count;
 
-			if(status == VL53L1_ERROR_NONE)
-			{
-				if( RANGING_SENSOR_COMMS_Read_CCI(
-								pdev->i2c_slave_address,
-								0,
-								index+position,
-								pdata+position,
-								data_size) != HAL_OK )
-				{
+			if (status == VL53L1_ERROR_NONE) {
+				if (RANGING_SENSOR_COMMS_Read_CCI(pdev->i2c_slave_address, 0, index + position, pdata + position, data_size) != HAL_OK) {
 					status = VL53L1_ERROR_CONTROL_INTERFACE;
 				}
 			}
@@ -387,98 +327,76 @@ VL53L1_Error VL53L1_ReadMulti(
 			}
 #endif // VL53L1_LOG_ENABLE
 
+/*	if(status != VL53L1_ERROR_NONE)
+ {
+ RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
+ trace_i2c("VL53L1_ReadMulti: RANGING_SENSOR_COMMS_Read_CCI() failed\n");
+ trace_i2c(comms_error_string);
+ }else if(global_comms_type == VL53L1_SPI)
+ {
+ if((CP_STATUS)RANGING_SENSOR_COMMS_Read_SPI_16I(0, 0, index, pdata, count) != CP_STATUS_OK)
+ {
+ status = VL53L1_ERROR_CONTROL_INTERFACE;
+ }
 
-	/*	if(status != VL53L1_ERROR_NONE)
-		{
-			RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
-			trace_i2c("VL53L1_ReadMulti: RANGING_SENSOR_COMMS_Read_CCI() failed\n");
-			trace_i2c(comms_error_string);
-		}else if(global_comms_type == VL53L1_SPI)
-		{
-			if((CP_STATUS)RANGING_SENSOR_COMMS_Read_SPI_16I(0, 0, index, pdata, count) != CP_STATUS_OK)
-			{
-			status = VL53L1_ERROR_CONTROL_INTERFACE;
-			}
+ if(status != VL53L1_ERROR_NONE)
+ {
+ RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
+ trace_i2c("VL53L1_ReadMulti: RANGING_SENSOR_COMMS_Read_SPI_16I() failed\n");
+ trace_i2c(comms_error_string);
+ }
+ }else
+ {
+ trace_i2c("VL53L1_ReadMulti: Comms must be one of VL53L1_I2C or VL53L1_SPI\n");
+ status = VL53L1_ERROR_CONTROL_INTERFACE;
+ }
 
-			if(status != VL53L1_ERROR_NONE)
-			{
-			RANGING_SENSOR_COMMS_Get_Error_Text(comms_error_string);
-			trace_i2c("VL53L1_ReadMulti: RANGING_SENSOR_COMMS_Read_SPI_16I() failed\n");
-			trace_i2c(comms_error_string);
-			}
-		}else
-		{
-		trace_i2c("VL53L1_ReadMulti: Comms must be one of VL53L1_I2C or VL53L1_SPI\n");
-		status = VL53L1_ERROR_CONTROL_INTERFACE;
-		}
+ return status;
+ }*/
 
-	return status;
-	}*/
-
-
-
-VL53L1_Error VL53L1_WrByte(
-	VL53L1_Dev_t *pdev,
-	uint16_t      index,
-	uint8_t       data)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-	uint8_t  buffer[1];
+VL53L1_Error VL53L1_WrByte(VL53L1_Dev_t *pdev, uint16_t index, uint8_t data) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
+	uint8_t buffer[1];
 
 	// Split 16-bit word into MS and LS uint8_t
-	buffer[0] = (uint8_t)(data);
+	buffer[0] = (uint8_t) (data);
 
 	status = VL53L1_WriteMulti(pdev, index, buffer, 1);
 
 	return status;
 }
 
-
-VL53L1_Error VL53L1_WrWord(
-	VL53L1_Dev_t *pdev,
-	uint16_t      index,
-	uint16_t      data)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-	uint8_t  buffer[2];
+VL53L1_Error VL53L1_WrWord(VL53L1_Dev_t *pdev, uint16_t index, uint16_t data) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
+	uint8_t buffer[2];
 
 	// Split 16-bit word into MS and LS uint8_t
-	buffer[0] = (uint8_t)(data >> 8);
-	buffer[1] = (uint8_t)(data &  0x00FF);
+	buffer[0] = (uint8_t) (data >> 8);
+	buffer[1] = (uint8_t) (data & 0x00FF);
 
 	status = VL53L1_WriteMulti(pdev, index, buffer, VL53L1_BYTES_PER_WORD);
 
 	return status;
 }
 
-
-VL53L1_Error VL53L1_WrDWord(
-	VL53L1_Dev_t *pdev,
-	uint16_t      index,
-	uint32_t      data)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-	uint8_t  buffer[4];
+VL53L1_Error VL53L1_WrDWord(VL53L1_Dev_t *pdev, uint16_t index, uint32_t data) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
+	uint8_t buffer[4];
 
 	// Split 32-bit word into MS ... LS bytes
 	buffer[0] = (uint8_t) (data >> 24);
-	buffer[1] = (uint8_t)((data &  0x00FF0000) >> 16);
-	buffer[2] = (uint8_t)((data &  0x0000FF00) >> 8);
-	buffer[3] = (uint8_t) (data &  0x000000FF);
+	buffer[1] = (uint8_t) ((data & 0x00FF0000) >> 16);
+	buffer[2] = (uint8_t) ((data & 0x0000FF00) >> 8);
+	buffer[3] = (uint8_t) (data & 0x000000FF);
 
 	status = VL53L1_WriteMulti(pdev, index, buffer, VL53L1_BYTES_PER_DWORD);
 
 	return status;
 }
 
-
-VL53L1_Error VL53L1_RdByte(
-	VL53L1_Dev_t *pdev,
-	uint16_t      index,
-	uint8_t      *pdata)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-	uint8_t  buffer[1];
+VL53L1_Error VL53L1_RdByte(VL53L1_Dev_t *pdev, uint16_t index, uint8_t *pdata) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
+	uint8_t buffer[1];
 
 	status = VL53L1_ReadMulti(pdev, index, buffer, 1);
 
@@ -487,42 +405,26 @@ VL53L1_Error VL53L1_RdByte(
 	return status;
 }
 
+VL53L1_Error VL53L1_RdWord(VL53L1_Dev_t *pdev, uint16_t index, uint16_t *pdata) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
+	uint8_t buffer[2];
 
-VL53L1_Error VL53L1_RdWord(
-	VL53L1_Dev_t *pdev,
-	uint16_t      index,
-	uint16_t     *pdata)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-	uint8_t  buffer[2];
+	status = VL53L1_ReadMulti(pdev, index, buffer,
+	VL53L1_BYTES_PER_WORD);
 
-	status = VL53L1_ReadMulti(
-					pdev,
-					index,
-					buffer,
-					VL53L1_BYTES_PER_WORD);
-
-	*pdata = (uint16_t)(((uint16_t)(buffer[0])<<8) + (uint16_t)buffer[1]);
+	*pdata = (uint16_t) (((uint16_t) (buffer[0]) << 8) + (uint16_t) buffer[1]);
 
 	return status;
 }
 
-
-VL53L1_Error VL53L1_RdDWord(
-	VL53L1_Dev_t *pdev,
-	uint16_t      index,
-	uint32_t     *pdata)
-{
+VL53L1_Error VL53L1_RdDWord(VL53L1_Dev_t *pdev, uint16_t index, uint32_t *pdata) {
 	VL53L1_Error status = VL53L1_ERROR_NONE;
-	uint8_t  buffer[4];
+	uint8_t buffer[4];
 
-	status = VL53L1_ReadMulti(
-					pdev,
-					index,
-					buffer,
-					VL53L1_BYTES_PER_DWORD);
+	status = VL53L1_ReadMulti(pdev, index, buffer,
+	VL53L1_BYTES_PER_DWORD);
 
-	*pdata = ((uint32_t)buffer[0]<<24) + ((uint32_t)buffer[1]<<16) + ((uint32_t)buffer[2]<<8) + (uint32_t)buffer[3];
+	*pdata = ((uint32_t) buffer[0] << 24) + ((uint32_t) buffer[1] << 16) + ((uint32_t) buffer[2] << 8) + (uint32_t) buffer[3];
 
 	return status;
 }
@@ -531,23 +433,16 @@ VL53L1_Error VL53L1_RdDWord(
  * ----------------- HOST TIMING FUNCTIONS -----------------
  */
 
-VL53L1_Error VL53L1_WaitUs(
-	VL53L1_Dev_t *pdev,
-	int32_t       wait_us)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
+VL53L1_Error VL53L1_WaitUs(VL53L1_Dev_t *pdev, int32_t wait_us) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
 
-	uint32_t wait_us_milliseconds = wait_us/1000;
+	uint32_t wait_us_milliseconds = wait_us / 1000;
 	HAL_Delay(wait_us_milliseconds);
 
 	return status;
 }
 
-
-VL53L1_Error VL53L1_WaitMs(
-	VL53L1_Dev_t *pdev,
-	int32_t       wait_ms)
-{
+VL53L1_Error VL53L1_WaitMs(VL53L1_Dev_t *pdev, int32_t wait_ms) {
 	return VL53L1_WaitUs(pdev, wait_ms * 1000);
 }
 
@@ -555,73 +450,55 @@ VL53L1_Error VL53L1_WaitMs(
  * ----------------- DEVICE TIMING FUNCTIONS -----------------
  */
 
-VL53L1_Error VL53L1_GetTimerFrequency(int32_t *ptimer_freq_hz)
-{
+VL53L1_Error VL53L1_GetTimerFrequency(int32_t *ptimer_freq_hz) {
 	*ptimer_freq_hz = 0;
 
 	trace_print(VL53L1_TRACE_LEVEL_INFO, "VL53L1_GetTimerFrequency: Freq : %dHz\n", *ptimer_freq_hz);
 	return VL53L1_ERROR_NONE;
 }
 
-
-VL53L1_Error VL53L1_GetTimerValue(int32_t *ptimer_count)
-{
+VL53L1_Error VL53L1_GetTimerValue(int32_t *ptimer_count) {
 	*ptimer_count = 0;
 
 	trace_print(VL53L1_TRACE_LEVEL_INFO, "VL53L1_GetTimerValue: Freq : %dHz\n", *ptimer_count);
 	return VL53L1_ERROR_NONE;
 }
 
-
 /*
  * ----------------- GPIO FUNCTIONS -----------------
  */
 
-VL53L1_Error VL53L1_GpioSetMode(uint16_t pin, uint32_t mode)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
+VL53L1_Error VL53L1_GpioSetMode(uint16_t pin, uint32_t mode) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
 
-
-	if(RANGING_SENSOR_COMMS_GPIO_Set_Mode(pin, mode) != HAL_OK)
-	{
+	if (RANGING_SENSOR_COMMS_GPIO_Set_Mode(pin, mode) != HAL_OK) {
 		status = VL53L1_ERROR_CONTROL_INTERFACE;
 	}
-
 
 	return status;
 }
 
+VL53L1_Error VL53L1_GpioSetValue(uint8_t pin, uint8_t value) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
+	uint16_t pin_cast = (uint16_t) pin;
 
-VL53L1_Error  VL53L1_GpioSetValue(uint8_t pin, uint8_t value)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-	uint16_t pin_cast = (uint16_t)pin;
-
-	if(RANGING_SENSOR_COMMS_GPIO_Set_Value(pin_cast, value) != HAL_OK)
-	{
+	if (RANGING_SENSOR_COMMS_GPIO_Set_Value(pin_cast, value) != HAL_OK) {
 		status = VL53L1_ERROR_CONTROL_INTERFACE;
 	}
-
 
 	return status;
 
 }
 
-
-VL53L1_Error  VL53L1_GpioGetValue(uint8_t pin, uint8_t *pvalue)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-	uint16_t pin_cast = (uint16_t)pin;
+VL53L1_Error VL53L1_GpioGetValue(uint8_t pin, uint8_t *pvalue) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
+	uint16_t pin_cast = (uint16_t) pin;
 	uint8_t value;
-	if(RANGING_SENSOR_COMMS_GPIO_Get_Value(pin_cast, &value) != HAL_OK)
-	{
+	if (RANGING_SENSOR_COMMS_GPIO_Get_Value(pin_cast, &value) != HAL_OK) {
 		status = VL53L1_ERROR_CONTROL_INTERFACE;
-	}
-	else
-	{
+	} else {
 		*pvalue = value;
 	}
-
 
 	return status;
 }
@@ -630,119 +507,99 @@ VL53L1_Error  VL53L1_GpioGetValue(uint8_t pin, uint8_t *pvalue)
  * ----------------- HARDWARE STATE FUNCTIONS -----------------
  */
 
-VL53L1_Error  VL53L1_GpioXshutdown(uint8_t value)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
+VL53L1_Error VL53L1_GpioXshutdown(uint8_t value) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
 
-	if(status == VL53L1_ERROR_NONE) /*lint !e774 always true */
+	if (status == VL53L1_ERROR_NONE) /*lint !e774 always true */
 	{
 		status = VL53L1_GpioSetMode(GPIO_XSHUTDOWN, GPIO_MODE_OUTPUT_PP);
 	}
 
-	if(status == VL53L1_ERROR_NONE)
-	{
-		if(value)
-		{
-			if (RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_XSHUTDOWN, GPIO_PIN_SET) != HAL_OK)
-			{
+	if (status == VL53L1_ERROR_NONE) {
+		if (value) {
+			if (RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_XSHUTDOWN, GPIO_PIN_SET) != HAL_OK) {
 				status = VL53L1_ERROR_CONTROL_INTERFACE;
 			}
-		}
-		else
-		{
-			if (RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_XSHUTDOWN, GPIO_PIN_RESET) != HAL_OK)
-			{
+		} else {
+			if (RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_XSHUTDOWN, GPIO_PIN_RESET) != HAL_OK) {
 				status = VL53L1_ERROR_CONTROL_INTERFACE;
 			}
 		}
 	}
 
-
 	char msg_XSHUTDOWN_STATE[STANDARD_MSG_LENGTH];
-	sprintf(msg_XSHUTDOWN_STATE, "VL53L1_GpioXshutdown : status : %d. Value %d\r\n",status, value);
-	HAL_UART_Transmit(&huart3, (uint8_t*)msg_XSHUTDOWN_STATE, strlen(msg_XSHUTDOWN_STATE), HAL_MAX_DELAY);
+	sprintf(msg_XSHUTDOWN_STATE, "VL53L1_GpioXshutdown : status : %d. Value %d\r\n", status, value);
+	HAL_UART_Transmit(&huart3, (uint8_t*) msg_XSHUTDOWN_STATE, strlen(msg_XSHUTDOWN_STATE), HAL_MAX_DELAY);
 
 	return status;
 }
 
 // LA POSSIAMO DISABILITARE DAL MOMENTO CHE SERVE PER IMPOSTARE LA COMUNICAZIONE SPI CHE NOI NON USIAMO
 /*VL53L1_Error  VL53L1_GpioCommsSelect(uint8_t value)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
+ {
+ VL53L1_Error status         = VL53L1_ERROR_NONE;
 
-	if(status == VL53L1_ERROR_NONE)
-	{
-		status = VL53L1_GpioSetMode((uint8_t)GPIO_SPI_CHIP_SELECT, (uint8_t)GPIO_OutputPP);
-	}
+ if(status == VL53L1_ERROR_NONE)
+ {
+ status = VL53L1_GpioSetMode((uint8_t)GPIO_SPI_CHIP_SELECT, (uint8_t)GPIO_OutputPP);
+ }
 
-	if(status == VL53L1_ERROR_NONE)
-	{
-		if(value)
-		{
-			if((CP_STATUS)RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_SPI_CHIP_SELECT, GPIO_PIN_SET) != HAL_OK)
-			{
-				status = VL53L1_ERROR_CONTROL_INTERFACE;
-			}
-		}
-		else
-		{
-			if((CP_STATUS)RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_SPI_CHIP_SELECT, (DWORD)Pin_State_Low) != CP_STATUS_OK)
-			{
-				status = VL53L1_ERROR_CONTROL_INTERFACE;
-			}
-		}
-	}
+ if(status == VL53L1_ERROR_NONE)
+ {
+ if(value)
+ {
+ if((CP_STATUS)RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_SPI_CHIP_SELECT, GPIO_PIN_SET) != HAL_OK)
+ {
+ status = VL53L1_ERROR_CONTROL_INTERFACE;
+ }
+ }
+ else
+ {
+ if((CP_STATUS)RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_SPI_CHIP_SELECT, (DWORD)Pin_State_Low) != CP_STATUS_OK)
+ {
+ status = VL53L1_ERROR_CONTROL_INTERFACE;
+ }
+ }
+ }
 
-	trace_print(VL53L1_TRACE_LEVEL_INFO, "VL53L1_GpioCommsSelect: Status %d. Value %d\n", status, value);
-	return status;
-}*/
+ trace_print(VL53L1_TRACE_LEVEL_INFO, "VL53L1_GpioCommsSelect: Status %d. Value %d\n", status, value);
+ return status;
+ }*/
 
+VL53L1_Error VL53L1_GpioPowerEnable(uint8_t value) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
 
-VL53L1_Error  VL53L1_GpioPowerEnable(uint8_t value)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-
-
-	if(status == VL53L1_ERROR_NONE) /*lint !e774 always true */
+	if (status == VL53L1_ERROR_NONE) /*lint !e774 always true */
 	{
 		status = VL53L1_GpioSetMode(GPIO_POWERENABLE, GPIO_MODE_OUTPUT_PP);
 	}
 
-	if(status == VL53L1_ERROR_NONE)
-	{
-		if(value)
-		{
-			if(RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_POWERENABLE,GPIO_PIN_SET) != HAL_OK)
-			{
+	if (status == VL53L1_ERROR_NONE) {
+		if (value) {
+			if (RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_POWERENABLE, GPIO_PIN_SET) != HAL_OK) {
 				status = VL53L1_ERROR_CONTROL_INTERFACE;
 			}
-		}
-		else
-		{
-			if(RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_POWERENABLE, GPIO_PIN_RESET) != HAL_OK)
-			{
+		} else {
+			if (RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_POWERENABLE, GPIO_PIN_RESET) != HAL_OK) {
 				status = VL53L1_ERROR_CONTROL_INTERFACE;
 			}
 		}
 	}
 
-	if(status == VL53L1_ERROR_NONE && value) /*lint !e506 !e845 !e774*/
+	if (status == VL53L1_ERROR_NONE && value) /*lint !e506 !e845 !e774*/
 	{
-		if(RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_POWERENABLE, GPIO_PIN_SET) != HAL_OK)
-		    {
-		        status = VL53L1_ERROR_CONTROL_INTERFACE;
-		    }
+		if (RANGING_SENSOR_COMMS_GPIO_Set_Value(GPIO_POWERENABLE, GPIO_PIN_SET) != HAL_OK) {
+			status = VL53L1_ERROR_CONTROL_INTERFACE;
+		}
 	}
 	char msg_POWERENABLE[STANDARD_MSG_LENGTH];
 	sprintf(msg_POWERENABLE, "VL53L1_GpioPowerEnable : Status : %d. Value %d \r\n", status, value);
-	HAL_UART_Transmit(&huart3, (uint8_t*)msg_POWERENABLE, strlen(msg_POWERENABLE), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart3, (uint8_t*) msg_POWERENABLE, strlen(msg_POWERENABLE), HAL_MAX_DELAY);
 	return status;
 }
 
-
-VL53L1_Error  VL53L1_GpioInterruptEnable(void (*function)(void), uint8_t edge_type)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
+VL53L1_Error VL53L1_GpioInterruptEnable(void (*function)(void), uint8_t edge_type) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
 
 	SUPPRESS_UNUSED_WARNING(function);
 	SUPPRESS_UNUSED_WARNING(edge_type);
@@ -750,27 +607,22 @@ VL53L1_Error  VL53L1_GpioInterruptEnable(void (*function)(void), uint8_t edge_ty
 	return status;
 }
 
-
-VL53L1_Error  VL53L1_GpioInterruptDisable(void)
-{
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
+VL53L1_Error VL53L1_GpioInterruptDisable(void) {
+	VL53L1_Error status = VL53L1_ERROR_NONE;
 
 	return status;
 }
 
-
-VL53L1_Error VL53L1_GetTickCount(
-	uint32_t *ptick_count_ms)
-{
+VL53L1_Error VL53L1_GetTickCount(uint32_t *ptick_count_ms) {
 
 	/* Returns current tick count in [ms] */
 
-	VL53L1_Error status  = VL53L1_ERROR_NONE;
+	VL53L1_Error status = VL53L1_ERROR_NONE;
 
 	*ptick_count_ms = HAL_GetTick();
 
 	char msg_GetTick[STANDARD_MSG_LENGTH];
-	sprintf(msg_GetTick,"TickSTM32H745ZIQ : %5d ms\r\n", ptick_count_ms);
+	sprintf(msg_GetTick, "TickSTM32H745ZIQ : %5d ms\r\n", ptick_count_ms);
 	//HAL_UART_Transmit(&huart3, (uint8_t*)msg_GetTick, strlen(msg_GetTick), HAL_MAX_DELAY);
 
 	return status;
@@ -779,14 +631,8 @@ VL53L1_Error VL53L1_GetTickCount(
 
 /*La funzione legge un valore ripetutamente dal registro di un sensore e confronta il valore
  * letto con il valore atteso*/
-VL53L1_Error VL53L1_WaitValueMaskEx(
-	VL53L1_Dev_t *pdev,
-	uint32_t      timeout_ms,
-	uint16_t      index,
-	uint8_t       value,
-	uint8_t       mask,
-	uint32_t      poll_delay_ms)
-{
+VL53L1_Error VL53L1_WaitValueMaskEx(VL53L1_Dev_t *pdev, uint32_t timeout_ms, uint16_t index, uint8_t value, uint8_t mask,
+		uint32_t poll_delay_ms) {
 	/*
 	 * Platform implementation of WaitValueMaskEx V2WReg script command
 	 *
@@ -798,11 +644,11 @@ VL53L1_Error VL53L1_WaitValueMaskEx(
 	 *          poll_delay_ms);
 	 */
 
-	VL53L1_Error status         = VL53L1_ERROR_NONE;
-	uint32_t     start_time_ms   = 0;
-	uint32_t     current_time_ms = 0;
-	uint8_t      byte_value      = 0;
-	uint8_t      found           = 0;
+	VL53L1_Error status = VL53L1_ERROR_NONE;
+	uint32_t start_time_ms = 0;
+	uint32_t current_time_ms = 0;
+	uint8_t byte_value = 0;
+	uint8_t found = 0;
 #ifdef VL53L1_LOG_ENABLE
 	uint32_t     trace_functions = 0;
 #endif
@@ -838,30 +684,23 @@ VL53L1_Error VL53L1_WaitValueMaskEx(
 
 	/* wait until value is found, timeout reached on error occurred */
 
-	while ((status == VL53L1_ERROR_NONE) &&
-		   (pdev->new_data_ready_poll_duration_ms < timeout_ms) &&
-		   (found == 0))
-	{
-		status = VL53L1_RdByte(
-						pdev,
-						index,
-						&byte_value);
+	while ((status == VL53L1_ERROR_NONE) && (pdev->new_data_ready_poll_duration_ms < timeout_ms) && (found == 0)) {
+		status = VL53L1_RdByte(pdev, index, &byte_value);
 
-		if ((byte_value & mask) == value)
-		{
+		if ((byte_value & mask) == value) {
 			found = 1;
 		}
 
 		/*if (status == VL53L1_ERROR_NONE  &&
-			found == 0 &&
-			poll_delay_ms > 0)
-			status = VL53L1_WaitMs(
-							pdev,
-							poll_delay_ms);
-		*/
+		 found == 0 &&
+		 poll_delay_ms > 0)
+		 status = VL53L1_WaitMs(
+		 pdev,
+		 poll_delay_ms);
+		 */
 
 		/* Update polling time (Compare difference rather than absolute to
-		negate 32bit wrap around issue) */
+		 negate 32bit wrap around issue) */
 		VL53L1_GetTickCount(&current_time_ms);
 		pdev->new_data_ready_poll_duration_ms = current_time_ms - start_time_ms;
 	}
@@ -877,112 +716,113 @@ VL53L1_Error VL53L1_WaitValueMaskEx(
 
 /*---Definizione delle funzioni per la il coretto interfacciamento dell'MCU ---*/
 
-
-HAL_I2C_StateTypeDef RANGING_SENSOR_COMMS_Init_CCI(uint8_t param1, uint8_t param2, uint8_t param3){
+HAL_I2C_StateTypeDef RANGING_SENSOR_COMMS_Init_CCI(uint8_t param1, uint8_t param2, uint8_t param3) {
 	//ignoro i parametri per ora
-	(void)param1;
-	(void)param2;
-	(void)param3;
-    //allungo la funzione per renderla più chiara a chi usa questo file
+	(void) param1;
+	(void) param2;
+	(void) param3;
+	//allungo la funzione per renderla più chiara a chi usa questo file
 	HAL_I2C_StateTypeDef status_CCI = HAL_I2C_GetState(&hi2c2);
 	return status_CCI;
 }
 
-void RANGING_SENSOR_COMMS_Get_Error_Text(char *error_string){
+void RANGING_SENSOR_COMMS_Get_Error_Text(char *error_string) {
 	sprintf(error_string, "VL53L1_CommsInitialise: RANGING_SENSOR_COMMS_Init_CCI() failed\r\n");
-	HAL_UART_Transmit(&huart3, (uint8_t*)error_string, strlen(error_string), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart3, (uint8_t*) error_string, strlen(error_string), HAL_MAX_DELAY);
 }
 
-HAL_StatusTypeDef RANGING_SENSOR_COMMS_Fini_CCI(void){
+HAL_StatusTypeDef RANGING_SENSOR_COMMS_Fini_CCI(void) {
 	HAL_StatusTypeDef status_DeInit = HAL_I2C_DeInit(&hi2c2);
 	return status_DeInit;
 }
 
-HAL_StatusTypeDef RANGING_SENSOR_COMMS_Write_CCI(uint16_t i2c_slave_address, uint8_t dummy, uint16_t index, uint8_t *pdata, uint32_t data_size){
+HAL_StatusTypeDef RANGING_SENSOR_COMMS_Write_CCI(uint16_t i2c_slave_address, uint8_t dummy, uint16_t index, uint8_t *pdata,
+		uint32_t data_size) {
 
-	uint8_t buffer[data_size+2];
-	buffer[0] = (uint8_t)(index>>8);
-	buffer[1] = (uint8_t)(index & 0xFF);
+	uint8_t buffer[data_size + 2];
+	buffer[0] = (uint8_t) (index >> 8);
+	buffer[1] = (uint8_t) (index & 0xFF);
 
 	//copia dei dati nel buffer
-	for(uint32_t i = 0; i < data_size; i++){
-		buffer[i+2] = pdata[i];
+	for (uint32_t i = 0; i < data_size; i++) {
+		buffer[i + 2] = pdata[i];
 	}
 
-	HAL_StatusTypeDef status_Write_CCI = HAL_I2C_Master_Transmit(&hi2c2, i2c_slave_address, buffer, (uint16_t)(data_size+2), HAL_MAX_DELAY);
+	HAL_StatusTypeDef status_Write_CCI = HAL_I2C_Master_Transmit(&hi2c2, i2c_slave_address, buffer, (uint16_t) (data_size + 2),
+			HAL_MAX_DELAY);
 
 	return status_Write_CCI;
 }
 
-HAL_StatusTypeDef RANGING_SENSOR_COMMS_Read_CCI(uint16_t i2c_slave_address, uint8_t dummy, uint16_t index, uint8_t *pdata, uint32_t data_size){
+HAL_StatusTypeDef RANGING_SENSOR_COMMS_Read_CCI(uint16_t i2c_slave_address, uint8_t dummy, uint16_t index, uint8_t *pdata,
+		uint32_t data_size) {
 
-	HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c2, i2c_slave_address, index, I2C_MEMADD_SIZE_16BIT, pdata, data_size,  HAL_MAX_DELAY);
+	HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c2, i2c_slave_address, index, I2C_MEMADD_SIZE_16BIT, pdata, data_size, HAL_MAX_DELAY);
 
 	return status;
 
 }
 
-HAL_StatusTypeDef  RANGING_SENSOR_COMMS_GPIO_Set_Mode(uint16_t pin, uint32_t mode){
+HAL_StatusTypeDef RANGING_SENSOR_COMMS_GPIO_Set_Mode(uint16_t pin, uint32_t mode) {
 
-	GPIO_InitTypeDef GPIO_InitStruct ={0};
+	GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 	HAL_StatusTypeDef status = HAL_OK;
 
-	switch(pin){
+	switch (pin) {
 
 	case GPIO_XSHUTDOWN:
-		GPIO_InitStruct.Pin = (uint32_t)GPIO_XSHUTDOWN;
+		GPIO_InitStruct.Pin = (uint32_t) GPIO_XSHUTDOWN;
 		GPIO_InitStruct.Mode = mode;
 		GPIO_InitStruct.Pull = GPIO_NOPULL;
 		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 		break;
 	case GPIO_POWERENABLE:
-		GPIO_InitStruct.Pin= (uint32_t)GPIO_POWERENABLE;
+		GPIO_InitStruct.Pin = (uint32_t) GPIO_POWERENABLE;
 		GPIO_InitStruct.Mode = mode;
 		GPIO_InitStruct.Pull = GPIO_NOPULL;
 		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 		break;
 	case GPIO_INTERRUPT:
-		GPIO_InitStruct.Pin = (uint32_t)GPIO_INTERRUPT;
+		GPIO_InitStruct.Pin = (uint32_t) GPIO_INTERRUPT;
 		GPIO_InitStruct.Mode = mode;
 		GPIO_InitStruct.Pull = GPIO_NOPULL;
 		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 		break;
 	default:
-		 status = HAL_ERROR;
+		status = HAL_ERROR;
 		break;
-		}
+	}
 
-	if(status == HAL_OK){
+	if (status == HAL_OK) {
 		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 		return status;
-	}else{
+	} else {
 		char error_GPIO_set_string[ERROR_TEXT_LENGTH];
-	   sprintf(error_GPIO_set_string, "VL53L1_GPIO_SET_MODE HAL_ERROR : %d\r\n",status );
-	   HAL_UART_Transmit(&huart3, (uint8_t*)error_GPIO_set_string, strlen(error_GPIO_set_string), HAL_MAX_DELAY);
-	    return status;
+		sprintf(error_GPIO_set_string, "VL53L1_GPIO_SET_MODE HAL_ERROR : %d\r\n", status);
+		HAL_UART_Transmit(&huart3, (uint8_t*) error_GPIO_set_string, strlen(error_GPIO_set_string), HAL_MAX_DELAY);
+		return status;
 	}
 }
 
-
-HAL_StatusTypeDef RANGING_SENSOR_COMMS_GPIO_Set_Value(uint16_t pin, uint8_t value){
+HAL_StatusTypeDef RANGING_SENSOR_COMMS_GPIO_Set_Value(uint16_t pin, uint8_t value) {
 
 	HAL_StatusTypeDef status = HAL_OK;
-	if(value == GPIO_PIN_SET){
-		 HAL_GPIO_WritePin(GPIOB, pin, GPIO_PIN_SET);
-		 return status;
-	}else{
-		 HAL_GPIO_WritePin(GPIOB,pin,GPIO_PIN_RESET);
-		 return status;
-		}
+	if (value == GPIO_PIN_SET) {
+		HAL_GPIO_WritePin(GPIOB, pin, GPIO_PIN_SET);
+		return status;
+	} else {
+		HAL_GPIO_WritePin(GPIOB, pin, GPIO_PIN_RESET);
+		return status;
+	}
 }
 
-HAL_StatusTypeDef RANGING_SENSOR_COMMS_GPIO_Get_Value(uint16_t pin, uint8_t *value){
+HAL_StatusTypeDef RANGING_SENSOR_COMMS_GPIO_Get_Value(uint16_t pin, uint8_t *value) {
 
 	HAL_StatusTypeDef status = HAL_OK;
 
-	if(HAL_GPIO_ReadPin(GPIOB, pin) == GPIO_PIN_SET){
+	if (HAL_GPIO_ReadPin(GPIOB, pin) == GPIO_PIN_SET) {
 		value = 1;
-	}else{
+	} else {
 		value = 0;
 	}
 	return status;

@@ -1,8 +1,8 @@
-../Core/Src/Motors_PID_and_manager.c:36:6:safe_startup	16	static
-../Core/Src/Motors_PID_and_manager.c:48:10:actual_perpendicular_ranging_data	32	static
-../Core/Src/Motors_PID_and_manager.c:71:6:motors_pid_turner_and_turn_on	32	static
-../Core/Src/Motors_PID_and_manager.c:84:10:pid_motors	40	static
-../Core/Src/Motors_PID_and_manager.c:122:6:motor_actuation	16	static
-../Core/Src/Motors_PID_and_manager.c:129:6:motors_safe_turn_off	8	static
-../Core/Src/Motors_PID_and_manager.c:145:6:HAL_TIM_PeriodElapsedCallback	16	static
-../Core/Src/Motors_PID_and_manager.c:162:6:HAL_GPIO_EXTI_Callback	16	static
+../Core/Src/Motors_PID_and_manager.c:35:6:safe_startup	16	static
+../Core/Src/Motors_PID_and_manager.c:46:10:actual_perpendicular_ranging_data	32	static
+../Core/Src/Motors_PID_and_manager.c:67:6:motors_pid_turner_and_turn_on	32	static
+../Core/Src/Motors_PID_and_manager.c:81:10:pid_motors	40	static
+../Core/Src/Motors_PID_and_manager.c:111:6:motor_actuation	16	static
+../Core/Src/Motors_PID_and_manager.c:118:6:motors_safe_turn_off	8	static
+../Core/Src/Motors_PID_and_manager.c:134:6:HAL_TIM_PeriodElapsedCallback	16	static
+../Core/Src/Motors_PID_and_manager.c:150:6:HAL_GPIO_EXTI_Callback	16	static

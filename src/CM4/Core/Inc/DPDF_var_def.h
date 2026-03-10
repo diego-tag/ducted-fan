@@ -1,7 +1,6 @@
 /**********************************************************************************************************
  * _______________________________________________________________________________________________________
- *| @file DPDF_var_def.h																				  |
- *| @author Robert Laurentiu Mincu																		  |
+ *| @file DPDF_var_def.h																				  |																  |
  *| @brief This file containes the macros, variables and data structure used in the firmware sections     |
  *| 		  responible for motor, servo and PID management.											  |
  *| @version 0.2																				          |
@@ -42,7 +41,7 @@
  * 		  It defines the number of the toggles of the LD3 on NUCLEO-H745ZIQ. The number of seconds
  * 		  is obtained by dividing this value by two.
  */
-#define NUMBER_OF_TOGGLES																16
+#define NUMBER_OF_TOGGLES																10
 
 /**
  * @def CCR_VALUE_FOR_MOTOR_ACT
@@ -65,7 +64,7 @@
  * 		  corresponds to a duty cycle of 12%
  *
  */
-#define UPPER_LIMIT_TOP_MOTOR_SATURATION 950
+#define UPPER_LIMIT_TOP_MOTOR_SATURATION 1800
 
 /**
  * @def LOWER_LIMIT_TOP_MOTOR_SATURATION
@@ -158,7 +157,8 @@ typedef struct{
 	float der_coeff;
 	float int_coeff;
 	float sampl_time;
-
+    float err_old;
+    float int_term;
 } pid_prmts_t;
 
 /**
@@ -175,6 +175,19 @@ typedef DPDF_axis_rot_t *DPDF_axis_rotation;
  * @brief Pointer to the structure: pid_prmts_t. It was created to improve code readability.
  */
 typedef pid_prmts_t *pid_pars;
+
+
+typedef struct {
+    // Parameters
+    float kp;
+    float ki;
+    float kd;
+    float sample_time;
+
+    // Controller state (memory)
+    float int_term;
+    float e_old;
+} pid_controller_t;
 
 
 

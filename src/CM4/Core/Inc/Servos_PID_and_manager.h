@@ -130,3 +130,7 @@ void execution_servo(uint16_t ing_roll, uint16_t ing_pitch);
  */
 void servos_turn_off(void);
 
+
+uint16_t pid_servo_compute(pid_controller_t *pid, float ref, float angle_value);
+
+void pid_servo_init(pid_controller_t *pid, float kp, float ki, float kd, float sample_time);

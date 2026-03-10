@@ -1,7 +1,6 @@
 /**********************************************************************************************************
  * _______________________________________________________________________________________________________
- *| @file Servos_PID_and_manager.c																		  |
- *| @author Robert Laurentiu Mincu																		  |
+ *| @file Servos_PID_and_manager.c																		  |																	  |
  *| @brief This file contains the function definitions used for servo-motors control					  |
  *| @version 0.2																				          |
  *| @date 27-10-2025																					  |
@@ -36,8 +35,7 @@ void DPDF_BNO055_firmware_read_init(DPDF_zero_axis_rotation axis_zero_rot) {
 	axis_zero_rot->zero_rot_z = (int) euler_data_init.h;
 }
 
-void DPDF_BNO055_firmware_read(DPDF_zero_axis_rotation init_axis_rot,
-		DPDF_axis_rotation ist_axis_rot) {
+void DPDF_BNO055_firmware_read(DPDF_zero_axis_rotation init_axis_rot, DPDF_axis_rotation ist_axis_rot) {
 
 	struct bno055_euler_float_t euler_data_ist;
 
@@ -48,8 +46,7 @@ void DPDF_BNO055_firmware_read(DPDF_zero_axis_rotation init_axis_rot,
 	ist_axis_rot->rot_z = (int) euler_data_ist.h - init_axis_rot->zero_rot_z;
 }
 
-void pid_servo_roll_turner_and_turn_on(float kp, float ki, float kd,
-		float sample_time, pid_pars pointer_pid_pars_roll) {
+void pid_servo_roll_turner_and_turn_on(float kp, float ki, float kd, float sample_time, pid_pars pointer_pid_pars_roll) {
 
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 
@@ -60,8 +57,7 @@ void pid_servo_roll_turner_and_turn_on(float kp, float ki, float kd,
 
 }
 
-void pid_servo_pitch_turner_and_turn_on(float kp, float ki, float kd,
-		float sample_time, pid_pars pointer_pid_pars_pitch) {
+void pid_servo_pitch_turner_and_turn_on(float kp, float ki, float kd, float sample_time, pid_pars pointer_pid_pars_pitch) {
 
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
 
@@ -72,91 +68,60 @@ void pid_servo_pitch_turner_and_turn_on(float kp, float ki, float kd,
 
 }
 
-uint16_t pid_servo(pid_pars pid_pars_pointer, int16_t ref, int16_t angle_value) {
+void pid_servo_init(pid_controller_t *pid, float kp, float ki, float kd, float sample_time) {
+	pid->kp = kp;
+	pid->ki = ki;
+	pid->kd = kd;
+	pid->sample_time = sample_time;
+	pid->int_term = 0.0f;
+	pid->e_old = 0.0f;
+}
 
-	static float e_old = 0, int_term = 0;
-	uint16_t u;
-	float new_int_term_cl_wi, new_int_term_co_cl_wi;
+uint16_t pid_servo_compute(pid_controller_t *pid, float ref, float angle_value) {
 
-	/*------------------------------------- CLOCKWISE SECTION -------------------------------------*/
+	// Compute error
+	float error = ref - angle_value;
 
-	if (angle_value <= 0) {
+	// Proportional
+	float p_term = pid->kp * error;
 
-		int16_t e = ref - (-angle_value);
+	// Integral (Euler forward method)
+	float i_term_unclamped = pid->int_term + (pid->ki * pid->sample_time * error);
 
-		float prop_term_cl_wi = pid_pars_pointer->prop_coeff * e;
+	// Derivative (backward difference)
+	float d_term = (pid->kd / pid->sample_time) * (error - pid->e_old);
 
-		new_int_term_cl_wi = int_term
-				+ ((pid_pars_pointer->int_coeff * pid_pars_pointer->sampl_time)
-						/ 2) * (e_old + e);
+	// Total effort
+	float control_effort = p_term + i_term_unclamped + d_term;
 
-		float der_term_cl_wi = (pid_pars_pointer->der_coeff
-				/ pid_pars_pointer->sampl_time) * (e - e_old);
+	// Consider offset
+	float u_out = CENTER_UPPER_LOWER_SERVO_SATURATION + control_effort;
 
-		e_old = e;
+	// Anti-Windup (Clamping method) and saturation
+	uint16_t final_pwm;
 
-		u = CENTER_UPPER_LOWER_SERVO_SATURATION
-				- (prop_term_cl_wi + new_int_term_cl_wi + der_term_cl_wi);
+	if (u_out > UPPER_LIMIT_SERVO_SATURATION) {
+		final_pwm = UPPER_LIMIT_SERVO_SATURATION;
+		// Conditional integration: update integral only if error help with saturation
+		if (error < 0)
+			pid->int_term = i_term_unclamped;
 
-		/*ANTI WIND-UP FILTER*/
+	} else if (u_out < LOWER_LIMIT_SERVO_SATURATION) {
+		final_pwm = LOWER_LIMIT_SERVO_SATURATION;
+		// Conditional integration: update integral only if error help with saturation
+		if (error > 0)
+			pid->int_term = i_term_unclamped;
 
-		if (u < LOWER_LIMIT_SERVO_SATURATION) {
-
-			u = LOWER_LIMIT_SERVO_SATURATION;
-
-		} else if (u > CENTER_UPPER_LOWER_SERVO_SATURATION) {
-
-			u = CENTER_UPPER_LOWER_SERVO_SATURATION;
-
-		} else {
-
-			int_term = new_int_term_cl_wi;
-
-		}
-
-		return u;
-
+	} else {
+		// Linear
+		final_pwm = (uint16_t) u_out;
+		pid->int_term = i_term_unclamped; // Normal update
 	}
 
-	/*------------------------------------- COUNTERCLOCKWISE SECTION -------------------------------------*/
+	// Save error for the computation in the next loop
+	pid->e_old = error;
 
-	if (angle_value > 0) {
-
-		int16_t e_2 = ref - angle_value;
-
-		float prop_term_co_cl_wi = pid_pars_pointer->prop_coeff * e_2;
-
-		new_int_term_co_cl_wi = int_term
-				+ ((pid_pars_pointer->int_coeff * pid_pars_pointer->sampl_time)
-						/ 2) * (e_old + e_2);
-
-		float der_term_co_cl_wi = (pid_pars_pointer->der_coeff
-				/ pid_pars_pointer->sampl_time) * (e_2 - e_old);
-
-		e_old = e_2;
-
-		u = CENTER_UPPER_LOWER_SERVO_SATURATION
-				+ (prop_term_co_cl_wi + new_int_term_co_cl_wi
-						+ der_term_co_cl_wi);
-
-		/*ANTI WIND-UP FILTER*/
-
-		if (u < CENTER_UPPER_LOWER_SERVO_SATURATION) {
-
-			u = CENTER_UPPER_LOWER_SERVO_SATURATION;
-
-		} else if (u > UPPER_LIMIT_SERVO_SATURATION) {
-
-			u = UPPER_LIMIT_SERVO_SATURATION;
-
-		} else {
-
-			int_term = new_int_term_co_cl_wi;
-
-		}
-		return u;
-	}
-
+	return final_pwm;
 }
 
 void execution_servo(uint16_t ingresso_roll, uint16_t ingresso_pitch) {

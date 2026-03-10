@@ -59,12 +59,20 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LD1_Pin GPIO_PIN_0
+#define LD1_GPIO_Port GPIOB
+#define VL52L1X_GPIO1_Pin GPIO_PIN_12
+#define VL52L1X_GPIO1_GPIO_Port GPIOE
+#define VL53L1X_XSHUT_Pin GPIO_PIN_14
+#define VL53L1X_XSHUT_GPIO_Port GPIOE
 #define LD3_Pin GPIO_PIN_14
 #define LD3_GPIO_Port GPIOB
 #define STLINK_RX_Pin GPIO_PIN_8
 #define STLINK_RX_GPIO_Port GPIOD
 #define STLINK_TX_Pin GPIO_PIN_9
 #define STLINK_TX_GPIO_Port GPIOD
+#define POWER_VL53L1X___BNO055_Pin GPIO_PIN_12
+#define POWER_VL53L1X___BNO055_GPIO_Port GPIOG
 #define LD2_Pin GPIO_PIN_1
 #define LD2_GPIO_Port GPIOE
 
