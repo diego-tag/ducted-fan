@@ -1,8 +1,0 @@
-../Core/Src/Servos_PID_and_manager.c:27:6:DPDF_BNO055_firmware_read_init	32	static
-../Core/Src/Servos_PID_and_manager.c:38:6:DPDF_BNO055_firmware_read	32	static
-../Core/Src/Servos_PID_and_manager.c:49:6:pid_servo_roll_turner_and_turn_on	32	static
-../Core/Src/Servos_PID_and_manager.c:60:6:pid_servo_pitch_turner_and_turn_on	32	static
-../Core/Src/Servos_PID_and_manager.c:71:6:pid_servo_init	32	static
-../Core/Src/Servos_PID_and_manager.c:80:10:pid_servo_compute	56	static
-../Core/Src/Servos_PID_and_manager.c:127:6:execution_servo	16	static
-../Core/Src/Servos_PID_and_manager.c:133:6:servos_turn_off	8	static
