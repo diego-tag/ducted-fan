@@ -61,8 +61,8 @@ DMA_HandleTypeDef hdma_usart3_tx;
 
 /* USER CODE BEGIN PV */
 volatile bool run = 0;
-volatile bool flag_int_servo_control = false;
-volatile bool flag_int_motor_control = false;
+volatile bool actuate_servo_control = false;
+volatile bool actuate_motors_control = false;
 uint16_t counter_interrupt = 0;
 uint8_t buff[50];
 
@@ -278,8 +278,8 @@ int main(void) {
 
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (flag_int_motor_control) {
-			flag_int_motor_control = false;
+		if (actuate_motors_control) {
+			actuate_motors_control = false;
 
 			VL53L1_ClearInterruptAndStartMeasurement(Dev);
 
@@ -289,16 +289,15 @@ int main(void) {
 
 			motor_actuation(pwm_motors);
 
-			// Only for debug: remove these lines in production to avoid slowing down the control
-			sprintf(msg_VL53L1X, "%d,%d\n", rangingData.RangeMilliMeter, pwm_motors); // Current_height, command_sent_to_the_motors
+			sprintf(msg_VL53L1X, "%d,%d\n", rangingData.RangeMilliMeter, pwm_motors);
 			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X));
 
 		}
 
 		/*--------------------------------------------- SERVO-MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (flag_int_servo_control && false) {
-			flag_int_servo_control = false;
+		if (actuate_servo_control) {
+			actuate_servo_control = false;
 
 			DPDF_BNO055_firmware_read(axis_zero_rot, axis_rotation_ist);
 
@@ -307,7 +306,6 @@ int main(void) {
 
 			execution_servo(pwm_roll, pwm_pitch);
 
-			// Only for debug: remove these lines in production to avoid slowing down the control
 			sprintf(msg_bno, "%ld,%ld,%d,%d\n", axis_rotation_ist->rot_x, axis_rotation_ist->rot_y, pwm_roll, pwm_pitch);
 			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_bno, strlen(msg_bno));
 

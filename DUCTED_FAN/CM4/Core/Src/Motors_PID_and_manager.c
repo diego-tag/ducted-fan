@@ -25,8 +25,8 @@ extern TIM_HandleTypeDef htim7;
 extern TIM_HandleTypeDef htim3;
 extern int run;
 extern int flag_int;
-extern int flag_int_servo_control;
-extern int flag_int_motor_control;
+extern int actuate_servo_control;
+extern int actuate_motors_control;
 
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 		    FUNCTIONS DEFINITIONS				      					     */
@@ -160,7 +160,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	}
 
 	if (htim->Instance == TIM7) {
-		flag_int_servo_control = true;
+		actuate_servo_control = true;
 	}
 
 }
@@ -173,7 +173,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	// When VL53L1X data is ready, trigger PID
 	if (GPIO_Pin == GPIO_PIN_12) {
-		flag_int_motor_control = true;
+		actuate_motors_control = true;
 	}
 
 }
