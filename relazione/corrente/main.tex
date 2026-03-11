@@ -1,1 +1,2375 @@
-Caricare qui tutta la relazione
+\documentclass[11pt]{report}
+\usepackage{titlesec}
+\titleformat{\chapter}
+{\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+\usepackage[margin=1.2in]{geometry}
+\usepackage[toc,page]{appendix}
+\usepackage{graphicx}
+\usepackage{lipsum}
+\usepackage{caption}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{indentfirst}
+\usepackage{verbatim}
+\usepackage{colorprofiles}
+\usepackage{listings}   %<- per inserire il codice
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{gensymb}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{custom_green}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{custom_blue}{rgb}{  0.05, 0.05, 0.97}
+\definecolor{custom_brown}{rgb}{ 0.69, 0.38, 0.10}
+\definecolor{custom_purple}{rgb}{0.58, 0.00, 0.82}
+\definecolor{custom_orange}{rgb}{0.94, 0.59, 0.09}
+
+\lstdefinestyle{MATLABstyle}{   
+	commentstyle=\color{custom_green},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstdefinelanguage{Cpp}{
+	language=C++,
+	backgroundcolor=\color{white},  
+	basicstyle=\footnotesize \ttfamily \color{black} \bfseries,   
+	breakatwhitespace=false,       
+	breaklines=true,               
+	captionpos=b,                   
+	commentstyle=\color{custom_green},   
+	deletekeywords={...},          
+	escapeinside={\%*}{*)},
+	keywordstyle=\color{custom_purple},
+	identifierstyle=\color{blue},
+	stringstyle=\color{blue},      
+	numbers=left,                 
+	numbersep=5pt,                  
+	numberstyle=\tiny\color{black}, 
+	rulecolor=\color{black},        
+	showspaces=false,               
+	showstringspaces=false,        
+	showtabs=false,                
+	stepnumber=1,                   
+	tabsize=5,                     
+	title=\lstname,                 
+}
+
+\lstdefinelanguage{Python}{
+	keywords={from, import, def, return, as, in, len, if, elif, else, for, while},
+	breakatwhitespace=false,       
+	breaklines=true,   
+	morecomment=[l]{\#},
+	morestring=[b]",
+	commentstyle=\color{red},
+	keywordstyle=\color{custom_purple},
+	numberstyle=\tiny\color{black},
+	stringstyle=\color{custom_green},
+	basicstyle=\ttfamily\footnotesize,
+	captionpos=b,
+	showstringspaces=false,        
+	showtabs=false,                
+	numbers=left,                 
+	numbersep=5pt,                  
+	numberstyle=\tiny\color{black}, 
+	rulecolor=\color{black},                      
+	tabsize=5,                     
+	title=\lstname,    
+}
+
+\lstdefinelanguage{MATLABc}{
+	language=MATLAB,
+	backgroundcolor=\color{white},  
+	basicstyle=\footnotesize \ttfamily \color{black} \bfseries,   
+	breakatwhitespace=false,       
+	breaklines=true,               
+	captionpos=b,
+	morestring=[b]",
+	commentstyle=\color{custom_green},   
+	keywordstyle=\color{custom_blue},
+	morekeywords={clearvars},
+	deletekeywords={fprintf},
+	identifierstyle=\color{black},
+	stringstyle=\color{custom_purple},      
+	numbers=left,                 
+	numbersep=5pt,                  
+	numberstyle=\tiny\color{black}, 
+	rulecolor=\color{black},        
+	showspaces=false,               
+	showstringspaces=false,        
+	showtabs=false,                
+	stepnumber=1,                   
+	tabsize=5,                     
+	title=\lstname,                 
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\begin{document}
+	\captionsetup[figure]{margin=1.5cm,font=small,labelfont={bf},name={Figure},labelsep=colon,textfont={it}}
+	\captionsetup[table]{margin=1.5cm,font=small,labelfont={bf},name={Table},labelsep=colon,textfont={it}}
+	
+	
+	\begin{titlepage}
+		\begin{center}
+			\LARGE {\scshape{Università Politecnica delle Marche}}\\[0.5cm]
+			\LARGE {\scshape{Ingegneria Informatica e dell'Automazione}}\\[0.7cm]
+			\linespread{1}
+			\huge {\bfseries Ducted Fan }\\[1cm]
+			\linespread{1}
+			\includegraphics[width=5cm]{images/logoUnivpm.jpg}\\[0.5cm]
+			\linespread{1.2}
+			\Large Corso di\\
+			\Large {\scshape{Laboratorio di Automazione}} \\[0.3cm]
+			\Large {Anno accademico 2025-2026 \\[0.8cm]}
+			{\Large Studenti:}
+			\hfill {\Large Professore:}\\
+			\begin{minipage}[t]{0.48\textwidth}
+				\raggedright
+				{\Large Mencarelli Matteo}\\
+				{\Large Secci Bianca}\\
+				{\Large Tagliatesta Diego}
+			\end{minipage}
+			\hfill
+			\begin{minipage}[t]{0.48\textwidth}
+				\raggedleft
+				{\Large Andrea Bonci}\\[0.4cm]
+				{\Large Dottorando:}\\
+				{\Large Alessandro Di Biase}
+			\end{minipage}\\[1cm]
+			\centering{
+				\includegraphics[width=2cm]{images/dii_new.png}\\[0.3cm]
+				\large Dipartimento di Ingegneria dell'Informazione\\[0.3cm]
+			}
+		\end{center}
+	\end{titlepage}
+	
+	\pagenumbering{arabic}
+	\tableofcontents
+	\addcontentsline{toc}{chapter}{Introduzione}
+	\newpage
+	
+	\pagestyle{plain}
+	
+	\section*{Introduzione}
+	Spiegazione dettagliata del task assegnato al gruppo (cosa avete fatto e su quale sistema).\\
+	Se per lo svolgimento del task è stato necessario interagire con altri gruppi che hanno lavorato sullo stesso sistema presentare anche brevemente i task svolti dagli altri gruppi e spiegare la loro interconnessione.
+	Se si è invece optato per far confluire il lavoro di più gruppi in un'unica relazione, va spiegato qual era il task iniziale dei singoli gruppi e poi come è avvenuta l'integrazione. \\
+	In sintesi, l'introduzione deve permettere al lettore di capire subito su cosa avete lavorato.
+	Al termine dell'introduzione inserite anche una breve descrizione per capitoli del contenuto della restante parte della relazione (es Nel Capitolo \ref{Hardware} viene descritto...). \\
+	\newline
+	Nel seguito la struttura in capitoli di massima per ogni relazione, da adattare qualora necessario. \\
+	\textcolor{red}{NOTA: La relazione va pensata e scritta nell'ottica di dare a chi verrà dopo di voi un documento utile per capire a che punto è arrivata l'attività svolta dal vostro gruppo e per metterli in condizione di portare avanti il vostro lavoro. Di conseguenza dovete essere chiari e diretti, riportando solo le informazioni necessarie e evidenziando in modo critico cosa effettivamente funziona correttamente e cosa va migliorato}
+	
+	\newpage
+	\chapter{Sistema}
+	Nel presente capitolo viene descritta la struttura meccanica del \textit{Double Propeller Ducted-Fan (DPDF)} e viene introdotto l'obiettivo di controllo adottato nel progetto.
+	
+	\section{Double Propeller Ducted-Fan. Struttura}
+	Il \textit{DPDF} presenta una struttura cilindrica cava di 220 [mm] di altezza e con un diametro esterno pari a 235 [mm]. Il diametro interno, pari a 230 [mm], contiene le componenti necessarie al volo stabile dell'UAV.
+	
+	La configurazione con montaggio interno delle componenti responsabili del moto rappresenta l'elemento distintivo rispetto alle architetture di droni convenzionali. Tale configurazione risulta vantaggiosa per qualsiasi forma di interazione di contatto, sia con l'operatore umano sia con oggetti esterni, in quanto le eliche non sono esposte ma risultano integrate e protette dalla stessa struttura portante del drone.
+	
+	Proseguendo con la descrizione della struttura interna del \textit{DPDF}, nella parte superiore sono posizionati due motori disposti in configurazione controrotante. L'implementazione di tale assetto garantisce la generazione di spinte verticali senza che il drone ruoti su se stesso attorno all'asse Z, passante per il centro della struttura cilindrica. Le eliche, infatti, generano momenti torcenti in direzione opposta e, bilanciandosi, restituiscono un momento risultante nullo per il velivolo.
+	
+	Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste. I motori sono ancorati a una struttura a croce usata sia come base sia come rinforzo per le sollecitazioni che il \textit{DPDF} può subire. Tale struttura è stata progettata con una geometria e una finitura superficiale tali da minimizzare l'insorgenza di turbolenze aerodinamiche potenzialmente destabilizzanti per il volo del drone.
+	
+	Il disegno strutturale rende il \textit{DPDF} suscettibile a rotazioni indesiderate sul piano definito dagli assi X e Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinando una completa perdita di controllo del mezzo.
+	
+	Al fine di limitare tali perturbazioni, la parte inferiore del \textit{DPDF} integra due \textit{flap}: uno dedicato al controllo dell'assetto lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.
+	
+	I \textit{flap}, interagendo con il getto d'aria generato dai motori, operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{roll} e \textit{pitch}. L'intervento di regolazione si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso. Il \textit{flap}, ruotando di un piccolo angolo, genera una deviazione del getto che lo investe. Tale deviazione produce una variazione della distribuzione di pressione tra il lato esposto al flusso (lato di pressione) e il lato opposto (lato di depressione). La differenza di pressione genera una forza aerodinamica risultante che produce un momento correttivo sull'assetto del velivolo. In prima approssimazione, la forza può essere considerata perpendicolare alla superficie del \textit{flap}. La direzione e il verso della forza devono essere tali da contrastare il momento perturbativo.
+	
+	Entrambi i \textit{flap} sono collegati, a un'estremità, al servomotore che ne gestisce il movimento, mentre all'altra sono inseriti in un apposito modulo strutturale che, oltre a fissare ciascun sensore del sistema, lo mantiene parallelo al terreno. I \textit{flap} sono posizionati in modo tale da risultare perpendicolari tra loro.
+	
+	Lungo la superficie esterna del cilindro sono state posizionate le componenti hardware necessarie al perseguimento degli scopi progettuali. La posizione di tali componenti è stata oggetto di studio al fine di ottenere un preciso bilanciamento del sistema. Gli elementi hardware utilizzati verranno approfonditi nel Capitolo 2.
+	
+	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere un'ottima distribuzione dei pesi. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione permette di evitare l'allentamento del dado di fissaggio causato dal flusso d'aria incidente generato dai motori.
+	
+	L'intera struttura cilindrica, i \textit{flap}, il supporto di sostegno dei motori e i piedi di appoggio sono stati realizzati tramite stampa 3D, utilizzando PVC come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
+	
+	\section{Controllo del Double Propeller Ducted-Fan}
+	L'attuale obiettivo di controllo prevede l'ottenimento dell'\textit{hovering} del \textit{DPDF}.
+	Con il termine \textit{hovering} si fa riferimento alla condizione di volo stazionario, in cui l'UAV rimane fermo nello spazio rispetto a un riferimento inerziale, mantenendo posizione e quota costanti nel tempo.
+	
+	Per soddisfare l'obiettivo di \textit{hovering}, il firmware implementa la teoria dei regolatori PID: un regolatore è relativo al controllo di quota, mediante la regolazione della portanza dei motori, e due regolatori sono coinvolti nel controllo della posizione mediante la regolazione del comparto \textit{flap-servo}.
+	
+	\newpage
+	\chapter{Hardware}
+	\label{Hardware}
+	Nel presente capitolo viene fornita la descrizione di tutte le componenti hardware
+	impiegate ai fini progettuali.
+	Per ciascun componente sono stati approfonditi il ruolo nel sistema, le principali
+	caratteristiche fisiche e tecniche e le modalità di utilizzo. Infine sono stati riportati un
+	diagramma esplicativo dei collegamenti e una tabella riepilogativa delle connessioni.
+	\section{STM32 NUCLEO-H745ZI-Q. La scheda di controllo}
+	L'STM32 NUCLEO-H745ZI-Q è una scheda di sviluppo prodotta da STMicroelectronics, basata sul microcontrollore STM32H745ZI-TQ6, appartenente alla famiglia ad alte prestazioni STM32H7. Il dispositivo è stato progettato per facilitare lo sviluppo, il \textit{debug}, e la prototipazione di applicazioni \textit{embedded} complesse.
+	La NUCLEO-H745ZI-Q è stata utilizzata per sviluppo e \textit{testing} dei \textit{firmware} di gestione di tutte le componenti del \textit{D.P.D.F}. Su di essa sono state caricate tutte le librerie software sviluppate con l'ausilio di STMCubeIDE.
+	A seguire, una descrizione dettagliata delle \textit{features} del microcontrollore STM32H745ZI-TQ6.
+	
+	\subsection{STM32H745ZI-TQ6. Architettura}
+	Il microcontrollore STM32H745ZI-TQ6 presenta un'architettura \textit{dual-core} a 32-bit composta da un processore ad alte prestazioni, il \textbf{Cortex-M7}, e da un processore il cui utilizzo è consigliato per applicazioni \textit{real-time} e \textit{low-power tasks}. L'architettura consente l'implementazione di applicazioni \textit{multithread}.
+	In questo progetto di tesi, l'esecuzione delle librerie \textit{software} di gestione dei dispositivi interessati è affidata al \textbf{Cortex-M4}.
+	La selezione e la configurazione delle periferiche dello \textit{STM32H745ZI-TQ6} necessarie al raggiungimento degli obiettivi progettuali verranno approfondite nel capitolo dedicato al \textit{firmware}.
+	A seguire un elenco delle caratteristiche concernenti all'architettura \textit{dual-core}:
+	\begin{itemize}
+		\item Il \textbf{Cortex-M7} opera ad una frequenza di 480 MHz.
+		\item Il \textbf{Cortex-M4} opera ad una frequenza di 240 MHz.
+	\end{itemize}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{figures/IMG2-STM32H745ZI-TQ6.png}
+		\caption{\textcolor{black}{Il microcontrollore STM32H745ZI-TQ6}}
+		\label{fig:stm32h745zi-tq6}
+	\end{figure}
+	
+	
+	\subsection{STM32H745ZI-TQ6. Memoria}
+	Il microcontrollore possiede una struttura di memoria complessa e stratificata.
+	Le memorie interne principali sono la memoria \textit{Flash} e la \textit{SRAM}. Inoltre, il \textit{core M7} monta una \textit{cache L1} e una piccola \textit{backup SRAM} alimentabile a batteria.
+	
+	\paragraph{\small{Flash}}\mbox{}\\
+	La Flash interna da \textbf{2 MByte} è l'area di memoria su cui risiede il \textit{firmware}. La memoria in questione è organizzata in \textit{dual-bank}, che permette la programmazione/cancellazione di una banca dati mentre si esegue sull'altra.
+	
+	\paragraph{\small{SRAM}}\mbox{}\\
+	Il dispositivo dispone di circa \textbf{1 MByte} di memoria dati volatile o SRAM, distribuita in più banchi con caratteristiche e destinazioni d'uso differenziate. In particolare:
+	\begin{itemize}
+		\item La SRAM1 e la SRAM2, rispettivamente da 320 KByte e 384 KByte, costituiscono i blocchi principali ad alta velocità, accessibili da entrambi i \textit{core}. Rappresentano l'area privilegiata per l'allocazione dei dati che richiedono tempi di accesso ridotti e condivisibilità tra i due processori.
+		\item Il blocco di SRAM3, da 128 KByte, è tipicamente dedicato al \textbf{Cortex-M4}, favorendo così una separazione logica delle risorse riducendo anche i conflitti di accesso.
+		\item SRAM4, SRAM5 e SRAM6, in ordine, 128 KByte, 64 KByte e 64 KByte completano la struttura, fornendo ulteriori spazi di memoria che possono essere destinati a funzioni specifiche o a buffer ad alte prestazioni, secondo esigenze applicative.
+	\end{itemize}
+	
+	\paragraph{\small{Cache L1}}\mbox{}\\
+	Il \textbf{Cortex-M7}, a supporto dell'efficienza complessiva, integra una \textit{cache L1} per istruzioni e dati, riducendo la latenza di accesso alla memoria non volatile e minimizzando i colli di bottiglia dovuti alla differenza tra la velocità del processore e quella della \textit{Flash}. In tal modo le prestazioni globali del sistema risultano incrementate.
+	
+	\paragraph{\small{Flexible Memory Controller e Dual-mode Quad-SPI}}\mbox{}\\
+	Il \textit{Flexible Memory Controller} è un'unità hardware che consente l'interfacciamento diretto con memorie parallele esterne al dispositivo. Il \textit{FMC} supporta: SRAM, PSRAM, SDRAM, NOR Flash e NAND Flash. L'integrazione del \textit{FMC} comporta un incremento nell'efficienza delle comunicazioni. Una volta configurato il \textit{controller}, la memoria esterna entra a far parte dello spazio di indirizzi del microcontrollore mascherando la complessità del protocollo.
+	Il \textit{Dual Mode Quad-SPI} è un'altra interfaccia dedicata alle \textit{Flash} seriali esterne ad alta velocità. La soluzione poco fa citata permette di espandere la memoria dedicata al \textit{firmware} oppure di archiviare dati.
+	
+	\paragraph{\small{Memory Protection Unit}}\mbox{}\\
+	La \textit{Memory Protection Unit} è una componente hardware integrata in ciascun \textit{core} del microcontrollore. La mansione del circuito integrato in questione è quella di controllare e regolare l'accesso alla memoria.
+	
+	\paragraph{Unità di elaborazione}\mbox{}\\
+	L'architettura dell'STM32H745ZI-TQ6 integra anche unità di elaborazione dedicate ai calcoli numerici e al processamento dei segnali.
+	
+	\paragraph{\small{Floating Point Unit}}\mbox{}\\
+	La \textit{FPU} è un'unità hardware integrata nei due \textit{core} di elaborazione che consente l'esecuzione diretta di operazioni in virgola mobile. La presenza di questo circuito integrato riduce drasticamente la latenza di calcolo in applicazioni che richiedono elaborazioni numeriche complesse.
+	Nel caso del \textit{\textbf{Cortex-M7}} la FPU supporta sia la \textit{single precision} che la \textit{double precision}, mentre il \textit{\textbf{Cortex-M4}} solo una FPU a precisione singola.
+	
+	\paragraph{\small{Digital Signal Processing}}\mbox{}\\
+	Il \textit{Digital Signal Processing} è un supporto hardware per istruzioni dedicate all'elaborazione numerica di segnali digitali.
+	
+	\subsection{STM32H745ZI-TQ6. Convertitori}
+	\paragraph{\small{Convertitori Analogici-Digitali}}\mbox{}\\
+	L'STM32H745ZI-TQ6 integra tre convertitori analogici-digitali \textbf{SAR ADC} (\textit{successive approximation analog-to-digital converter}) a 16-bit: ADC1, ADC2 e ADC3.
+	I primi due, l'ADC1 e l'ADC2, sono \textit{tightly coupled}, cioè strettamente accoppiati, consentendo una sincronizzazione precisa delle conversioni. Questo approccio permette di ottenere alte frequenze di campionamento, precisione temporale e riduzione del carico computazionale del core. L'ADC3 invece è istanziato separatamente.
+	La risoluzione può essere configurata a 16, 14, 12, 10 o 8 bit.
+	
+	\paragraph{\small{Convertitori Digitali-Analogici}}\mbox{}\\
+	Il microcontrollore possiede 2 \textbf{DAC} indipendenti la cui risoluzione è a 12 bit.
+	
+	\subsection{STM32H745ZI-TQ6. Timer}
+	I \textit{timer} sono periferiche hardware fornite dal microcontrollore per svolgere attività correlate al tempo.
+	L'STM32H745ZI-TQ6 fornisce 15 \textit{timer} di diverso tipo e 5 \textit{low power timer}. Alcuni di questi possono essere utilizzati per la genesi di segnali PWM.
+	
+	\subsection{STM32H745ZI-TQ6. Periferiche di comunicazione}
+	L'STM32H745ZI-TQ6 integra un insieme ampio e variegato di protocolli di comunicazione. Le periferiche possono essere raggruppate in tre categorie principali: comunicazione seriale, comunicazione veloce e interfacce multimediali speciali.
+	Per quanto riguarda la comunicazione seriale, il microcontrollore supporta i protocolli: $I^{2}C$, USART/UART e SPI.
+	Nell'ambito della comunicazione veloce e avanzata il dispositivo supporta i protocolli: CAN (\textit{Controller Area Network}), USB OTG, Ethernet MAC, SD/SDIO/MMC.
+	L'integrazione delle interfacce multimediali consente la gestione di applicazioni audio, grafiche e visione artificiale: SAI (\textit{Serial Audio Interface}), DFSDM (\textit{Digital Filter for Sigma-Delta Modulators}) e DCMI (\textit{Digital Camera Interface}).
+	
+	\subsection{STM32H745ZI-TQ6. Eventi asincroni}
+	Il microcontrollore offre la possibilità di gestire con efficacia ogni genere di \textit{interrupt} (evento asincrono) grazie all'integrazione di un'unità di elaborazione dedicata: il NVIC (\textit{Nested Vector Interrupt Controller}).
+	
+	
+	\subsection{NUCLEO-H745ZI-Q. Caratteristiche della scheda}
+	La NUCLEO-H745ZI-Q è la scheda di sviluppo (\textit{development board}) che proietta all'esterno tutte le funzionalità del microcontrollore poco fa descritto.
+	
+	\paragraph{Caratteristiche fisiche}
+	\begin{itemize}
+		\item Dimensioni: $133.34\times 70.00$ [mm].
+		\item Peso: 120 [g].
+	\end{itemize}
+	
+	\paragraph{ST-LINK/V3E}\mbox{}\\
+	L'ST-LINK/V3E è un'interfaccia hardware, gestita dal microcontrollore STM32F723, dedicata al collegamento tra elaboratore esterno e microcontrollore. Il modulo permette di caricare il compilato \textit{firmware} sul microcontrollore direttamente dalla porta USB Micro-B collegata al sistema di elaborazione.
+	Il modulo permette, inoltre, di eseguire il \textit{debug} in tempo reale del codice caricato sull'\textit{MCU}.
+	L'ST-LINK/V3E fornisce anche interfacce ausiliarie utili ai fini dello sviluppo.
+	A seguire un breve elenco esplicativo di queste funzionalità aggiuntive:
+	\begin{itemize}
+		\item VCP (\textit{Virtual COM Port}): lo ST-LINK integra un’interfaccia di comunicazione
+		che emula una porta seriale virtuale (da cui il nome Virtual COM Port, VCP),
+		tramite connessione USB. In tal maniera, l’elaboratore riconosce lo ST-LINK
+		come una porta COM standard.
+		\item MSC (\textit{Mass Storage Class}): la scheda di sviluppo appare al sistema di elaborazione come una memoria esterna.
+	\end{itemize}
+	
+	\paragraph{Alimentazione}\mbox{}\\
+	La scheda di sviluppo offre diversi approcci per l'alimentazione:
+	\begin{itemize}
+		\item Alimentazione via USB Micro-B ST-LINK a 5V.
+		\item Alimentazione via Jack esterno da 7-12V.
+		\item Alimentazione tramite \textit{pin Vin} esterno a 3.3V.
+	\end{itemize}
+	Nonostante la presenza di diversi approcci di alimentazione e i differenti voltaggi, la tensione di alimentazione del microcontrollore è 3.3V, ottenuta attraverso regolatori interni.
+	Sulla scheda di sviluppo sono presenti dei \textit{jumper}, ovvero dei piccoli interruttori meccanici che permettono di riconfigurare l'\textit{hardware} della scheda evitando di intaccare il \textit{firmware}. Si suggerisce di prestare attenzione alla configurazione dei \textit{jumper} qualora si volesse alimentare la scheda da ingressi diversi dal \textbf{COM1} o \textbf{MICRO-B ST-LINK}.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/NUCLEO_DettaglioJumpers.png}
+		\caption{NUCLEO-H745ZI-Q. Dettaglio esplicativo dei \textit{jumper}}.
+		\label{fig:nucleo-jumpers}
+	\end{figure}
+	
+	\paragraph{Formato fisico}\mbox{}\\
+	La scheda di sviluppo in esame appartiene alla famiglia \textbf{Nucleo-144} di STMicroelectronics e, dunque, mette a disposizione 2 connettori \textbf{\textit{Morpho}} che espongono i 144 \textit{pin} del microcontrollore. Il sistema di espansione poco fa citato viene chiamato ST Zio.
+	La NUCLEO-H745ZI-Q offre, inoltre, la compatibilità hardware e pinout con gli \textit{shield Arduino Uno R3}.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/IMG1-FotoDaSopraScheda.png}
+		\caption{\textcolor{black}{La scheda di sviluppo NUCLEO-H745ZI-Q}}
+		\label{fig:nucleo-h745zi-q}
+	\end{figure}
+	
+	
+	\section{TATTU LiPo. Batteria ricaricabile}
+	Motori, Servomotori e E.S.C richiedono specifici livelli di tensione per il loro funzionamento, tensioni che non possono essere fornite dalla NUCLEO H745ZI-Q.
+	Si rende, quindi, necessario l'inserimento nel progetto di batterie ricaricabili.\\
+	La selezione delle batterie disponibili sul mercato è stata condotta a seguito di un'analisi approfondita delle caratteristiche elettriche di motori, servomotori ed E.S.C,
+	unitamente ad uno studio dettagliato delle esigenze di autonomia necessarie per le prove di volo, rapportando il tutto al \textit{budget} disponibile.\\
+	Le \textbf{TATTU LiPo} possiedono le prestazioni richieste dal progetto.
+	
+	\subsection{TATTU LiPo. Caratteristiche fisiche}
+	\begin{itemize}
+		\item Dimensioni: $74\times 35.5\times 29$ [mm].
+		\item Peso: 150 [g].
+		\item Numero di celle: 4.
+	\end{itemize}
+	
+	\subsection{TATTU LiPo. Caratteristiche tecniche e considerazioni operative}
+	\paragraph{\small{LiPo}}\mbox{}\\
+	La sigla \textit{LiPo} sta ad indicare la tecnologia elettrochimica utilizzata nella costruzione della batteria. \textit{LiPo} nasce da \textit{Lithium-Polymer}, ovvero polimero di litio.
+	La particolare nominazione deriva dal componente chimico utilizzato come elettrolita, che, nel caso in esame, non è liquido, ma un polimero gelificato. Malgrado nelle fonti ufficiali non venga
+	specificato il polimero usato nel progetto delle \textit{TATTU LiPo}, con il fine di informazione, è stato deciso di riportare quello più comunemente utilizzato per la tipologia di batterie in esame, il
+	\textit{polivinildenfluoro esafluoropropilene} (PVDF-HFP).\\
+	Rispetto ad altri sistemi elettrochimici presenti sul mercato (come ad esempio: Li-ion, $LiFePo_4$, NiMH ecc.), le batterie LiPo presentano un'elevata densità di potenza, una bassa resistenza interna e una
+	notevole flessibilità nelle geometrie costruttive, oltre ad un contenuto peso. Tali attributi risultano vantaggiosi nell'ambito della progettazione di UAV, come il \textit{D.P.D.F}.
+	
+	\paragraph{\small{Tensione}}\mbox{}\\
+	La \textit{TATTU LiPo} possiede \textbf{4} celle da \textbf{3.7 [V]}. Le celle sono collegate in serie, perciò la tensione nominale è circa \textbf{14.8 [V]}.\\
+	A carica completa, ogni cella può raggiungere i \textbf{4.2 [V]}, emettendo un'uscita di \textbf{16.8 [V]}.
+	Il mantenimento della tensione delle celle nell'intorno dei 3.7 [V] contribuisce a preservare la stabilità chimica interna delle batterie,
+	riducendo l'erosione delle celle e prolungandone la vita utile. Si consiglia di non mantenere le celle a 4.2 [V] per periodi prolungati di tempo, evitandone così il danneggiamento.\\
+	Nella fase iniziale e di sviluppo \textit{firmware}, le batterie sono state tenute in bilanciamento alla tensione nominale di 14.8 [V], mentre,
+	nella fase finale, in cui i \textit{test} di volo sono stati protagonisti, al fine di ottenere un aumento dell'autonomia delle batterie e della prestazione dei motori, queste venivano caricate, mantenendo il bilanciamento tra celle, fino a 4.2 [V] per cella.
+	Infine, è necessario adottare un'ulteriore accortezza per evitare danni. È consigliabile non far scendere la tensione della batteria al di sotto dei \textbf{12 [V]}, mantenendo così il valore di tensione di ogni cella sopra i \textbf{3 [V]}.
+	
+	\paragraph{\small{Capacità}}\mbox{}\\
+	La \textit{capacità} di una batteria, misurata in [mAh], \textit{milliAmpere-ora}, definisce la quantità di carica elettrica che la batteria può immagazzinare e fornire nel tempo.
+	Nel caso in esame, la capacità è di \textbf{1300 [mAh]}, vale a dire che la batteria può fornire \textbf{1.3 [A]} per un'ora. In generale si può utilizzare la seguente formula approssimata per il calcolo del tempo di funzionamento:
+	\begin{equation}
+		t_h = \frac{C\,\,[mAh]}{A\,\,[mA]}
+	\end{equation}
+	dove $t_h$ rappresenta il tempo di funzionamento in ore, $C$ la capacità della batteria espressa in milliAmpere-ora e $A$ la corrente assorbita espressa in milliAmpere.
+	Con il fine di aumentare l'autonomia di volo, si è optato per l'accoppiamento in parallelo di \textbf{due} \textit{TATTU LiPo}, così da ottenere una capacità totale di \textbf{2600 [mAh]}.
+	L'accoppiamento in sicurezza è stato effettuato utilizzando il \textit{\textbf{PowerSafe Twin della MNR-electronics}}, il quale verrà approfondito nella successiva sezione.
+	
+	\paragraph{\small{Capacità di scarica}}\mbox{}\\
+	Con il termine \textit{capacità di scarica} ci si riferisce alla quantità di corrente massima che la batteria può fornire, in sicurezza e in maniera continuativa, senza danneggiarsi.
+	La \textit{TATTU LiPo} possiede una capacità di scarica pari a \textbf{75C}, vale a dire che può erogare:
+	\begin{equation}
+		A_{max} = C_s\cdot C \implies A_{max} = 75\,\,[C]\cdot 1.3\,\,[A]= 97.5\,\,[A]
+	\end{equation}
+	senza surriscaldarsi o danneggiarsi.\\
+	Nella precedente formula, $A_{max}$ si riferisce alla corrente massima erogabile dalla batteria in sicurezza, espressa in [A], \textit{Ampère}. $C_s$ e $C$, invece, si riferiscono rispettivamente alla capacità
+	di scarica e alla capacità di erogazione di corrente in un'ora, espressa sempre in [A].
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/T.png}
+		\caption{TATTU LiPo 4S 1300mAh 75C}
+		\label{fig:tattu-lipo}
+	\end{figure}
+	
+	\section{PowerSafe Twin ADV. MNR-electronics}
+	Per garantire la sicurezza e l'affidabilità dell'alimentazione a due pacchi batteria, si è deciso per l'implementazione del
+	\textbf{modulo di ridondanza, PowerSafe Twin ADV di MNR-electronics}.\\
+	Il dispositivo incarna un'avanzata soluzione di \textit{ridondanza attiva}. Quest'ultima fa riferimento alla capacità del sistema di intervenire attivamente nel funzionamento del circuito con il fine di garantire continuità di alimentazione.
+	Il modulo, di fatti, monitora continuamente alcune variabili di stato, come tensione e corrente, selezionando, in tempo reale, il pacco alimentante il carico. Per esempio, se dovesse abbassarsi la tensione di una batteria sotto
+	una certa soglia critica, il dispositivo commuterebbe automaticamente sull'altra, evitando così una significativa interruzione della potenza fornita.\\
+	Nell'architettura del sistema è possibile distinguere tre moduli distinti.
+	
+	\paragraph{\small{Modulo di potenza}}\mbox{}\\
+	Il modulo di potenza è il circuito elettrico responsabile della commutazione tra i pacchi batteria, del bilanciamento e della distribuzione di corrente verso il carico.\\
+	Inoltre, il dispositivo implementa circuiti di protezione, isolando la sorgente guasta, qualora si dovesse presentare un malfunzionamento, ed evitando il trasferimento di corrente fra i pacchi batteria.
+	
+	\paragraph{\small{Modulo di controllo}}\mbox{}\\
+	Il modulo di controllo rappresenta il "centro di comando" del dispositivo. L'implementazione di un microprocessore permette la continua misura di parametri decisionali fondamentali, quali: la tensione delle batterie, la corrente di carico
+	e l'eventuale squilibrio. L'inserimento del modulo di controllo nell'architettura circuitale permette l'implementazione della, precedentemente citata, tecnologia di \textit{ridondanza attiva}.
+	
+	\paragraph{\small{Modulo di allarme}}\mbox{}\\
+	Il modulo di allarme provvede alla segnalazione di eventuali guasti mediante emissioni luminose (LED) ed acustiche (Buzzer).
+	
+	\subsection{PowerSafe Twin ADV. Caratteristiche fisiche e tecniche}
+	A seguire, un breve elenco delle caratteristiche fisiche e tecniche del dispositivo:
+	\begin{itemize}
+		\item Dimensioni con involucro protettivo: $80\times 59\times 26$ [mm].
+		\item Peso, considerando sia l'involucro protettivo che i cablaggi (connettori XT60): 100 [g].
+		\item Corrente massima gestibile: 100 [A] (in continua).
+		\item Numero di celle per pacco batteria gestibili: $[3S-8S]$.
+		\item Tensione massima ammessa in ingresso: $\approx 33.6$ [V]. Considerando il minimo 3.7 [V] e il massimo 4.2 [V] per cella: $[11.1\div 33.6]$ [V].
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/POWERSAFEMOD.png}
+		\caption{PowerSafe Twin ADV MNR-electronics}
+		\label{fig:powersafe-module}
+	\end{figure}
+	
+	\section{DFRobot Power Module. Convertitore di tensione}
+	Ai fini progettuali sono stati implementati diversi dispositivi, ciascuno dei quali richiedente una specifica tensione di alimentazione.
+	Si è reso necessario ricorrere a convertitori di tensione per distribuire nella maniera corretta le tensioni di alimentazione ai vari dispositivi.\\
+	Il \textbf{DFRobot Power Module} riceve in ingresso la tensione proveniente dal pacco batterie, erogando quattro diversi valori di tensione a seconda del terminale che si sceglie di utilizzare.\\
+	La prima soluzione offerta dal dispositivo fornisce in uscita la stessa tensione che si ha in ingresso, diventando così un ponte per il passaggio della tensione.\\
+	Un'altra soluzione consiste nell'utilizzo degli appositi \textit{pin} sul dispositivo, dai quali può essere erogata una tensione di \textbf{5 [V]}, selezionabile mediante un apposito \textit{switch}.\\
+	Infine, il dispositivo presenta un terminale che eroga una tensione variabile il cui valore è controllato da un \textit{dimmer}. Il \textit{dimmer} permette di selezionare valori intermedi fino ad un massimo
+	pari alla tensione di ingresso. Quest'ultima è stata utilizzata nell'alimentazione dei servomotori.
+	La presenza di due servomotori ha richiesto l'integrazione di due convertitori di tensione.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.5\textwidth]{figures/Convertitore_di_tensione_foto_tecnica.png}
+		\caption{DFRobot Power Module. Disposizione dei terminali di uscita}
+		\label{fig:dfrobot-terminali}
+	\end{figure}
+	
+	\paragraph{Caratteristiche fisiche}
+	\begin{itemize}
+		\item Dimensioni: $46\times 50\times 20$ [mm].
+		\item Peso: 35 [g].
+	\end{itemize}
+	
+	\paragraph{Caratteristiche tecniche}
+	\begin{itemize}
+		\item Intervallo di tensione in ingresso: \textbf{[3.6$\div$25] [V]}.
+		\item Intervallo di tensione esprimibile in uscita: \textbf{[3.3$\div$25] [V]}.
+		\item Massima potenza erogabile: \textbf{25 [W]}.
+		\item Frequenza di variazione: \textbf{350 [kHz]}.
+	\end{itemize}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/Convertitore_Tensione_foto_reale.jpg}
+		\caption{DFRobot Power Module}
+		\label{fig:dfrobot-modulo}
+	\end{figure}
+	
+	\section{Power Distribution Board}
+	Con \textbf{Power Distribution Board (PDB)} si fa riferimento ad un sottosistema elettrico la cui principale funzione è la \textbf{distribuzione in modo sicuro ed efficiente dell'energia fornita dal pacco batterie} agli \textit{E.S.C} e, conseguentemente, ai motori.
+	Ai fini progettuali, è stata selezionata una \textit{PDB}, il cui punto di prelievo del segnale presenta un connettore \textbf{XT60}, adatto al pacco batterie.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/PowerDistributionBoardQuad.jpg}
+		\caption{Power Distribution Board}
+		\label{fig:pdb}
+	\end{figure}
+	
+	Il \textit{PDB} integrato nel contesto operativo possiede quattro uscite eroganti al massimo una corrente di \textbf{20 [A]} ed un peso di \textbf{27.3 [g]}.
+	
+	\section{Turnigy AereoDrive SK3-3536 1400KV}
+	\label{MotoriBrushless}
+	Il Turnigy AereoDrive SK3 3536 1400kv è un motore \textit{Brushless} alimentato a corrente continua e pilotato a trifase con correnti alternate.\\
+	Il rotore contiene magneti permanenti disposti con polarità alternata lungo la sua circonferenza. Lo statore invece ospita tre avvolgimenti elettrici (fasi) disposti generalmente a 120 gradi elettrici l'uno rispetto all'altro, connessi ai tre terminali d'uscita che si identificano come A, B e C.\\
+	Il rotore, essendo formato da magneti permanenti, non necessita di alimentazione: è lo statore a generare il campo magnetico rotante che induce il moto.\\
+	Il cambio di polarità degli avvolgimenti deve essere gestito da un sistema elettronico esterno, \textit{l'Electronic Speed Controller (ESC)}, che nella successiva sezione verrà approfondito.\\
+	I tre conduttori che fuoriescono dal motore rappresentano i terminali delle tre fasi dello statore. Ciascun filo è collegato a uno degli avvolgimenti e nessuno di essi costituisce un riferimento comune.
+	Per far ruotare il motore è necessario che tali fasi vengano alimentate secondo una precisa sequenza temporale, generando un campo magnetico rotante.
+	Se si dovessero scambiare due dei tre cavi, l'ordine di commutazione si invertirebbe con conseguente variazione del senso di rotazione.\\
+	Nel progetto sono stati impiegati due motori del tipo precedentemente citato, disposti in configurazione \textbf{controrotante}, con il fine di compensare le rotazioni indesiderate di \textbf{yaw}.
+	Tale scelta consente di bilanciare le coppie di reazione generate dalle eliche, riducendo il momento torcente sul velivolo. Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo
+	attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste.
+	
+	\subsection{Turnigy AereoDrive SK3-3536 1400 KV. Caratteristiche fisiche e tecniche}
+	\begin{itemize}
+		\item Tensione operativa: \textbf{[11.1$\div$16.8] [V]}.
+		\item Valore KV: \textbf{1400 $\left(\frac{RPM}{V}\right)$}.
+		\item Potenza massima: \textbf{590 [W]}.
+		\item Corrente massima: \textbf{40 [A]}.
+		\item Resistenza interna: \textbf{[0.021$\div$0.025] [$\Omega$]}.
+		\item Corrente a vuoto: \textbf{0.021 [A]}.
+		\item Diametro dell'albero motore: \textbf{5 [mm]}.
+		\item Peso: \textbf{111 [g]}.
+		\item Spaziatura fori di montaggio: \textbf{25$\times$25 [mm]}.
+		\item Connettori \textit{bullet} \textbf{da 3.5 [mm]}.
+		\item Numero dei poli: \textbf{12}.
+	\end{itemize}
+	
+	Il valore "KV" è comune nel contesto del modellismo ed indica il numero di giri al minuto (RPM) che il motore compie per ogni \textit{volt} applicato a vuoto, in formula:
+	\begin{equation}
+		RPM = KV\cdot V
+	\end{equation}
+	A tensioni di alimentazione maggiori rispetto a quelle specificate il motore rischia di assorbire troppa corrente e surriscaldarsi.\\
+	I giri al minuto massimi dipenderanno dalla tensione applicata e dalle dimensioni delle eliche.\\
+	Nel presente progetto, il motore in interesse deve essere alimentato a batteria, vale a dire in corrente continua, lasciando spazio alla necessità di un dispositivo che trasformi la tensione continua erogata dalle batterie in un segnale trifase a corrente alternata.
+	Il dispositivo in questione è il precedentemente citato \textit{Electronic Speed Controller}.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{figures/TurnigyAereoDriveSK3-3536_1400KV.jpg}
+		\caption{Turnigy Aereo Drive SK3 3536 1400 KV}
+		\label{fig:turnigy-sk3}
+	\end{figure}
+	
+	\section{Turnigy Plush 40A. \textit{Electronic Speed Controller}}
+	Il Turnigy Plush 40A è un controllore elettronico di velocità per motori \textit{brushless} a corrente continua (BLDC).\\
+	Trasforma la tensione continua in ingresso in tensioni alternate sfasate di 120 gradi elettrici.\\
+	L'applicazione della corretta sequenza di correnti alle fasi dello statore richiede la conoscenza della posizione angolare in ogni istante di tempo. Il Turnigy Plush 40A stima tale informazione in maniera indiretta, misurando la forza controelettromotrice indotta dal rotore, evitando così l'uso di sensori di posizione; il dispositivo in interesse può dunque essere definito \textit{sensorless}.
+	L'ESC in questione può essere concettualmente suddiviso in due sezioni principali: la sezione di potenza e la sezione di controllo.
+	La \textbf{sezione di potenza} è responsabile della conversione \textit{continua-trifase}. Tale conversione è mediata da un ponte trifase a sei MOSFET, suddiviso a sua volta in tre mezzi ponti, ciascuno associato ad una fase del motore.
+	Ogni mezzo ponte è composto da un transistor di alto lato e da un transistor di basso lato, collegati rispettivamente al potenziale positivo della batteria e a massa. L'opportuna commutazione di apertura e chiusura dei sei MOSFET comporta la generazione di un segnale di tensione alternato per ogni fase.\\
+	La \textbf{sezione di controllo} ha come protagonista un microcontrollore che si occupa della generazione di segnali di pilotaggio e della stima della posizione del rotore. Il microcontrollore riceve in ingresso il comando di velocità di rotazione del motore sotto forma di segnale PWM.
+	Sulla base di tale comando, il microcontrollore determina il \textit{duty cycle} del PWM e calcola la sequenza di commutazione dei sei MOSFET, con conseguente generazione del campo magnetico rotante dello statore.\\
+	Il \textit{Double Propeller Ducted Fan} monta due Turnigy Plush 40A, uno per ogni motore.
+	
+	\subsection{Turnigy Plush 40A. Caratteristiche fisiche}
+	\begin{itemize}
+		\item Corrente nominale: 40 [A].
+		\item Corrente di picco: 55 [A].
+		\item Presenza di un \textit{Battery Eliminator Circuit} (BEC): 5 [V] a 3 [A].
+		\item Celle di batteria necessarie per il corretto funzionamento del dispositivo: $[2\div6]$.
+		\item Peso: 39 [g].
+		\item Dimensioni in [mm]: $60\times24\times15$.
+	\end{itemize}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/TurnigyPlush40A.jpg}
+		\caption{Turnigy Plush 40A}
+		\label{fig:turnigy-plush-40a}
+	\end{figure}
+	
+	\subsection{Turnigy Plush 40A. Programmazione}
+	Il Turnigy Plush 40A offre la possibilità di programmare il suo comportamento operativo, soddisfando così un vasto spettro di possibili esigenze progettuali.\\
+	Al fine di ottenere uno specifico comportamento dei motori, tale da adeguarsi alle particolari esigenze di un UAV come il \textit{Double Propeller Ducted Fan}, entrambi gli ESC sono stati minuziosamente riprogrammati.\\
+	L'accesso alla \textit{Programming Mode} e l'effettiva programmazione sono state effettuate mediante l'apposita \textit{Turnigy Programming Card}, acquistata separatamente.
+	Per effettuare la programmazione, è necessario disporre i collegamenti elettrici come in figura:
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/SchemaCollegamentiProgrammazioneEsc.png}
+		\caption{Schema dei collegamenti per la programmazione dell'ESC}
+		\label{fig:programmazione-esc}
+	\end{figure}
+	
+	La \textit{Turnigy Programming Card} richiede di essere alimentata da un segnale continuo di tensione appartenente al seguente intervallo: $[4.8\div6]$ [V]. Per la navigazione fra i parametri è necessario utilizzare il pulsante \textit{up/down}, mentre per la selezione dei corrispondenti valori deve essere utilizzato il pulsante \textit{left/right}.\\
+	Nel momento in cui verrà selezionato il valore desiderato del parametro in programmazione, il LED blu, che risponde al nome di \textit{connecting}, lampeggerà, segnalando così il successo dell'operazione.
+	A seguire, una piccola spiegazione del significato dei parametri e i valori attualmente selezionati:
+	
+	\paragraph{\small{Brake}}\mbox{}\\
+	Il parametro \textit{Brake} si riferisce alla modalità con cui viene gestita la mancanza di segnale PWM di controllo. Nel caso in cui dovesse essere impostato ad "ON" il motore verrà immediatamente frenato.\\
+	Il parametro in analisi non ha grande valenza ai fini progettuali dal momento che qualsiasi prova di volo è stata effettuata nell'apposita gabbia, per cui qualunque combinazione del parametro è accettabile. Nello svolgersi del progetto il parametro è stato impostato ad "OFF".
+	
+	\paragraph{\small{Battery Type}}\mbox{}\\
+	Il \textit{Battery Type} riferisce al dispositivo la tipologia di batteria in utilizzo, questo perché l'ESC monitora costantemente la tensione della batteria: quando questa scende sotto una certa soglia, entra in azione il \textit{Low Voltage Cut-off}, riducendo o interrompendo la potenza fornita al motore con il fine di evitare il danneggiamento delle celle.
+	Diverse tipologie di batterie hanno diverse curve di scarica.
+	L'ESC può gestire solamente due tipologie di batterie, LiPo e NiMH. Il progetto prevede l'utilizzo delle \textbf{Tattu LiPo} perciò il parametro è stato impostato ad Li-xx.
+	
+	\paragraph{\small{Low Voltage Protection Mode (Cut-off Type)}}\mbox{}\\
+	Come già riferito in precedenza, la \textit{Low Voltage Cut-Off} evita il danneggiamento delle celle delle batterie quando queste scendono sotto una certa soglia impostabile.\\
+	Il dispositivo permette di scegliere tra \textit{Soft Cut-Off} e \textit{Cut-Off}. Se si dovesse scegliere la modalità \textit{Soft}, al superamento della soglia, l'ESC ridurrà gradualmente la potenza in uscita. Se si dovesse invece scegliere l'altra modalità, il dispositivo interromperà immediatamente la linea di fornitura di potenza al motore.\\
+	Al fine di evitare il danneggiamento del sistema, dovuto a un'interruzione improvvisa della fornitura di potenza ai motori durante il volo, seppur all'interno della gabbia, è stata impostata la modalità \textit{Soft Cut-Off}.
+	
+	\paragraph{\small{Cut Off Voltage}}\mbox{}\\
+	Il parametro permette di impostare la soglia al di sotto della quale entra in azione la \textit{Low Voltage Protection Mode}.
+	\begin{itemize}
+		\item \textit{Low}: 2.6 [V].
+		\item \textit{Medium}: 2.85 [V].
+		\item \textit{High}: 3.1 [V].
+	\end{itemize}
+	Con il fine di limitare il danneggiamento delle batterie, ottenendo contemporaneamente una discreta autonomia di volo, il parametro è stato impostato a \textit{\textbf{Medium}}.\\
+	Numericamente, considerando le batterie \textbf{Tattu LiPo} a 4 celle, la soglia di attivazione del LVC è: $2.85\,V\cdot4 = 11.4\,V$.
+	
+	\paragraph{\small{Start Mode}}\mbox{}\\
+	La \textit{Start Mode} gestisce la modalità di accelerazione del motore da fermo. Sono disponibili tre diverse modalità di partenza, pensate per adattarsi a qualsiasi applicazione.\\
+	La \textit{Normal Start Mode} costituisce la modalità di accelerazione più reattiva. L'ESC applica una rampa di potenza relativamente breve: nel giro di $[0.3\div0.5]$ [s] il motore raggiunge i primi giri utili. L'appena descritta modalità è stata scartata a priori dal momento che, come conseguenza di un'accelerazione repentina, si ha forte stress meccanico sull'albero motore; inoltre l'improvvisa accelerazione delle eliche può generare forze indesiderate.\\
+	Nella \textit{Soft Start} la rampa di ingresso è più dolce: il motore, sotto il controllo dell'ESC, impiega $[1\div1.5]$ [s] per arrivare a regime. Infine, nella \textit{Very Soft Start} la potenza viene incrementata nell'arco di $[2\div3]$ [s].\\
+	Qualsiasi prova di volo del \textit{D.P.D.F} è stata eseguita nell'apposita gabbia di contenimento, in cui il sistema è stato sospeso mediante funi di sostegno; perciò, con il fine di evitare movimenti indesiderati, stress meccanico ed errori di misurazione, è stata impostata la \textit{Very Soft Start}.
+	
+	\paragraph{\small{Timing Mode}}\mbox{}\\
+	L'ESC, con il fine di genesi di rotazione, genera campi magnetici rotanti commutando le tre fasi in sequenza. Le commutazioni devono avvenire in sincronia con la posizione del rotore. Il \textit{Timing} è l'anticipo angolare con cui l'ESC commuta le fasi rispetto alla posizione stimata del rotore.\\
+	Se il \textit{Timing} dovesse essere basso, il campo magnetico rotante sarebbe quasi allineato con il rotore, disposizione che aumenterebbe l'\textbf{efficienza elettro-meccanica} complessiva del sistema ma diminuirebbe coppia e velocità. Al contrario, se dovesse essere alto, si avrebbe più potenza e velocità ma anche più dispersione di calore e meno efficienza.\\
+	L'\textit{High Timing Mode}, a cui corrisponde un anticipo angolare di $[16\div30]^{\circ}$, favorisce potenza e velocità, utile per dispositivi ad alto numero di giri o da corsa. La \textit{Low Timing Mode}, con un anticipo angolare di $[0\div7]^{\circ}$, garantisce una coppia stabile con minima dispersione di calore con una leggera diminuzione della velocità massima.\\
+	La \textit{Medium Timing Mode} ($[8\div15]^{\circ}$) costituisce un buon compromesso fra efficienza e prestazioni, dunque è stata scelta ai fini progettuali.
+	
+	\paragraph{\small{Music Li-Po Cells}}\mbox{}\\
+	La funzionalità è puramente estetica e non influisce sulle prestazioni, per cui non è stata impostata alcuna musica.
+	
+	\paragraph{\small{Governor Mode}}\mbox{}\\
+	La \textit{Governor Mode} ha lo scopo di mantenere la velocità di rotazione del motore costante indipendentemente dalle variazioni di carico o tensione della batteria. Non essendo utile ai fini progettuali, il parametro è stato impostato su "OFF".
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/TurnigyProgrammingCard.jpg}
+		\caption{Turnigy Programming Card}
+		\label{fig:turnigy-programming-card}
+		\vspace{2mm}
+		{\footnotesize L'immagine riportata sopra non è riferita alla configurazione attuale degli ESC, ma ha esclusivamente scopo illustrativo.}
+	\end{figure}
+	
+	\subsection{Turnigy Plush 40A. Risoluzione e controllo dei motori}
+	\label{ESCRisoluzioneEControllo}
+	\textit{Il Turnigy Plush 40A}, al fine di controllare la velocità di rotazione dei motori, richiede un segnale del tipo PWM alla frequenza tipica del modellismo, vale a dire $50$ [Hz].\\
+	In primo luogo, è necessaria una procedura di armamento dei motori, che consiste nell'invio del segnale PWM con \textit{duty cycle} del $4.75\%$. L'esito dell'operazione di armamento può
+	essere stabilito mediante delle segnalazioni acustiche emesse dall'ESC. A seguire, le emissioni acustiche più comuni:
+	
+	\paragraph{\small{Attesa di un segnale di armamento valido}}\mbox{}\\
+	Un'emissione ogni due secondi segnala l'attesa di un segnale PWM idoneo all'armamento iniziale dei motori. L'emissione viene attivata dal dispositivo immediatamente dopo la connessione di questo all'alimentazione.
+	
+	\paragraph{\small{Esito positivo dell'operazione di armamento}}\mbox{}\\
+	Tre emissioni sonore consecutive seguite da un'emissione prolungata indicano l'esito positivo dell'operazione di armamento.
+	
+	\paragraph{\small{Esito negativo dell'operazione di armamento}}\mbox{}\\
+	Una rapida ripetizione di emissioni sonore (una ogni 0.25 [s]) segnala il mancato armamento dei motori, dovuto ad un segnale di ingresso errato. Comunemente l'esito negativo di armamento si può presentare
+	nel caso in cui il segnale PWM dovesse avere un \textit{duty cycle} superiore al $4.75\%$ oppure nel caso in cui il \textit{duty cycle} dovesse repentinamente variare dal $4.75\%$ a valori superiori.
+	Si consiglia di attendere $[2\div6]$ [s] prima di iniziare la variazione del \textit{duty cycle} del segnale per il controllo della velocità dei motori.
+	Al seguito di vari accertamenti empirici, è stato stabilito l'intervallo di lavoro dei motori espresso in \textit{duty cycle}: $[6\%\div12\%]$.
+	
+	\paragraph{Risoluzione}\mbox{}\\
+	Quando si tratta di ESC, con il termine "risoluzione" non ci si riferisce al numero di campioni di tensione logica distinguibili dal dispositivo, bensì allo "\textit{span}" di valori del \textit{duty cycle} distinguibili.\\
+	La conoscenza della risoluzione del dispositivo è utile nella determinazione della variazione minima del \textit{duty cycle} del segnale PWM di controllo, che a sua volta permette lo sviluppo di un algoritmo di controllo più efficace.
+	Per quanto riguarda il \textit{Turnigy Plush 40A}, la documentazione ufficiale non specifica la risoluzione del dispositivo; pertanto, si è fatto riferimento a fonti non ufficiali, che indicano una risoluzione compresa tra 8 e 12 bit.\\
+	Si è optato per uno sviluppo del controllore capace di trascurare la risoluzione del dispositivo, a causa dell'ambiguità di tale informazione.
+	
+	\section{Eliche}
+	Al fine di ottenere una corretta realizzazione progettuale, si rende necessario un minuzioso studio delle eliche da utilizzare.
+	Le eliche e i motori costituiscono un perfetto connubio: se si dovessero scegliere eliche non adeguate, potrebbe non verificarsi la generazione della portanza necessaria al sollevamento del \textit{D.P.D.F}.\\
+	I parametri fondamentali per selezionare un'elica sono il \textbf{diametro} e il \textbf{passo}.\\
+	Con il primo si indica il diametro della circonferenza che l'elica descrive durante la rotazione. Con il secondo, invece, si fa riferimento alla distanza teorica che l'elica percorrerebbe lungo il proprio asse in una singola rotazione completa, assumendo un fluido perfettamente solido e assenza di slittamento.
+	Per chiarire il concetto, si può pensare a una vite che compie un giro completo mentre viene inserita nel legno.
+	
+	Il \textbf{diametro} di un'elica ne influenza:
+	\begin{itemize}
+		\item \textbf{Spinta}. Un aumento del diametro comporta un aumento della spinta a parità di RPM.
+		\item \textbf{Efficienza}. Un aumento del diametro suggerisce un, seppur leggero, aumento dell'efficienza aerodinamica, dal momento che viene mosso un volume d'aria maggiore con una minore velocità del getto.
+		\item \textbf{Coppia del motore richiesta}. A parità di regime di rotazione, eliche con diametro maggiore oppongono una coppia più elevata da parte del motore per essere mantenute in rotazione. Questo effetto non è in contrasto con il miglioramento dell'efficienza sopra descritto, poiché riguarda lo sforzo necessario a sostenere un determinato RPM, non la potenza richiesta per generare la medesima spinta.
+		\item \textbf{Reattività}. Più è alto il valore del diametro e più è alta l'inerzia rotazionale, diminuendo la reattività del sistema.
+	\end{itemize}
+	Un elevato diametro è consigliato per sistemi che hanno l'obiettivo di stabilità.
+	Per quanto riguarda il \textbf{passo}, il parametro influisce su:
+	\begin{itemize}
+		\item \textbf{Velocità in volo orizzontale}. Un aumento del passo costituisce un aumento della velocità espressa orizzontalmente.
+		\item \textbf{Spinta}. La spinta espressa dall'elica aumenta se se ne aumenta il passo; tuttavia, il diametro dell'elica ha un'influenza maggiore.
+		\item \textbf{Coppia del motore richiesta}. Un maggior passo richiede una maggior coppia indotta dai motori, con conseguente aumento dello stress meccanico.
+		\item \textbf{Bassa efficienza di hovering}. Un aumento del passo comporta un aumento della velocità dell'aria mossa dall'elica, con conseguente diminuzione della stabilità.
+	\end{itemize}
+	Al contrario, un elevato passo è tipico dei sistemi focalizzati sulla velocità orizzontale e verticale.
+	
+	\subsection{APC 9x4.5. Caratteristiche fisiche}
+	I dati riportati in \cite{Relazione1} indicano le seguenti caratteristiche fisiche:
+	\begin{itemize}
+		\item Diametro: 9 [in], pari a 228.6 [mm].
+		\item Passo: 4.5 [in], pari a 114.3 [mm].
+		\item Peso: 17.9 [g].
+		\item Materiale: Nylon rinforzato con fibra di vetro (\textit{Fiberglass-Reinforced Nylon, FRN}).
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.55\textwidth]{figures/Eliche.png}
+		\caption{Elica APC 9x4.5}
+		\label{fig:apc-9x45}
+	\end{figure}
+	
+	\section{Hitec HS-82MG Gear micro servo}
+	\label{HitecHS82MG}
+	Il disegno strutturale rende il \textit{D.P.D.F} suscettibile a rotazioni indesiderate sul piano definito dagli assi X ed Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinandone una completa perdita di controllo del mezzo.\\
+	Al fine di limitare tali perturbazioni, sono stati integrati due \textit{flap}, uno relativo al controllo lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.\\
+	I \textit{flap} operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{rollio} e \textit{beccheggio}. Sono posizionati sulla parte terminale del condotto ed interagiscono con il getto generato
+	dai motori controrotanti. L'intervento si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso.
+	Nel progetto sono stati integrati due servomotori del tipo sopra citato, uno per ogni \textit{flap}.
+	
+	\subsection{HS-82 MG Hitec. Caratteristiche fisiche}
+	\begin{itemize}
+		\item Dimensioni: $29.8\times 12.0\times 29.6$ [mm].
+		\item Peso: 19.0 [g].
+	\end{itemize}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.4\textwidth]{figures/HS-82 MG_caratteristiche fisiche.jpg}
+		\caption{HS-82 MG Hitec. Misure}
+		\label{fig:hs82-misure}
+	\end{figure}
+	
+	\paragraph{Coppia di stasi}\mbox{}\\
+	Con \textit{coppia di stasi} si fa riferimento alla coppia massima che il servomotore può mantenere in posizione statica mentre oppone resistenza ad una forza esterna.\\
+	L'\textit{HS-82} offre una coppia di stasi pari a: \textbf{2.2 [Kg$\cdot$cm]} con \textbf{4.8 [V]} in ingresso e \textbf{2.7 [Kg$\cdot$cm]} a \textbf{6.0 [V]}.
+	
+	\paragraph{Coppia di stallo}\mbox{}\\
+	La coppia di stallo è la massima coppia teorica che il servomotore può generare a velocità angolare nulla, vale a dire con carico irremovibile.\\
+	Per il dispositivo, la coppia di stallo assume i seguenti valori: \textbf{2.8 [Kg$\cdot$cm]} a \textbf{4.8 [V]} e \textbf{3.4 [Kg$\cdot$cm]} a \textbf{6.0 [V]}.
+	
+	\paragraph{Velocità angolare}\mbox{}\\
+	La velocità angolare del dispositivo senza carico è di \textbf{60\degree\, in 0.12 [s]} a \textbf{4.8 [V]}, mentre è di \textbf{60\degree\, in 0.10 [s]} a \textbf{6.0 [V]}.
+	Rapportando ad un singolo grado di variazione, si ha: \textbf{1\degree\, in 0.0020 [s]} a \textbf{4.8 [V]} e \textbf{1\degree\, in 0.0017 [s]} a \textbf{6.0 [V]}.
+	
+	\paragraph{Corrente operativa}\mbox{}\\
+	La corrente operativa è la corrente assorbita dal servomotore mentre questo è in movimento. Le informazioni qui sotto riportate si riferiscono al servomotore privo di carico.\\
+	Si ha un assorbimento di \textbf{220 [mA] per 60\degree} a \textbf{4.8 [V]} e un assorbimento di \textbf{280 [mA] per 60\degree} a \textbf{6.0 [V]}.
+	
+	\paragraph{Corrente di stallo}\mbox{}\\
+	Con \textit{corrente di stallo} si fa riferimento alla massima corrente che il dispositivo assorbe quando è alimentato in condizione di blocco meccanico.
+	Con questa configurazione, l'assorbimento di corrente ammonta a \textbf{1450 [mA]} a \textbf{4.8 [V]} e \textbf{1800 [mA]} a \textbf{6.0 [V]}.
+	
+	\paragraph{Corsa operativa}\mbox{}\\
+	La \textit{corsa operativa} fa riferimento all'intervallo angolare che il servomotore copre in risposta ad un segnale PWM \textbf{standard}.
+	Nel caso del \textit{HS-82}, l'intervallo è pari a \textbf{120\degree}.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/HS-82MG_foto.jpg}
+		\caption{HS-82 MG}
+		\label{fig:hs82-foto}
+	\end{figure}
+	
+	\subsection{HS-82 MG Hitec. Caratteristiche tecniche e controllo}
+	\label{HS82ControlloAlimentazione}
+	
+	\paragraph{Alimentazione}\mbox{}\\
+	L'intervallo di tensione operativa è il seguente: \textbf{[4.8$\div$6.0] [V]}.\\
+	Per valori di tensione prossimi all'estremo superiore dell'intervallo si hanno dei miglioramenti sulle prestazioni generali del dispositivo. Tuttavia aumentano anche gli effetti dei comportamenti indesiderati, come un aumento della dispersione di calore per effetto Joule o dello stress sull'elettronica interna di controllo.\\
+	Per evitare complicazioni, il valore di tensione in ingresso è stato impostato a \textbf{5.5 [V]}.
+	
+	\paragraph{Controllo}\mbox{}\\
+	Il controllo della posizione angolare del rotore avviene tramite segnale PWM. Analogamente al \textit{Turnigy Plush 40A}, si è optato per una frequenza di \textbf{50 [Hz]}, mentre l'ampiezza è pari a \textbf{3.3 [V]}.
+	Con il fine di ottenere il posizionamento dei \textit{flap} in configurazione perpendicolare al terreno, è necessario fornire un impulso di attivazione pari a \textbf{1.5 [ms]}. Con la frequenza scelta, tale valore corrisponde ad un \textbf{duty cycle del 7.5\%}, che rappresenta la posizione centrale del servomotore.\\
+	La documentazione indica una \textit{Dead Band Width} pari a \textbf{5 [$\mu$s]}, ovvero la minima variazione di impulso che il servomotore è in grado di rilevare. Da ciò si deduce che la minima variazione angolare attuabile col servomotore è di \textbf{0.5\degree}. Nel contesto applicativo ciò equivale ad una variazione minima del \textit{duty cycle} pari a \textbf{0.025\%}.
+	Per ottenere una rotazione oraria del rotore, il comando deve operare nel seguente intervallo di impulsi: \textbf{1.5$\div$2.1 [ms]}. L'effetto di rotazione antioraria si ha per: \textbf{0.9$\div$1.5 [ms]}.
+	Analizzando il dato di velocità dei servomotori, è possibile determinare il tempo necessario affinché il servo compia la minima variazione angolare. Da questa informazione si può calcolare la frequenza massima di variazione della posizione del rotore, che si aggira intorno ai \textbf{400 [Hz]}.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.7\textwidth]{figures/Collegamenti elettrici .png}
+		\caption{HS-82 MG Hitec. Disposizione dei terminali}
+		\label{fig:hs82-terminali}
+	\end{figure}
+	
+	\section{BNO-055 Bosch Sensortec. Unità di misura inerziale e magnetometro}
+	Al fine di controllare l'orientamento nello spazio del \textit{D.P.D.F} mediante servomotori, si necessita dell'informazione di rotazione del sistema nello spazio di riferimento. Si richiede, dunque, un dispositivo
+	capace di ottenere tale informazione. Il \textbf{BNO-055} della casa \textbf{Bosch Sensortec}, con la sua accuratezza, è il miglior canditato per tale responsabilità.
+	Il \textbf{BNO-055} è un sensore di orientamento assoluto a 9 assi sviluppato da \textbf{Bosch Sensortec}.
+	Il dispositivo è un \textit{System in Package}\textcolor{blue}{[A]} che integra un accelerometro triassiale a 14 bit, un giroscopio triassiale a 16 bit, un sensore geomagnetico triassiale e un
+	microcontrollore Cortex $M0^+$ a 32 bit incaricato nell'eseguire il \textit{software di sensor fusion} integrato.\\
+	Il \textit{software}, poc'anzi citato, combina i dati provenienti da accelerometro, giroscopio e magnetometro, fornendo: \textbf{Quaternioni, Angoli di Eulero come pitch, roll e yaw e Vettori di orientamento lineari e gravitazionali}.
+	Nel presente progetto, il \textit{chip} BNO-055 è stato acquistato con montaggio su \textit{scheda di breakout} incluso, dunque nel paragrafo sottostante sono state aggiunte sia le dimensioni/peso del modulo che le dimensioni/peso del chip.
+	
+	\subsection{BNO-055 Bosch Sensortec. Catatteristiche fisiche}
+	\begin{itemize}
+		\item dimensioni del modulo: $20\times24\times2$ mm.
+		\item dimensioni del chip: $3.8\times5.2\times1.1$ mm.
+		\item massa del modulo: 3 g.
+		\item massa del chip: $\approx 150 mg$.
+	\end{itemize}
+	
+	\subsection{BNO-055 Bosch Sensortec. Infrastruttura di alimentazione, comunicazione ed integrazione del sensore}
+	\paragraph{\small{Alimentazione}}\mbox{}\\
+	Il sensore ha due distinti ingressi di alimentazione: Il \textbf{$V_{DD}$} e il \textbf{$V_{DDIO}$}.\\
+	Il $V_{DD}$ è il principale terminale di alimentazione dei sensori. Il valore di tensione iniettabile nell'ingresso in analisi appartiene al seguente intervallo: \textbf{[2.4$\div$3.6] [V]}.\\
+	Il \textbf{$V_{DDIO}$}, invece, è il distinto ingresso di alimentazione del \textit{$\mu C$} e delle interfacce digitali. In questo caso, il valore di tensione può assumere valori di questo intervallo: \textbf{[1.7$\div$3.6] [V]}.\\
+	Tuttavia, il dispositivo è montato su di una \textit{breakout board} che offre a disposizione solamente un terminale di alimentazione, chiamato $V_{IN}$, il quale fornisce, mediante un micro regolatore di tensione, l'alimentazione sia al $V_{DD}$ che al $V_{DDIO}$.
+	Il valore di tensione in ingresso al terminale $V_{IN}$ appartiene all'intervallo: \textbf{[2.4$\div$3.6] [V]}.
+	Il BNO-055, inoltre, supporta tre differenti modalità di alimentazione: \textit{Normal mode}, \textit{Low power mode} and \textit{Suspend mode}. Per lo sviluppo è stata scelta la \textbf{\textit{Normal mode}}.\\
+	
+	\paragraph{\small{Protocollo di comunicazione}}\mbox{}\\
+	Il \textit{BNO-055} offre la possibilità di utilizzare due distinti protocolli di comunicazione seriale, \textit{$I^{2}C$} e \textit{UART}. Nel presente progetto è stato utilizzato esclusivamente il protocollo \textit{$I^{2}C$}.
+	Come per il \textit{VL53L1X di STMicroelectronics}, precedentemente trattato, il sensore dispone della capacità di comunicare in \textit{Fast Mode}, scambiando byte a 400 [kHz] (oltre che in \textit{Standard Mode a 100 [kHz]}).
+	Anche in questo caso, sia la \textit{breakout board} che il sensore forniscono i terminali di \textbf{Serial DAta (SDA)} e \textbf{Serial CLock (SCL)}.
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.4\textwidth]{figures/sensors_BNO055_STEMMA_pinouts_top.jpg}
+		\caption{\textcolor{black}{BNO-055 Bosch Sensortec. Configuraizone dei pin e breakout board}}
+		\label{fig:bno055-pinout}
+	\end{figure}
+	
+	
+	
+	\subsection{Principio di misura dell'accelerometro, giroscopio e magnetometro}
+	Prima di descrivere le \textit{features} dell'accelerometro, giroscopio e magnetometro installati nel \textit{BNO-055}, si ritiene necessario dedicare una sezione di approfondimento circa i principi di funzionamento dei sensori precedentemente citati.
+	\paragraph{Accelerometro}\mbox{}\\
+	L'accelerometro integrato nel BNO-055 Bosch Sensortec è di tipo capacitivo M.E.M.S, \textit{Micro-Eletro-Mechanical System}. Il dispositivo consente la misura dell'accelerazione lungo i tre assi cartesiani.\\
+	Il principio di funzionamento si basa sulla rilevazione delle variazioni di capacità tra microstrutture mobili e fisse realizzate su un substrato di silicio.\\
+	L'elemento sensibile di ciascun asse è costituito da una massa sospesa, \textit{proof mass}, vincolata da microtravi elastiche ad una cornice ancorata al substrato. In condizioni di quiete, la massa è in equilibrio e la capacità tra le piastre interdigitate\textcolor{blue}{[A]} rimangono simmetriche.\\
+	Quando il dispositivo è sottoposto ad un'accelerazione lungo uno degli assi sensibili, la massa inerziale si sposta in direzione opposta a quella dell'accelerazione, generando una variazione differenziale delle capacità tra le piastre.\\
+	La variazione di capacità viene rilevata da un circuito integrato, che la converte in un segnale elettrico, proporzionale alla velocità applicata.\\
+	Il segnale analogico prodotto, viene successivamente digitalizzato da un convertirore analogico digitale integrato nel chip.
+	
+	\paragraph{Giroscopio}\mbox{}\\
+	Il giroscopio integrato nel dispositivo fa parte della categoria M.E.M.S di tipo vibrante, \textit{vibrating structure gyroscope}, e consente la misura della velocità angolare lungo i tre assi cartesiani.\\
+	Il principio di funzionamento si basa sull'effetto Coriolis, che si manifesta quando una massa in moto oscillatorio subisce una rotazione rispetto ad un sistema di riferimento inerziale.
+	All'interno del sensore, ciascun asse dispone di una o più masse vibranti, le quali vengono mantenute in oscillazione a frequenza costante, mediante un circuito di attuazione elettrostatica. Quando il dispositivo ruota attorno ad uno degli assi
+	la massa subisce una forza di Coriolis data da:
+	\begin{equation}
+		\vec{F_c}=2m(\vec{v}\times \vec{\omega })
+	\end{equation}
+	dove $m$ è la massa oscillante, $\vec{v}$ è la velocità della massa nella sua traiettoria vibrante, $\vec{\omega}$ è la velocità angolare del corpo.\\
+	Questa forza induce uno spostamento trasversale rispetto alla direzione di vibrazione, che viene rilevato attraverso variazioni di capacità tra elettrodi fissi e mobili, similmente a quanto avviene nell'accelerometro.\\
+	Tali variazioni, proporzionali alla velocità angolare, vengono convertite in un segnale elettrico mediante un circuito di lettura differenziale e successivamente digitalizzate tramite un convertitore analogico digitale integrato.
+	
+	\paragraph{Magnetometro}\mbox{}\\
+	Il sensore integra inoltre un \textbf{magnetometro ad effetto Hall}, sfruttante il fenomeno fisico della tensione di Hall per misurare l'orientamento del dispositivo rispetto al campo magnetico terrestre.\\
+	Nella sua forma più semplice, un elemento di Hall è una sottilissima lamina di materiale conduttore o semiconduttore attraversata da una corrente continua controllata. Se su questa lamina agisce un campo magnetico con componente perpendicolare alla direzione della corrente,
+	i portatori di carica vengono deviati lateralmente della \textbf{forza di Lorentz}:
+	\begin{equation}
+		F = q(\vec{v}\times\vec{B})
+	\end{equation}
+	con $\vec{v}$ vettore velocità della carica e $\vec{B}$ vettore campo magnetico. Questa deviazione produce un accumulo di carica ai bordi opposti della lamina e, in regime stazionario, un campo elettrico trasversale
+	che equilibria la forza magnetica. Il risultato è una differenza di potenziale trasversale, la \textbf{tensione di Hall}: $V_H$ che risulta proporzionale alla componente di campo magnetico normale alla superficie del
+	sensore e alla corrente che lo attraversa. Per un elemento \textit{Hall} omogeneo abbiamo:
+	\begin{equation}
+		V_H = \frac{I\vec{B_{\perp}}}{nqs}
+	\end{equation}
+	dove $\vec{B_{\perp}}$ è la componente del campo perpendicolare al piano della lamina, $n$ la densità di portatori, $q$ il valore di carica elementare e $s$ lo spessore del \textit{film} attivo.
+	Nel magnetometro ogni elemento di Hall è disposto in modo da avere la propria normale allineata con uno degli assi cartesiani del sistema di riferimento del sensore. Quando il campo magnetico terrestre
+	attraversa il dispositivo, ciascun elemento rileva la proiezione del vettore $\vec{B}$ lungo il proprio asse, trasformandola in una tensione di Hall proporzionale.\\
+	Dopo un'opportuna amplificazione della tensione di Hall percepita e una conversione analogico-digitale si ottiene un tripletto di valori numerici che rappresentano le tre componenti cartesiane del campo magnetico locale.\\
+	Il vettore tridimensionale ottenuto viene ricostruito e poi confrontato con il valore atteso del campo geomagnetico.\\
+	Attraverso il \textit{sensor fusion}, il magnetometro fornisce quindi il riferimento assoluto per l'\textit{azimut}, vale a dire, la direzione del Nord magnetico rispetto al sistema di riferimento solidale del sensore.
+	
+	\subsection{BNO-055 Bosch Sensortec. Accelerometro, giroscopio e magnetometro integrati}
+	L'accelerometro, il giroscopio e il magnetometro sono tutti prodotti da Bosch Sensortec.
+	
+	\paragraph{Accelerometro}\mbox{}\\
+	L'accelerometro installato sul \textit{BNO-055} appartiene alla famiglia \textit{Bosch Sensortec}. La sua \textbf{risoluzione} è di \textbf{14 bit}.
+	L'accelerometro, per adattarsi ad una vasta gamma di esigenze progettuali, mette a disposizione diversi intervalli di misura:
+	\begin{itemize}
+		\item $[\pm 2]$ [g]. Modalità utile nella rilevazione di piccolissime accelerazioni.
+		\item $[\pm 4]$ [g]. Rappresenta un compromesso equilibrato. Adatto alla maggior parte delle applicazioni, di fatti, quando attiva la \textit{sensor fusion}, viene impostato tale intervallo di misura.
+		\item $[\pm 8]$ [g] e [$\pm 16$] [g]. Le modalità vengono utilizzate in applicazioni dinamiche estremamente veloci. Questi intervalli difficilmente vengono saturati. Nel presente progetto non sono stati nemmeno presi in considerazioni.
+	\end{itemize}
+	L'accelerometro, con attiva la \textit{sensor fusion}, ha una banda passante di \textbf{62.5 Hz}.
+	
+	\paragraph{Giroscopio}\mbox{}\\
+	Come per l'accelerometro, anche il giroscopio appartiene alla casa \textit{Bosch Sensortec}. La sua \textbf{risoluzione}, però, è di \textbf{16 bit}.
+	Anche in questo caso si dispone di diversi intervalli di misura:
+	\begin{itemize}
+		\item $[\pm 125]$\degree/s. Modalità pensata per movimenti lenti e precisi, di fatti, possono essere rilevate minime variazioni d'angolo.
+		\item $[\pm 250]$\degree/s. Viene conservata la precisione a fronte di un intervallo più permissivo rispetto al precedente.
+		\item $[\pm 500]$\degree/s. Questa modalità è adottata dalla maggioranza delle applicazioni.
+		\item $[\pm 1000]$\degree/s. La modalità è stata pensata per azionamenti energici.
+		\item $[\pm 2000]$\degree/s. Quest'ampio intervallo è adatto ad applicazioni estremamente veloci. I dati in questa modalità sono estremamente rumorosi. Nonostante questo, è la modalità operativa impostata, quando la \textit{sensor fusion} è attiva. L'estremo rumore di questa modalità, viene attenuato dalla \textit{sensor fusion}.
+	\end{itemize}
+	A un aumento dell'ampiezza dell'intervallo, corrisponde una diminuzione della qualità del dato.
+	Il giroscopio, nel mentre che la \textit{sensor fusion} è attiva,  ha una banda passante di \textbf{32 Hz}.
+	
+	\paragraph{Magnetometro}\mbox{}\\
+	Anche il magnetometro porta il marchio \textit{Bosch Sensortec}. Il dispositivo misura campi nell'ordine dei \textbf{$\pm$ 1300\,\,$[\mu T]$} sugli assi X e Y, e \textbf{$\pm$ 2500\,\,$[\mu T]$} sull'asse Z. Seguendo il precedente ordinamento degli
+	assi, la \textbf{risoluzione} è rispettivamente di \textbf{13 bit} e \textbf{15 bit}. La documentazione suggerisce un'elevata sensibilità ai disturbi (\textit{soft iron}, \textit{hard iron}). Difetto che può essere corretto attivando la \textit{sensor fusion}.\\
+	La banda passante del dispositivo, quando è attivata la\textit{sensor fusion} è di \textbf{10 Hz}.
+	
+	\paragraph{Sensor fusion}\mbox{}\\
+	Se presi singolarmente, nessuno dei sensori trattati fornisce misure accurate e complete. Il progetto necessita di un sensore che possa fornire la rotazione del sistema intorno agli assi.
+	Questa rotazione è ottenuta dall'integrazione della grandezza estratta dal giroscopio, tuttavia, è intrinsecamente suscettibile ad errori (amplificazione di rumore o \textit{bias}).\\
+	L'accelerometro fornisce un'informazione assoluta circa la direzione del vettore gravità, da cui possono essere ricavati gli angoli di \textit{roll} e \textit{pitch}; in combinazione con il magnetometro si ottiene anche lo \textit{yaw}. Tuttavia, il limite principale
+	risiede nella presenza di accelerazioni non dovute alla gravità, di fatti, rapidi movimenti o vibrazioni producono rumore che interferiscono con la determinazione del vettore gravità.\\
+	Infine, il magnetometro è suscettibile alla presenza di elementi ferromagnetici o correnti elettriche, determinando, così, errori significativi nella misura.\\
+	La \textit{sensor fusion} nasce con l'obiettivo di superare tali limiti, combinando coerentemente le informazioni disponibili. Nei sistemi più evoluti, utilizzati nelle piattaforme di navigazione di veicoli
+	e velivoli, si impiegano filtri come \textit{EKF} (Filtro di Kalman esteso) o \textit{UKF} (Filtro di Kalman a Punti Sigma). La documentazione ufficiale del BNO-055 riporta che il microcontrollore presenta un
+	algoritmo di \textit{sensor fusion} utilizza il \textbf{Filtro di Kalman esteso}.\\
+	Nel presente progetto, con il fine di aumentare l'attendibilità, l'accuratezza e la stabilità della misura, la \textbf{\textit{sensor fusion} è stata sempre tenuta attiva}.\\
+	A seguire una rappresentazione schematica del \textit{System in package BNO-055 Bosch Sensortec}.
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.4\textwidth]{figures/IMG3-Architettura BNO-055.png}
+		\caption{\textcolor{black}{BNO-055 Bosch Sensortec. Architettura di sistema}}
+		\label{fig:bno055-architettura}
+	\end{figure}
+	
+	\subsection{BNO-055 Bosch Sensortec. Modalità operative}
+	Il dispositivo di misura fornisce una grande varietà di segnali di \textit{output}, che possono essere scelti selezionando l'appropriata modalità operativa.\\
+	Le modalità operative vengono classificate in base all'attivazione o meno del \textit{software di sensor fusion}, nello specifico distinguiamo tra le \textit{Non-Fusion modes} e le \textit{Fusion modes}.
+	\paragraph{Fusion-modes}\mbox{}\\
+	Nel momento in cui viene impostata una delle seguenti modalità, l'algoritmo di fusione \textbf{esegue automaticamente, in \textit{background}, la calibrazione dei sensori}.
+	\begin{itemize}
+		\item \textbf{IMU (Inertial Measurement Unit)}. In questa modalità di fusione, l'orientamento relativo del \textit{BNO-055} nello spazio, è determinato utilizzado i dati estratti dall'accelerometro e dal giroscopio. La computazione è veloce, di fatti è suggerita nelle applicazioni ad alta velocità.
+		\item \textbf{M4G (Magnet for Gyroscope)}. Simile alla precedente modalità, tuttavia, il giroscopio non viene più utilizzato per la rilevazione della rotazione bensì la variazione dell'orientamento del magnetometro nel campo magnetico terrestre.
+		\item \textbf{COMPASS}. In questa modalità, il \textit{BNO-055} opera come una bussola elettronica, stimando l'orientamento sul piano orizzontale rispetto al nord magnetico. Rispetto alle modalità IMU e NDOF, che sfruttano il giroscopio per una risposta più pronta e stabile, questa modalità utilizza il magnetometro con consumi inferiori ma robustezza minore.
+		\item \textbf{NDOF}. In questa modalità, la computazione dell'orientamento del dispositivo, è eseguita servendosi di tutti i dati provenienti dai sensori. La presente modalità è quella con il più alto consumo di corrente.
+	\end{itemize}
+	Nel presente progetto, la modalità \textbf{NDOF} è sempre stata scelta come modalità operativa del \textit{BNO-055}.
+	A seguire, un'immagine riportata dalla documentazione ufficiale, specificante la frequenza con cui il sensore produce dati in uscita, nel mentre che la \textit{sensor fusion} è attiva.
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=1.0\textwidth]{figures/Frequenza di aggiornamento del BNO-055.png}
+		\caption{\textcolor{black}{Frequenza di acquisizione della misura per ciascuna modalità
+				di fusione sensoriale, tabella ripresa dal datasheet ufficiale}}
+		\label{fig:bno055-frequenza}
+	\end{figure}
+	\paragraph{Non-Fusion Modes}
+	\begin{itemize}
+		\item \textbf{ACCONLY}. Il dispositivo fornisce solamente dati grezzi provenienti dall'accelerometro, ponendo magnetometro e giroscopio nella modalità a basso consumo.
+		\item \textbf{MAGONLY}. Se impostata, il dispositivo fornisce solamente i dati del magnetometro, sospendendo accelerometro e giroscopio.
+		\item \textbf{GYROONLY}. La modalità è simile alle precedenti, però, in questo caso il dispositivo fornisce solo le misure del giroscopio, sospendendo l'accelerometro ed il magnetometro.
+		\item \textbf{ACCMAG}. In questa modalità, il sistema fornisce sia le misure dell'accelerometro che quelle del magnetometro. Il giroscopio è sospeso.
+		\item \textbf{ACCGYRO}. Simile alla precedente, ma il sensore rende disponibili solo le misure dell'accelerometro e del giroscopio.
+		\item \textbf{MAGGYRO}. In questo caso, il sensore fornisce le misure del magnetometro e del giroscopio, sospendendo l'accelerometro.
+		\item \textbf{AMG (ACC-MAG-GYRO)}. Con la presente modalità, il $\mu C$ attiva tutti i sensori, fornendo le misure di accelerometro, giroscopio e magnetometro.
+	\end{itemize}
+	
+	\section{VL53L1X ST. Sensore Time-of-Flight per la misurazione a lunga distanza}
+	Al fine di ottenere il comportamento desiderato del \textbf{D.P.D.F}, è necessario conoscere la distanza da terra mentre quest'ultimo è in volo.
+	Bisogna, dunque, includere un sensore apposito.\\
+	Il \textbf{VL53L1X di STMicroelectronics} è pienamente coerente con i requisiti precedentemente espressi. Tuttavia, non si è optato per l'integrazione
+	diretta del sensore della casa STMicroelectronics, si è preferito acquistare il modulo \textbf{IRIS11A0J9776} prodotto da \textbf{Pololu}. La \textit{breakout board} di Pololu, contenente
+	il sensore VL53L1X è stata scelta per semplificare la fase di configurazione elettronica del dispositivo.\\
+	Per comprendere il suo principio di misura, è opportuno dedicare un'intera sezione alla sua descrizione.
+	
+	\subsection{Il principio di misura di un sensore \textit{Time-of-Flight (ToF)}}
+	La modalità di misura conosciuta come \textit{Time-of-Flight} si basa sulla determinazione del tempo impiegato da un segnale, generalmente un impulso luminoso nella banda dell'infrarosso, per compiere un viaggio
+	di andata e ritorno tra un emettitore ed un bersaglio riflettente. In particolare, per il dispositivo in analisi, la sorgente di emissione luminosa è costituita da un laser a cavità verticale (VCSEL), che emette
+	brevi impulsi di luce modulata. Il segnale emesso si propaga nell'ambiente fino ad incontrare un oggetto. Parte della radiazione viene riflessa e raccolta da un rilevatore sensibile alla luce, generalmente un \textit{SPAD array} o
+	\textit{"Single-Photon Avalanche Diode"}. Questo rilevatore è in grado di registrare fino all'arrivo di singoli fotoni, consentendo una misura estremamente sensibile del tempo di volo.
+	Una volta noto l'intervallo temporale tra l'istante di emissione dell'impulso e quello di ricezione del suo \textit{"eco"}, il calcolo della distanza si ottiene applicando la relazione:
+	\begin{equation}
+		d=\frac{c\cdot \Delta{t}}{2}
+	\end{equation}
+	dove $d$ è la distanza dell'oggetto dalla superficie, $c$ è la velocità della luce nel vuoto e $\Delta{t}$ è il tempo di volo misurato. Il fattore 2 al denominatore tiene conto che il segnale percorre il tragitto due volte, andata e ritorno.
+	I "ToF" moderni possono utilizzare tecniche avanzate di correlazione temporale o modulazione di fase per migliorare la precisione e la resistenza al rumore ambientale.\\
+	Nel caso in esame, il VL53L1X utilizza la tecnologia base ToF o dToF, \textit{"Direct Time-of-Flight"}.
+	
+	\subsection{VL53L1X STMicroelectronics. Caratteristiche fisiche}
+	A seguire, un breve elenco delle principali caratteristiche fisiche:
+	\begin{itemize}
+		\item dimensioni del chip: $4.90\times 1.25\times 1.56$ [mm].
+		\item dimensioni del modulo: $17.50\times 12\times 2.56$ [mm].
+		\item massa del chip: 30 [mg].
+		\item massa del modulo: 0.5 [g] (senza i \textit{pin header}).
+	\end{itemize}
+	
+	\subsection{VL53L1X STMicroelectronics. Catatteristiche tecniche}
+	\paragraph{\small{Alimentazione}}\mbox{}\\
+	Il sensore presenta un unico ingresso di alimentazione il cui nome è $V_{DD}$. L'intervallo di tensione di alimentazione è: \textbf{[2.6$\div$3.5][V]}
+	
+	\paragraph{\small{Protocollo di comunicazione}}\mbox{}\\
+	Il dispositivo è stato sviluppato per comunicare con il microcontrollore utilizzando esclusivamente il protocollo di comunicazione $I^2C$. Il sensore dispone della capacità di comunicare in \textit{Fast Mode}, scambiando byte ad una frequenza di 400 [kHz].\\
+	Il \textit{VL53L1X} fornisce i pin di \textbf{Serial DAta (SDA)} e di \textbf{Serial CLock (SCL)}.
+	
+	\paragraph{\small{XSHUT e GPIO 1 (Interrupt)}}\mbox{}\\
+	Il \textit{VL53L1X} dispone di un ingresso denominato \textbf{XSHUT}, che consente di spegnere o riavviare il dispositivo a livello \textit{hardware}, indipendentemente dall'\textit{Host}.
+	Portando l'ingresso al livello logico basso, il sensore entra in modalità di \textit{shutdown}, interrompendo le misurazioni e riducendo il consumo di corrente. Al contrario, applicando
+	un livello di tensione alto, il sensore viene inizializzato e reso operativo.\\
+	Oltre che l'ingresso \textbf{XSHUT}, il sensore dispone di un'\textbf{uscita} denominata \textbf{GPIO1}, spesso indicata anche come \textbf{INT (interrupt)}, la cui funzione principale è segnalare al microcontrollore
+	eventi o stati del sensore.\\
+	Nel presente progetto, il pin XSHUT è stato utilizzato esclusivamente per il \textit{reset} forzato del sensore, mentre il GPIO1 è stato impiegato per segnalare la disponibilità della misura,
+	semplificando il firmware, riducendo il carico computazionale e consentendo la gestione della temporizzazione, aspetti che verrano approfonditi nella dedicata sezione nel capitolo \textit{Software}.
+	\begin{figure}[h]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{figures/PinConfigurationModuloPololu.jpg}
+			\caption{Pin Configuration}
+			\label{fig:img1}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{figures/PinCongifVL53L1X.png}
+			\caption{System Block Diagram}
+			\label{fig:img2}
+		\end{minipage}
+	\end{figure}\\
+	L'immagine a sinistra, specifica la disposizione della piedinatura del modulo \textit{Pololu} (\textit{P.C: Pin  Configuration}), mentre, la figura di destra, rappresenta la suddivisione modulare del \textit{VL53L1X} (\textit{S.B.D: System Block Diagram}).
+	\paragraph{\small{Emettitore}}\mbox{}\\
+	Il \textit{VL53L1X} monta un emettitore \textbf{laser ad infrarossi con lunghezza d'onda pari a 940 [nm] appartenente alla \textit{classe uno}}. Quest'ultimo fa riferimento alla classificazione di sicurezza stabilita dalla norma internazionale \textbf{IEC 60825-1}.
+	La classificazione ha il dovere di descrivere quanto un emissione laser possa essere pericolosa per l'interazione umana (occhi, pelle ecc). La normativa organizza gli emettitori in \textit{classi}, dove
+	ogni classe rappresenta un livello crescente di rischio. Per un laser di \textit{classe uno}, come quello emesso dal dispositivo, le condizioni operative normali sono considerate sicure per occhi e pelle.\\
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/Emetittore_VL53L1X.png}
+		\caption{VL53L1X, dettaglio sull'emettitore}
+		\label{fig:Hardware drone}
+	\end{figure}
+	
+	\paragraph{\small{Field of View  (FoV)}}\mbox{}\\
+	Il \textit{Field of View} è l'angolo massimo entro il quale il dispositivo rileva un oggetto. Per quanto riguarda l'emettitore in esame, il \textbf{FoV} è all'incirca di \textbf{27\degree}.\\
+	A seguire, un'immagine esplicativa del \textit{FoV}:
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.7\textwidth]{figures/cone.jpg}
+		\caption{Field of View del VL53L1X}
+		\label{fig:Hardware drone}
+	\end{figure}
+	
+	\paragraph{\small{Region-of-interest (R.O.I)}}\mbox{}\\
+	Con \textit{Region-Of-Interest} si fa riferimento ad un'opzione offerta dal \textit{VL53L1X} che permette di restringere il \textit{Field of View} utilizzato nella misura.
+	La funzione è utile nel caso in cui si voglia migliorare la precisione di misura su oggetti piccoli.\\
+	Nel presente progetto, il sensore è responsabile della misura dell'altitudine del \textit{D.P.D.F}, per
+	cui la tecnologia \textit{(R.O.I)} non è mai stata utilizzata, lasciando il \textit{FoV} a 27\degree.
+	
+	\paragraph{\small{Prestazioni di misura, Timing Budget e modalità operative di misura}}\mbox{}\\
+	Il \textit{VL53L1X} vanta di ottime prestazioni di misura, di fatti questa è accurata e veloce. Il dispositivo ha la capacità di misurare distanze fino ai 4 [m] ad una frequenza di 50 [Hz].
+	Con il fine di coprire una più vasta gamma di applicazioni, il dispositivo fornisce la possibilità di selezionare la modalità di misura più adatta alla specifica applicazione, oltre che la velocità e l'accuratezza.
+	A seguire, una tabella esplicante le varie modalità di misura offerte dal dispositivo:
+	\begin{table}[htb]
+		\centering
+		\caption{VL53L1X. Modalità di misura}
+		\resizebox{\textwidth}{!}{
+			\begin{tabular}{l c c}
+				\toprule
+				\textit{Modalità} & Range massimo in condizioni di scarsa luce (approssimato) & Range massimo con luce ambientale \\
+				\midrule
+				\textit{Short} & 136 [cm] & 135 [cm]\\
+				\textit{Medium} & 290 [cm] & 76 [cm]\\
+				\textit{Long} & 360 [cm] & 73 [cm]\\
+				\bottomrule
+			\end{tabular}
+		}
+		\label{tab:VL53L1X. Hardware}
+	\end{table}
+	\begin{center}
+		\footnotesize \textit{Tabella riportata dal datasheet ufficiale del VL53L1X. I valori presentati, sono stati ricavati sotto le seguenti condizioni : \textit{timing budget} = 100 [ms], bersaglio bianco, riflettanza : 88\%, luce ambientale : 200 [kcps/SPAD].}
+	\end{center}
+	
+	La \textit{Short ranging mode} è stata sviluppata per misure ravvicinate ad alta stabilità e in ambienti luminosi. La \textit{Long range mode} è pensata, invece, per la massimizzazione della portata, al costo di accettare segnali più "nervosi". Oltre a quelle precedenti,
+	il dispositivo offre la possibilità di selezionare la \textit{Medium range mode}, che rappresenta un buon compromesso tra distanza operativa e robustezza al rumore.\\
+	L'ambiente in cui sono stati effettuati i test di volo è molto luminoso, inoltre, i fili di sostegno, si sono rilevati un vincolo per l'altitudine massima raggiungibile, così da non superare i 60 [cm].\\
+	Dunque, ai fini progettuali, la \textbf{\textit{Short ranging mode}} è stata privilegiata, diventando l'unica modalità operativa utilizzata per tutto l'arco del progetto.\\
+	Con il fine di minuziosa gestione della temporizzazione e dell'accuratezza, è stata sfruttata la funzione di \textbf{Timing Budget} del sensore. Con \textit{Timing Budget} si fa riferimento al tempo totale che il sensore impiega per
+	eseguire una singola misurazione di distanza. Il \textit{Timing Budget} è espresso in [ms] e può assumere i seguenti valori: \textbf{[20$\div$1000] [ms]}.
+	Un aumento del \textit{Timing Budget} comporta una riduzione della frequenza di misura ma, al tempo stesso, ne migliora l'accuratezza e la stabilità.\\
+	La documentazione suggerisce che un \textit{Timing Budget} di \textbf{33 ms} offre ottime prestazioni in termini di velocità ed accuratezza, per cui, ai fini progettuali, è stato selezionato tale valore. Per la gestione dell'effettiva temporizzazione
+	è stato variato \textit{l'Inter-Measurement Period}, approfondito nella sezione \textit{Software}.\\
+	A seguire, un'immagine riportata direttamente dallo \textit{User Manual} del \textit{VL53L1X}, raffigurante le prestazioni di misura a fronte di diversi valori del \textit{Timing Budget}.
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.7\textwidth]{figures/Esperimento TimingBudget.png}
+		\caption{VL53L1X, prestazioni di misura}
+		\label{fig:Hardware drone}
+	\end{figure}
+	
+	\section{Schema dei collegamenti}
+	Inserire uno schema dei collegamenti analogo a quello in Figura \ref{fig:schema}. Si suggerisce per lo scopo di usare il software "draw.io". Nello schema riportare tutti i collegamenti tra i componenti, specificando quale pin di un componente1 si collega con quale pin di un componente2 (per la maggior parte dei collegamenti dovete cioè avere una linea con 2 label). \\
+	Inserire anche una descrizione testuale dello schema.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/Schema_collegamenti.jpeg}
+		\caption{Schema dei collegamenti}
+		\label{fig:schema}
+	\end{figure}
+	
+	
+	\chapter{Software}
+	Nell'introduzione al capitolo specificate anche la versione dell'STM32CubeIDE e dell'STM32CubeMX che avete usato (se avete cambiato versione nel corso del progetto mettete l'ultima, quella su cui è sviluppato il codice che consegnate).
+	
+	\section{Diagramma di flusso}
+	Inserire un diagramma di flusso analogo a quello in Figura \ref{fig:diagramma} che spiega il funzionamento generale del codice sviluppato. Inserire anche una descrizione testuale del funzionamento.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/diagramma.JPG}
+		\caption{Diagramma di flusso del codice sviluppato}
+		\label{fig:diagramma}
+	\end{figure}
+	
+	\section{Gestione singoli componenti}
+	Dedicare un pagagrafo ad ogni componente in cui viene spiegato il codice che lo gestisce. Inserite prima una descrizione generale di come si gestisce un componente di quel tipo (aiutandovi con schemi o altro). Poi le configurazioni che sono state fatte sul .ioc per poterlo utilizzare (quale periferiche sono state abilitate, come sono state configurate.. mettete degli screen del .ioc). Infine inserite e spiegate le parti di codice che lo gestiscono.
+	
+	\textcolor{red}{NOTA per il codice}: per rendere il codice modulare e riutilizzabile è buona prassi non caricare troppo il main ma creare una libreria per ogni componente. Quindi il componente1 avrà un header file "componente1.h" e un source file "componente1.c", nel source file sono implementate le funzioni che gestiscono il componente, nell'header file ci sono i prototipi di tali funzioni in modo che esse possano essere usate nel main includendolo.
+	
+	\textcolor{red}{NOTA per il codice}: non inserire mai nel codice dei parametri numerici senza contesto ma renderli delle costanti definite (usando la direttiva \%define). Se sono delle costanti relative ad uno specifico componente vanno inserite nel relativo header file.
+	
+	\textcolor{red}{NOTA per il codice}: per inserire il codice, anziché utilizzare screenshot utilizzate i seguenti comandi.
+	Per codice scritto in latex (con linguaggio Python):
+	\begin{lstlisting}[language=Python, caption="Codice in Python"]
+		import numpy as np
+		
+		def incmatrix(genl1,genl2):
+		m = len(genl1) # The length of the first array
+		n = len(genl2) # The length of the second array
+		sum = 0
+		
+		# Compute 
+		for i in range(0,n):
+		for j in range(0, m):
+		sum += genl1[n]*genl2[m]
+		
+		# Print
+		print("The sum is %2d" %(sum))   
+		
+		return M
+	\end{lstlisting}
+	Per codice richiamato da file (con linguaggio C):
+	
+	\lstinputlisting[language=Cpp, firstline=4, lastline=8, caption="Codice in C"]{codefiles/example_code.cpp}
+	
+	Funziona anche per codice MATLAB:
+	\begin{lstlisting}[language=MATLABc, caption="Codice in MATLAB"]
+		%% PREPARE WORKSPACE
+		close all
+		clearvars
+		clc
+		
+		%% OPERATIONS
+		sayhello;
+		
+		%% FUNCTIONS
+		function sayhello
+		fprintf("Hello world!");
+		end
+		
+	\end{lstlisting}
+	
+	
+	\subsection{Gestione componente1}
+	
+	\subsection{Gestione componente2}
+	
+	\section{Funzionamento complessivo}
+	Dopo aver spiegato il codice che gestisce i singoli componenti, inserire e commentare le porzioni di codice relative al funzionamento complessivo del programma.
+	
+	\chapter{Test e risultati}
+	Dedicate un capitolo a tutti i test effettuati con relativi risultati, includete sia i test finali relativi al funzionamento complessivo, sia i test delle singole parti (se significativi). \\
+	Descrivete in dettaglio le condizioni in cui sono stati svolti i test in modo che siano ripetibili. Durante i test fate dei video e acquisite i dati (es usando la funzione di log di Putty), per i test più rilevanti è opportuno consegnare anche questo materiale per documentare i test effettuati. Nella relazione riportate i risultati con dei grafici come quello in Figura \ref{fig:grafico} (inserite sempre nei grafici le label sugli assi con grandezza e relativa unità di misura). Commentate in modo critico i risultati ottenuti, evidenziando sia quelli positivi sia quelli negativi. 
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/grafico.JPG}
+		\caption{Esempio di grafico}
+		\label{fig:grafico}
+	\end{figure}
+	\section{Test1}
+	Per ogni test riportate: cosa state testando, in che condizioni si è svolto il test, riferimenti a video/file di log che consegnate insieme a relazione e codice, grafici dei risultati, commento dei risultati.
+	
+	\section{Test2}
+	
+	\newpage
+	\addcontentsline{toc}{chapter}{Conclusioni e sviluppi futuri}
+	\section*{Conclusioni e sviluppi futuri}
+	Riassumere brevemente il lavoro svolto rispetto al task assegnato, evidenziando quali risultati sono stati raggiunti e quali no. Se ci sono aspetti del task non completati spiegare quali sono stati i problemi riscontrati in merito.\\
+	Inserire considerazioni personali su possibili sviluppi futuri dell'attività svolta (idee per migliorarla che non avete avuto modo di sperimentare, aspetti che suggerite di approfondire, problemi da risolvere..).
+	
+	\addcontentsline{toc}{chapter}{Appendici}
+	\appendix
+	\chapter{Appendice1}
+	Se necessario ricorrete alle appendici per spiegare le parti "di contorno" dell'attività svolta e/o ciò che non riuscite ad inserire nello schema generale dei capitoli della relazione (es acquisizione dei dati con Matlab).
+	
+	
+	\bibliographystyle{ieeetr}
+	\bibliography{bibl} 
+\end{document}
+\alert{\alert{\documentclass[11pt]{report}
+\usepackage{titlesec}
+\titleformat{\chapter}
+{\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+\usepackage[margin=1.2in]{geometry}
+\usepackage[toc,page]{appendix}
+\usepackage{graphicx}
+\usepackage{lipsum}
+\usepackage{caption}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{indentfirst}
+\usepackage{verbatim}
+\usepackage{colorprofiles}
+\usepackage{listings}   %<- per inserire il codice
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{gensymb}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{custom_green}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{custom_blue}{rgb}{  0.05, 0.05, 0.97}
+\definecolor{custom_brown}{rgb}{ 0.69, 0.38, 0.10}
+\definecolor{custom_purple}{rgb}{0.58, 0.00, 0.82}
+\definecolor{custom_orange}{rgb}{0.94, 0.59, 0.09}
+
+\lstdefinestyle{MATLABstyle}{   
+	commentstyle=\color{custom_green},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+\lstdefinelanguage{Cpp}{
+	language=C++,
+	backgroundcolor=\color{white},  
+	basicstyle=\footnotesize \ttfamily \color{black} \bfseries,   
+	breakatwhitespace=false,       
+	breaklines=true,               
+	captionpos=b,                   
+	commentstyle=\color{custom_green},   
+	deletekeywords={...},          
+	escapeinside={\%*}{*)},
+	keywordstyle=\color{custom_purple},
+	identifierstyle=\color{blue},
+	stringstyle=\color{blue},      
+	numbers=left,                 
+	numbersep=5pt,                  
+	numberstyle=\tiny\color{black}, 
+	rulecolor=\color{black},        
+	showspaces=false,               
+	showstringspaces=false,        
+	showtabs=false,                
+	stepnumber=1,                   
+	tabsize=5,                     
+	title=\lstname,                 
+}
+
+\lstdefinelanguage{Python}{
+	keywords={from, import, def, return, as, in, len, if, elif, else, for, while},
+	breakatwhitespace=false,       
+	breaklines=true,   
+	morecomment=[l]{\#},
+	morestring=[b]",
+	commentstyle=\color{red},
+	keywordstyle=\color{custom_purple},
+	numberstyle=\tiny\color{black},
+	stringstyle=\color{custom_green},
+	basicstyle=\ttfamily\footnotesize,
+	captionpos=b,
+	showstringspaces=false,        
+	showtabs=false,                
+	numbers=left,                 
+	numbersep=5pt,                  
+	numberstyle=\tiny\color{black}, 
+	rulecolor=\color{black},                      
+	tabsize=5,                     
+	title=\lstname,    
+}
+
+\lstdefinelanguage{MATLABc}{
+	language=MATLAB,
+	backgroundcolor=\color{white},  
+	basicstyle=\footnotesize \ttfamily \color{black} \bfseries,   
+	breakatwhitespace=false,       
+	breaklines=true,               
+	captionpos=b,
+	morestring=[b]",
+	commentstyle=\color{custom_green},   
+	keywordstyle=\color{custom_blue},
+	morekeywords={clearvars},
+	deletekeywords={fprintf},
+	identifierstyle=\color{black},
+	stringstyle=\color{custom_purple},      
+	numbers=left,                 
+	numbersep=5pt,                  
+	numberstyle=\tiny\color{black}, 
+	rulecolor=\color{black},        
+	showspaces=false,               
+	showstringspaces=false,        
+	showtabs=false,                
+	stepnumber=1,                   
+	tabsize=5,                     
+	title=\lstname,                 
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\begin{document}
+	\captionsetup[figure]{margin=1.5cm,font=small,labelfont={bf},name={Figure},labelsep=colon,textfont={it}}
+	\captionsetup[table]{margin=1.5cm,font=small,labelfont={bf},name={Table},labelsep=colon,textfont={it}}
+	
+	
+	\begin{titlepage}
+		\begin{center}
+			\LARGE {\scshape{Università Politecnica delle Marche}}\\[0.5cm]
+			\LARGE {\scshape{Ingegneria Informatica e dell'Automazione}}\\[0.7cm]
+			\linespread{1}
+			\huge {\bfseries Ducted Fan }\\[1cm]
+			\linespread{1}
+			\includegraphics[width=5cm]{images/logoUnivpm.jpg}\\[0.5cm]
+			\linespread{1.2}
+			\Large Corso di\\
+			\Large {\scshape{Laboratorio di Automazione}} \\[0.3cm]
+			\Large {Anno accademico 2025-2026 \\[0.8cm]}
+			{\Large Studenti:}
+			\hfill {\Large Professore:}\\
+			\begin{minipage}[t]{0.48\textwidth}
+				\raggedright
+				{\Large Mencarelli Matteo}\\
+				{\Large Secci Bianca}\\
+				{\Large Tagliatesta Diego}
+			\end{minipage}
+			\hfill
+			\begin{minipage}[t]{0.48\textwidth}
+				\raggedleft
+				{\Large Andrea Bonci}\\[0.4cm]
+				{\Large Dottorando:}\\
+				{\Large Alessandro Di Biase}
+			\end{minipage}\\[1cm]
+			\centering{
+\psset{xunit=1cm,yunit=1cm}				\includegraphics[width=2cm]{images/dii_new.png}\\[0.3cm]
+				\large Dipartimento di Ingegneria dell'Informazione\\[0.3cm]
+			}
+		\end{center}
+	\end{titlepage}
+	
+	\pagenumbering{arabic}
+	\tableofcontents
+	\addcontentsline{toc}{chapter}{Introduzione}
+	\newpage
+	
+	\pagestyle{plain}
+	
+	\section*{Introduzione}
+	Spiegazione dettagliata del task assegnato al gruppo (cosa avete fatto e su quale sistema).
+	Se per lo svolgimento del task è stato necessario interagire con altri gruppi che hanno lavorato sullo stesso sistema, presentare anche brevemente i task svolti dagli altri gruppi e spiegare la loro interconnessione.
+	Se si è invece optato per far confluire il lavoro di più gruppi in un'unica relazione, va spiegato qual era il task iniziale dei singoli gruppi e poi come è avvenuta l'integrazione.
+	In sintesi, l'introduzione deve permettere al lettore di capire subito su cosa avete lavorato.
+	Al termine dell'introduzione inserite anche una breve descrizione per capitoli del contenuto della restante parte della relazione (es. nel Capitolo \ref{Hardware} viene descritto...).
+	Nel seguito la struttura in capitoli di massima per ogni relazione, da adattare qualora necessario.
+	\textcolor{red}{NOTA: La relazione va pensata e scritta nell'ottica di dare a chi verrà dopo di voi un documento utile per capire a che punto è arrivata l'attività svolta dal vostro gruppo e per metterli in condizione di portare avanti il vostro lavoro. Di conseguenza dovete essere chiari e diretti, riportando solo le informazioni necessarie e evidenziando in modo critico cosa effettivamente funziona correttamente e cosa va migliorato}
+	
+	\newpage
+	\chapter{Sistema}
+	Nel presente capitolo viene descritta la struttura meccanica del \textit{Double Propeller Ducted-Fan (DPDF)} e viene introdotto l'obiettivo di controllo adottato nel progetto.
+	
+	\section{Double Propeller Ducted-Fan. Struttura}
+	Il \textit{DPDF} presenta una struttura cilindrica cava di 220 [mm] di altezza e con un diametro esterno pari a 235 [mm]. Il diametro interno, pari a 230 [mm], contiene le componenti necessarie al volo stabile dell'UAV.
+	
+	La configurazione con montaggio interno delle componenti responsabili del moto rappresenta l'elemento distintivo rispetto alle architetture di droni convenzionali. Tale configurazione risulta vantaggiosa per qualsiasi forma di interazione di contatto, sia con l'operatore umano sia con oggetti esterni, in quanto le eliche non sono esposte ma risultano integrate e protette dalla stessa struttura portante del drone.
+	
+	Proseguendo con la descrizione della struttura interna del \textit{DPDF}, nella parte superiore sono posizionati due motori disposti in configurazione controrotante. L'implementazione di tale assetto garantisce la generazione di spinte verticali senza che il drone ruoti su se stesso attorno all'asse Z, passante per il centro della struttura cilindrica. Le eliche, infatti, generano momenti torcenti in direzione opposta e, bilanciandosi, restituiscono un momento risultante nullo per il velivolo.
+	
+	Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste. I motori sono ancorati a una struttura a croce usata sia come base sia come rinforzo per le sollecitazioni che il \textit{DPDF} può subire. Tale struttura è stata progettata con una geometria e una finitura superficiale tali da minimizzare l'insorgenza di turbolenze aerodinamiche potenzialmente destabilizzanti per il volo del drone.
+	
+	Il disegno strutturale rende il \textit{DPDF} suscettibile a rotazioni indesiderate sul piano definito dagli assi X e Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinando una completa perdita di controllo del mezzo.
+	
+	Al fine di limitare tali perturbazioni, la parte inferiore del \textit{DPDF} integra due \textit{flap}: uno dedicato al controllo dell'assetto lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.
+	
+	I \textit{flap}, interagendo con il getto d'aria generato dai motori, operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{roll} e \textit{pitch}. L'intervento di regolazione si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso. Il \textit{flap}, ruotando di un piccolo angolo, genera una deviazione del getto che lo investe. Tale deviazione produce una variazione della distribuzione di pressione tra il lato esposto al flusso (lato di pressione) e il lato opposto (lato di depressione). La differenza di pressione genera una forza aerodinamica risultante che produce un momento correttivo sull'assetto del velivolo. In prima approssimazione, la forza può essere considerata perpendicolare alla superficie del \textit{flap}. La direzione e il verso della forza devono essere tali da contrastare il momento perturbativo.
+	
+	Entrambi i \textit{flap} sono collegati, a un'estremità, al servomotore che ne gestisce il movimento, mentre all'altra sono inseriti in un apposito modulo strutturale che, oltre a fissare ciascun sensore del sistema, lo mantiene parallelo al terreno. I \textit{flap} sono posizionati in modo tale da risultare perpendicolari tra loro.
+	
+	Lungo la superficie esterna del cilindro sono state posizionate le componenti hardware necessarie al perseguimento degli scopi progettuali. La posizione di tali componenti è stata oggetto di studio al fine di ottenere un preciso bilanciamento del sistema. Gli elementi hardware utilizzati verranno approfonditi nel Capitolo 2.
+	
+	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere un'ottima distribuzione dei pesi. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione permette di evitare l'allentamento del dado di fissaggio causato dal flusso d'aria incidente generato dai motori.
+	
+	L'intera struttura cilindrica, i \textit{flap}, il supporto di sostegno dei motori e i piedi di appoggio sono stati realizzati tramite stampa 3D, utilizzando PVC come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
+	
+	\section{Controllo del Double Propeller Ducted-Fan}
+	L'attuale obiettivo di controllo prevede l'ottenimento dell'\textit{hovering} del \textit{DPDF}.
+	Con il termine \textit{hovering} si fa riferimento alla condizione di volo stazionario, in cui l'UAV rimane fermo nello spazio rispetto a un riferimento inerziale, mantenendo posizione e quota costanti nel tempo.
+	
+	Per soddisfare l'obiettivo di \textit{hovering}, il firmware implementa la teoria dei regolatori PID: un regolatore è relativo al controllo di quota, mediante la regolazione della portanza dei motori, e due regolatori sono coinvolti nel controllo della posizione mediante la regolazione del comparto \textit{flap-servo}.
+	
+	\newpage
+	\chapter{Hardware}
+	\label{Hardware}
+	Nel presente capitolo viene fornita la descrizione di tutte le componenti hardware
+	impiegate ai fini progettuali.
+	Per ciascun componente sono stati approfonditi il ruolo nel sistema, le principali
+	caratteristiche fisiche e tecniche e le modalità di utilizzo. Infine sono stati riportati un
+	diagramma esplicativo dei collegamenti e una tabella riepilogativa delle connessioni.
+	\section{STM32 NUCLEO-H745ZI-Q. La scheda di controllo}
+	L'STM32 NUCLEO-H745ZI-Q è una scheda di sviluppo prodotta da STMicroelectronics, basata sul microcontrollore STM32H745ZI-TQ6, appartenente alla famiglia ad alte prestazioni STM32H7. Il dispositivo è stato progettato per facilitare lo sviluppo, il \textit{debug}, e la prototipazione di applicazioni \textit{embedded} complesse.
+	La NUCLEO-H745ZI-Q è stata utilizzata per sviluppo e \textit{testing} dei \textit{firmware} di gestione di tutte le componenti del \textit{D.P.D.F}. Su di essa sono state caricate tutte le librerie software sviluppate con l'ausilio di STMCubeIDE.
+	A seguire, una descrizione dettagliata delle \textit{features} del microcontrollore STM32H745ZI-TQ6.
+	
+	\subsection{STM32H745ZI-TQ6. Architettura}
+	Il microcontrollore STM32H745ZI-TQ6 presenta un'architettura \textit{dual-core} a 32-bit composta da un processore ad alte prestazioni, il \textbf{Cortex-M7}, e da un processore il cui utilizzo è consigliato per applicazioni \textit{real-time} e \textit{low-power tasks}. L'architettura consente l'implementazione di applicazioni \textit{multithread}.
+	In questo progetto di tesi, l'esecuzione delle librerie \textit{software} di gestione dei dispositivi interessati è affidata al \textbf{Cortex-M4}.
+	La selezione e la configurazione delle periferiche dello \textit{STM32H745ZI-TQ6} necessarie al raggiungimento degli obiettivi progettuali verranno approfondite nel capitolo dedicato al \textit{firmware}.
+	A seguire un elenco delle caratteristiche concernenti all'architettura \textit{dual-core}:
+	\begin{itemize}
+		\item Il \textbf{Cortex-M7} opera ad una frequenza di 480 MHz.
+		\item Il \textbf{Cortex-M4} opera ad una frequenza di 240 MHz.
+	\end{itemize}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{figures/IMG2-STM32H745ZI-TQ6.png}
+		\caption{\textcolor{black}{Il microcontrollore STM32H745ZI-TQ6}}
+		\label{fig:stm32h745zi-tq6}
+	\end{figure}
+	
+	
+	\subsection{STM32H745ZI-TQ6. Memoria}
+	Il microcontrollore possiede una struttura di memoria complessa e stratificata.
+	Le memorie interne principali sono la memoria \textit{Flash} e la \textit{SRAM}. Inoltre, il \textit{core M7} monta una \textit{cache L1} e una piccola \textit{backup SRAM} alimentabile a batteria.
+	
+	\paragraph{\small{Flash}}\mbox{}\\
+	La Flash interna da \textbf{2 MByte} è l'area di memoria su cui risiede il \textit{firmware}. La memoria in questione è organizzata in \textit{dual-bank}, che permette la programmazione/cancellazione di una banca dati mentre si esegue sull'altra.
+	
+	\paragraph{\small{SRAM}}\mbox{}\\
+	Il dispositivo dispone di circa \textbf{1 MByte} di memoria dati volatile o SRAM, distribuita in più banchi con caratteristiche e destinazioni d'uso differenziate. In particolare:
+	\begin{itemize}
+		\item La SRAM1 e la SRAM2, rispettivamente da 320 KByte e 384 KByte, costituiscono i blocchi principali ad alta velocità, accessibili da entrambi i \textit{core}. Rappresentano l'area privilegiata per l'allocazione dei dati che richiedono tempi di accesso ridotti e condivisibilità tra i due processori.
+		\item Il blocco di SRAM3, da 128 KByte, è tipicamente dedicato al \textbf{Cortex-M4}, favorendo così una separazione logica delle risorse riducendo anche i conflitti di accesso.
+		\item SRAM4, SRAM5 e SRAM6, in ordine, 128 KByte, 64 KByte e 64 KByte completano la struttura, fornendo ulteriori spazi di memoria che possono essere destinati a funzioni specifiche o a buffer ad alte prestazioni, secondo esigenze applicative.
+	\end{itemize}
+	
+	\paragraph{\small{Cache L1}}\mbox{}\\
+	Il \textbf{Cortex-M7}, a supporto dell'efficienza complessiva, integra una \textit{cache L1} per istruzioni e dati, riducendo la latenza di accesso alla memoria non volatile e minimizzando i colli di bottiglia dovuti alla differenza tra la velocità del processore e quella della \textit{Flash}. In tal modo le prestazioni globali del sistema risultano incrementate.
+	
+	\paragraph{\small{Flexible Memory Controller e Dual-mode Quad-SPI}}\mbox{}\\
+	Il \textit{Flexible Memory Controller} è un'unità hardware che consente l'interfacciamento diretto con memorie parallele esterne al dispositivo. Il \textit{FMC} supporta: SRAM, PSRAM, SDRAM, NOR Flash e NAND Flash. L'integrazione del \textit{FMC} comporta un incremento nell'efficienza delle comunicazioni. Una volta configurato il \textit{controller}, la memoria esterna entra a far parte dello spazio di indirizzi del microcontrollore mascherando la complessità del protocollo.
+	Il \textit{Dual Mode Quad-SPI} è un'altra interfaccia dedicata alle \textit{Flash} seriali esterne ad alta velocità. La soluzione poco fa citata permette di espandere la memoria dedicata al \textit{firmware} oppure di archiviare dati.
+	
+	\paragraph{\small{Memory Protection Unit}}\mbox{}\\
+	La \textit{Memory Protection Unit} è una componente hardware integrata in ciascun \textit{core} del microcontrollore. La mansione del circuito integrato in questione è quella di controllare e regolare l'accesso alla memoria.
+	
+	\paragraph{Unità di elaborazione}\mbox{}\\
+	L'architettura dell'STM32H745ZI-TQ6 integra anche unità di elaborazione dedicate ai calcoli numerici e al processamento dei segnali.
+	
+	\paragraph{\small{Floating Point Unit}}\mbox{}\\
+	La \textit{FPU} è un'unità hardware integrata nei due \textit{core} di elaborazione che consente l'esecuzione diretta di operazioni in virgola mobile. La presenza di questo circuito integrato riduce drasticamente la latenza di calcolo in applicazioni che richiedono elaborazioni numeriche complesse.
+	Nel caso del \textit{\textbf{Cortex-M7}} la FPU supporta sia la \textit{single precision} che la \textit{double precision}, mentre il \textit{\textbf{Cortex-M4}} solo una FPU a precisione singola.
+	
+	\paragraph{\small{Digital Signal Processing}}\mbox{}\\
+	Il \textit{Digital Signal Processing} è un supporto hardware per istruzioni dedicate all'elaborazione numerica di segnali digitali.
+	
+	\subsection{STM32H745ZI-TQ6. Convertitori}
+	\paragraph{\small{Convertitori Analogici-Digitali}}\mbox{}\\
+	L'STM32H745ZI-TQ6 integra tre convertitori analogici-digitali \textbf{SAR ADC} (\textit{successive approximation analog-to-digital converter}) a 16-bit: ADC1, ADC2 e ADC3.
+	I primi due, l'ADC1 e l'ADC2, sono \textit{tightly coupled}, cioè strettamente accoppiati, consentendo una sincronizzazione precisa delle conversioni. Questo approccio permette di ottenere alte frequenze di campionamento, precisione temporale e riduzione del carico computazionale del core. L'ADC3 invece è istanziato separatamente.
+	La risoluzione può essere configurata a 16, 14, 12, 10 o 8 bit.
+	
+	\paragraph{\small{Convertitori Digitali-Analogici}}\mbox{}\\
+	Il microcontrollore possiede 2 \textbf{DAC} indipendenti la cui risoluzione è a 12 bit.
+	
+	\subsection{STM32H745ZI-TQ6. Timer}
+	I \textit{timer} sono periferiche hardware fornite dal microcontrollore per svolgere attività correlate al tempo.
+	L'STM32H745ZI-TQ6 fornisce 15 \textit{timer} di diverso tipo e 5 \textit{low power timer}. Alcuni di questi possono essere utilizzati per la genesi di segnali PWM.
+	
+	\subsection{STM32H745ZI-TQ6. Periferiche di comunicazione}
+	L'STM32H745ZI-TQ6 integra un insieme ampio e variegato di protocolli di comunicazione. Le periferiche possono essere raggruppate in tre categorie principali: comunicazione seriale, comunicazione veloce e interfacce multimediali speciali.
+	Per quanto riguarda la comunicazione seriale, il microcontrollore supporta i protocolli: $I^{2}C$, USART/UART e SPI.
+	Nell'ambito della comunicazione veloce e avanzata il dispositivo supporta i protocolli: CAN (\textit{Controller Area Network}), USB OTG, Ethernet MAC, SD/SDIO/MMC.
+	L'integrazione delle interfacce multimediali consente la gestione di applicazioni audio, grafiche e visione artificiale: SAI (\textit{Serial Audio Interface}), DFSDM (\textit{Digital Filter for Sigma-Delta Modulators}) e DCMI (\textit{Digital Camera Interface}).
+	
+	\subsection{STM32H745ZI-TQ6. Eventi asincroni}
+	Il microcontrollore offre la possibilità di gestire con efficacia ogni genere di \textit{interrupt} (evento asincrono) grazie all'integrazione di un'unità di elaborazione dedicata: il NVIC (\textit{Nested Vector Interrupt Controller}).
+	
+	
+	\subsection{NUCLEO-H745ZI-Q. Caratteristiche della scheda}
+	La NUCLEO-H745ZI-Q è la scheda di sviluppo (\textit{development board}) che proietta all'esterno tutte le funzionalità del microcontrollore poco fa descritto.
+	
+	\paragraph{Caratteristiche fisiche}
+	\begin{itemize}
+		\item Dimensioni: $133.34\times 70.00$ [mm].
+		\item Peso: 120 [g].
+	\end{itemize}
+	
+	\paragraph{ST-LINK/V3E}\mbox{}\\
+	L'ST-LINK/V3E è un'interfaccia hardware, gestita dal microcontrollore STM32F723, dedicata al collegamento tra elaboratore esterno e microcontrollore. Il modulo permette di caricare il compilato \textit{firmware} sul microcontrollore direttamente dalla porta USB Micro-B collegata al sistema di elaborazione.
+	Il modulo permette, inoltre, di eseguire il \textit{debug} in tempo reale del codice caricato sull'\textit{MCU}.
+	L'ST-LINK/V3E fornisce anche interfacce ausiliarie utili ai fini dello sviluppo.
+	A seguire un breve elenco esplicativo di queste funzionalità aggiuntive:
+	\begin{itemize}
+		\item VCP (\textit{Virtual COM Port}): lo ST-LINK integra un’interfaccia di comunicazione
+		che emula una porta seriale virtuale (da cui il nome Virtual COM Port, VCP),
+		tramite connessione USB. In tal maniera, l’elaboratore riconosce lo ST-LINK
+		come una porta COM standard.
+		\item MSC (\textit{Mass Storage Class}): la scheda di sviluppo appare al sistema di elaborazione come una memoria esterna.
+	\end{itemize}
+	
+	\paragraph{Alimentazione}\mbox{}\\
+	La scheda di sviluppo offre diversi approcci per l'alimentazione:
+	\begin{itemize}
+		\item Alimentazione via USB Micro-B ST-LINK a 5V.
+		\item Alimentazione via Jack esterno da 7-12V.
+		\item Alimentazione tramite \textit{pin Vin} esterno a 3.3V.
+	\end{itemize}
+	Nonostante la presenza di diversi approcci di alimentazione e i differenti voltaggi, la tensione di alimentazione del microcontrollore è 3.3V, ottenuta attraverso regolatori interni.
+	Sulla scheda di sviluppo sono presenti dei \textit{jumper}, ovvero dei piccoli interruttori meccanici che permettono di riconfigurare l'\textit{hardware} della scheda evitando di intaccare il \textit{firmware}. Si suggerisce di prestare attenzione alla configurazione dei \textit{jumper} qualora si volesse alimentare la scheda da ingressi diversi dal \textbf{COM1} o \textbf{MICRO-B ST-LINK}.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/NUCLEO_DettaglioJumpers.png}
+		\caption{NUCLEO-H745ZI-Q. Dettaglio esplicativo dei \textit{jumper}}.
+		\label{fig:nucleo-jumpers}
+	\end{figure}
+	
+	\paragraph{Formato fisico}\mbox{}\\
+	La scheda di sviluppo in esame appartiene alla famiglia \textbf{Nucleo-144} di STMicroelectronics e, dunque, mette a disposizione 2 connettori \textbf{\textit{Morpho}} che espongono i 144 \textit{pin} del microcontrollore. Il sistema di espansione poco fa citato viene chiamato ST Zio.
+	La NUCLEO-H745ZI-Q offre, inoltre, la compatibilità hardware e pinout con gli \textit{shield Arduino Uno R3}.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/IMG1-FotoDaSopraScheda.png}
+		\caption{\textcolor{black}{La scheda di sviluppo NUCLEO-H745ZI-Q}}
+		\label{fig:nucleo-h745zi-q}
+	\end{figure}
+	
+	
+	\section{TATTU LiPo. Batteria ricaricabile}
+	Motori, Servomotori e E.S.C richiedono specifici livelli di tensione per il loro funzionamento, tensioni che non possono essere fornite dalla NUCLEO H745ZI-Q.
+	Si rende, quindi, necessario l'inserimento nel progetto di batterie ricaricabili.\\
+	La selezione delle batterie disponibili sul mercato è stata condotta a seguito di un'analisi approfondita delle caratteristiche elettriche di motori, servomotori ed E.S.C,
+	unitamente ad uno studio dettagliato delle esigenze di autonomia necessarie per le prove di volo, rapportando il tutto al \textit{budget} disponibile.\\
+	Le \textbf{TATTU LiPo} possiedono le prestazioni richieste dal progetto.
+	
+	\subsection{TATTU LiPo. Caratteristiche fisiche}
+	\begin{itemize}
+		\item Dimensioni: $74\times 35.5\times 29$ [mm].
+		\item Peso: 150 [g].
+		\item Numero di celle: 4.
+	\end{itemize}
+	
+	\subsection{TATTU LiPo. Caratteristiche tecniche e considerazioni operative}
+	\paragraph{\small{LiPo}}\mbox{}\\
+	La sigla \textit{LiPo} sta ad indicare la tecnologia elettrochimica utilizzata nella costruzione della batteria. \textit{LiPo} nasce da \textit{Lithium-Polymer}, ovvero polimero di litio.
+	La particolare nominazione deriva dal componente chimico utilizzato come elettrolita, che, nel caso in esame, non è liquido, ma un polimero gelificato. Malgrado nelle fonti ufficiali non venga
+	specificato il polimero usato nel progetto delle \textit{TATTU LiPo}, con il fine di informazione, è stato deciso di riportare quello più comunemente utilizzato per la tipologia di batterie in esame, il
+	\textit{polivinildenfluoro esafluoropropilene} (PVDF-HFP).\\
+	Rispetto ad altri sistemi elettrochimici presenti sul mercato (come ad esempio: Li-ion, $LiFePo_4$, NiMH ecc.), le batterie LiPo presentano un'elevata densità di potenza, una bassa resistenza interna e una
+	notevole flessibilità nelle geometrie costruttive, oltre ad un contenuto peso. Tali attributi risultano vantaggiosi nell'ambito della progettazione di UAV, come il \textit{D.P.D.F}.
+	
+	\paragraph{\small{Tensione}}\mbox{}\\
+	La \textit{TATTU LiPo} possiede \textbf{4} celle da \textbf{3.7 [V]}. Le celle sono collegate in serie, perciò la tensione nominale è circa \textbf{14.8 [V]}.\\
+	A carica completa, ogni cella può raggiungere i \textbf{4.2 [V]}, emettendo un'uscita di \textbf{16.8 [V]}.
+	Il mantenimento della tensione delle celle nell'intorno dei 3.7 [V] contribuisce a preservare la stabilità chimica interna delle batterie,
+	riducendo l'erosione delle celle e prolungandone la vita utile. Si consiglia di non mantenere le celle a 4.2 [V] per periodi prolungati di tempo, evitandone così il danneggiamento.\\
+	Nella fase iniziale e di sviluppo \textit{firmware}, le batterie sono state tenute in bilanciamento alla tensione nominale di 14.8 [V], mentre,
+	nella fase finale, in cui i \textit{test} di volo sono stati protagonisti, al fine di ottenere un aumento dell'autonomia delle batterie e della prestazione dei motori, queste venivano caricate, mantenendo il bilanciamento tra celle, fino a 4.2 [V] per cella.
+	Infine, è necessario adottare un'ulteriore accortezza per evitare danni. È consigliabile non far scendere la tensione della batteria al di sotto dei \textbf{12 [V]}, mantenendo così il valore di tensione di ogni cella sopra i \textbf{3 [V]}.
+	
+	\paragraph{\small{Capacità}}\mbox{}\\
+	La \textit{capacità} di una batteria, misurata in [mAh], \textit{milliAmpere-ora}, definisce la quantità di carica elettrica che la batteria può immagazzinare e fornire nel tempo.
+	Nel caso in esame, la capacità è di \textbf{1300 [mAh]}, vale a dire che la batteria può fornire \textbf{1.3 [A]} per un'ora. In generale si può utilizzare la seguente formula approssimata per il calcolo del tempo di funzionamento:
+	\begin{equation}
+		t_h = \frac{C\,\,[mAh]}{A\,\,[mA]}
+	\end{equation}
+	dove $t_h$ rappresenta il tempo di funzionamento in ore, $C$ la capacità della batteria espressa in milliAmpere-ora e $A$ la corrente assorbita espressa in milliAmpere.
+	Con il fine di aumentare l'autonomia di volo, si è optato per l'accoppiamento in parallelo di \textbf{due} \textit{TATTU LiPo}, così da ottenere una capacità totale di \textbf{2600 [mAh]}.
+	L'accoppiamento in sicurezza è stato effettuato utilizzando il \textit{\textbf{PowerSafe Twin della MNR-electronics}}, il quale verrà approfondito nella successiva sezione.
+	
+	\paragraph{\small{Capacità di scarica}}\mbox{}\\
+	Con il termine \textit{capacità di scarica} ci si riferisce alla quantità di corrente massima che la batteria può fornire, in sicurezza e in maniera continuativa, senza danneggiarsi.
+	La \textit{TATTU LiPo} possiede una capacità di scarica pari a \textbf{75C}, vale a dire che può erogare:
+	\begin{equation}
+		A_{max} = C_s\cdot C \implies A_{max} = 75\,\,[C]\cdot 1.3\,\,[A]= 97.5\,\,[A]
+	\end{equation}
+	senza surriscaldarsi o danneggiarsi.\\
+	Nella precedente formula, $A_{max}$ si riferisce alla corrente massima erogabile dalla batteria in sicurezza, espressa in [A], \textit{Ampère}. $C_s$ e $C$, invece, si riferiscono rispettivamente alla capacità
+	di scarica e alla capacità di erogazione di corrente in un'ora, espressa sempre in [A].
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/T.png}
+		\caption{TATTU LiPo 4S 1300mAh 75C}
+		\label{fig:tattu-lipo}
+	\end{figure}
+	
+	\section{PowerSafe Twin ADV. MNR-electronics}
+	Per garantire la sicurezza e l'affidabilità dell'alimentazione a due pacchi batteria, si è deciso per l'implementazione del
+	\textbf{modulo di ridondanza, PowerSafe Twin ADV di MNR-electronics}.\\
+	Il dispositivo incarna un'avanzata soluzione di \textit{ridondanza attiva}. Quest'ultima fa riferimento alla capacità del sistema di intervenire attivamente nel funzionamento del circuito con il fine di garantire continuità di alimentazione.
+	Il modulo, di fatti, monitora continuamente alcune variabili di stato, come tensione e corrente, selezionando, in tempo reale, il pacco alimentante il carico. Per esempio, se dovesse abbassarsi la tensione di una batteria sotto
+	una certa soglia critica, il dispositivo commuterebbe automaticamente sull'altra, evitando così una significativa interruzione della potenza fornita.\\
+	Nell'architettura del sistema è possibile distinguere tre moduli distinti.
+	
+	\paragraph{\small{Modulo di potenza}}\mbox{}\\
+	Il modulo di potenza è il circuito elettrico responsabile della commutazione tra i pacchi batteria, del bilanciamento e della distribuzione di corrente verso il carico.\\
+	Inoltre, il dispositivo implementa circuiti di protezione, isolando la sorgente guasta, qualora si dovesse presentare un malfunzionamento, ed evitando il trasferimento di corrente fra i pacchi batteria.
+	
+	\paragraph{\small{Modulo di controllo}}\mbox{}\\
+	Il modulo di controllo rappresenta il "centro di comando" del dispositivo. L'implementazione di un microprocessore permette la continua misura di parametri decisionali fondamentali, quali: la tensione delle batterie, la corrente di carico
+	e l'eventuale squilibrio. L'inserimento del modulo di controllo nell'architettura circuitale permette l'implementazione della, precedentemente citata, tecnologia di \textit{ridondanza attiva}.
+	
+	\paragraph{\small{Modulo di allarme}}\mbox{}\\
+	Il modulo di allarme provvede alla segnalazione di eventuali guasti mediante emissioni luminose (LED) ed acustiche (Buzzer).
+	
+	\subsection{PowerSafe Twin ADV. Caratteristiche fisiche e tecniche}
+	A seguire, un breve elenco delle caratteristiche fisiche e tecniche del dispositivo:
+	\begin{itemize}
+		\item Dimensioni con involucro protettivo: $80\times 59\times 26$ [mm].
+		\item Peso, considerando sia l'involucro protettivo che i cablaggi (connettori XT60): 100 [g].
+		\item Corrente massima gestibile: 100 [A] (in continua).
+		\item Numero di celle per pacco batteria gestibili: $[3S-8S]$.
+		\item Tensione massima ammessa in ingresso: $\approx 33.6$ [V]. Considerando il minimo 3.7 [V] e il massimo 4.2 [V] per cella: $[11.1\div 33.6]$ [V].
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/POWERSAFEMOD.png}
+		\caption{PowerSafe Twin ADV MNR-electronics}
+		\label{fig:powersafe-module}
+	\end{figure}
+	
+	\section{DFRobot Power Module. Convertitore di tensione}
+	Ai fini progettuali sono stati implementati diversi dispositivi, ciascuno dei quali richiedente una specifica tensione di alimentazione.
+	Si è reso necessario ricorrere a convertitori di tensione per distribuire nella maniera corretta le tensioni di alimentazione ai vari dispositivi.\\
+	Il \textbf{DFRobot Power Module} riceve in ingresso la tensione proveniente dal pacco batterie, erogando quattro diversi valori di tensione a seconda del terminale che si sceglie di utilizzare.\\
+	La prima soluzione offerta dal dispositivo fornisce in uscita la stessa tensione che si ha in ingresso, diventando così un ponte per il passaggio della tensione.\\
+	Un'altra soluzione consiste nell'utilizzo degli appositi \textit{pin} sul dispositivo, dai quali può essere erogata una tensione di \textbf{5 [V]}, selezionabile mediante un apposito \textit{switch}.\\
+	Infine, il dispositivo presenta un terminale che eroga una tensione variabile il cui valore è controllato da un \textit{dimmer}. Il \textit{dimmer} permette di selezionare valori intermedi fino ad un massimo
+	pari alla tensione di ingresso. Quest'ultima è stata utilizzata nell'alimentazione dei servomotori.
+	La presenza di due servomotori ha richiesto l'integrazione di due convertitori di tensione.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.5\textwidth]{figures/Convertitore_di_tensione_foto_tecnica.png}
+		\caption{DFRobot Power Module. Disposizione dei terminali di uscita}
+		\label{fig:dfrobot-terminali}
+	\end{figure}
+	
+	\paragraph{Caratteristiche fisiche}
+	\begin{itemize}
+		\item Dimensioni: $46\times 50\times 20$ [mm].
+		\item Peso: 35 [g].
+	\end{itemize}
+	
+	\paragraph{Caratteristiche tecniche}
+	\begin{itemize}
+		\item Intervallo di tensione in ingresso: \textbf{[3.6$\div$25] [V]}.
+		\item Intervallo di tensione esprimibile in uscita: \textbf{[3.3$\div$25] [V]}.
+		\item Massima potenza erogabile: \textbf{25 [W]}.
+		\item Frequenza di variazione: \textbf{350 [kHz]}.
+	\end{itemize}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/Convertitore_Tensione_foto_reale.jpg}
+		\caption{DFRobot Power Module}
+		\label{fig:dfrobot-modulo}
+	\end{figure}
+	
+	\section{Power Distribution Board}
+	Con \textbf{Power Distribution Board (PDB)} si fa riferimento ad un sottosistema elettrico la cui principale funzione è la \textbf{distribuzione in modo sicuro ed efficiente dell'energia fornita dal pacco batterie} agli \textit{E.S.C} e, conseguentemente, ai motori.
+	Ai fini progettuali, è stata selezionata una \textit{PDB}, il cui punto di prelievo del segnale presenta un connettore \textbf{XT60}, adatto al pacco batterie.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/PowerDistributionBoardQuad.jpg}
+		\caption{Power Distribution Board}
+		\label{fig:pdb}
+	\end{figure}
+	
+	Il \textit{PDB} integrato nel contesto operativo possiede quattro uscite eroganti al massimo una corrente di \textbf{20 [A]} ed un peso di \textbf{27.3 [g]}.
+	
+	\section{Turnigy AereoDrive SK3-3536 1400KV}
+	\label{MotoriBrushless}
+	Il Turnigy AereoDrive SK3 3536 1400kv è un motore \textit{Brushless} alimentato a corrente continua e pilotato a trifase con correnti alternate.\\
+	Il rotore contiene magneti permanenti disposti con polarità alternata lungo la sua circonferenza. Lo statore invece ospita tre avvolgimenti elettrici (fasi) disposti generalmente a 120 gradi elettrici l'uno rispetto all'altro, connessi ai tre terminali d'uscita che si identificano come A, B e C.\\
+	Il rotore, essendo formato da magneti permanenti, non necessita di alimentazione: è lo statore a generare il campo magnetico rotante che induce il moto.\\
+	Il cambio di polarità degli avvolgimenti deve essere gestito da un sistema elettronico esterno, \textit{l'Electronic Speed Controller (ESC)}, che nella successiva sezione verrà approfondito.\\
+	I tre conduttori che fuoriescono dal motore rappresentano i terminali delle tre fasi dello statore. Ciascun filo è collegato a uno degli avvolgimenti e nessuno di essi costituisce un riferimento comune.
+	Per far ruotare il motore è necessario che tali fasi vengano alimentate secondo una precisa sequenza temporale, generando un campo magnetico rotante.
+	Se si dovessero scambiare due dei tre cavi, l'ordine di commutazione si invertirebbe con conseguente variazione del senso di rotazione.\\
+	Nel progetto sono stati impiegati due motori del tipo precedentemente citato, disposti in configurazione \textbf{controrotante}, con il fine di compensare le rotazioni indesiderate di \textbf{yaw}.
+	Tale scelta consente di bilanciare le coppie di reazione generate dalle eliche, riducendo il momento torcente sul velivolo. Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo
+	attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste.
+	
+	\subsection{Turnigy AereoDrive SK3-3536 1400 KV. Caratteristiche fisiche e tecniche}
+	\begin{itemize}
+		\item Tensione operativa: \textbf{[11.1$\div$16.8] [V]}.
+		\item Valore KV: \textbf{1400 $\left(\frac{RPM}{V}\right)$}.
+		\item Potenza massima: \textbf{590 [W]}.
+		\item Corrente massima: \textbf{40 [A]}.
+		\item Resistenza interna: \textbf{[0.021$\div$0.025] [$\Omega$]}.
+		\item Corrente a vuoto: \textbf{0.021 [A]}.
+		\item Diametro dell'albero motore: \textbf{5 [mm]}.
+		\item Peso: \textbf{111 [g]}.
+		\item Spaziatura fori di montaggio: \textbf{25$\times$25 [mm]}.
+		\item Connettori \textit{bullet} \textbf{da 3.5 [mm]}.
+		\item Numero dei poli: \textbf{12}.
+	\end{itemize}
+	
+	Il valore "KV" è comune nel contesto del modellismo ed indica il numero di giri al minuto (RPM) che il motore compie per ogni \textit{volt} applicato a vuoto, in formula:
+	\begin{equation}
+		RPM = KV\cdot V
+	\end{equation}
+	A tensioni di alimentazione maggiori rispetto a quelle specificate il motore rischia di assorbire troppa corrente e surriscaldarsi.\\
+	I giri al minuto massimi dipenderanno dalla tensione applicata e dalle dimensioni delle eliche.\\
+	Nel presente progetto, il motore in interesse deve essere alimentato a batteria, vale a dire in corrente continua, lasciando spazio alla necessità di un dispositivo che trasformi la tensione continua erogata dalle batterie in un segnale trifase a corrente alternata.
+	Il dispositivo in questione è il precedentemente citato \textit{Electronic Speed Controller}.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{figures/TurnigyAereoDriveSK3-3536_1400KV.jpg}
+		\caption{Turnigy Aereo Drive SK3 3536 1400 KV}
+		\label{fig:turnigy-sk3}
+	\end{figure}
+	
+	\section{Turnigy Plush 40A. \textit{Electronic Speed Controller}}
+	Il Turnigy Plush 40A è un controllore elettronico di velocità per motori \textit{brushless} a corrente continua (BLDC).\\
+	Trasforma la tensione continua in ingresso in tensioni alternate sfasate di 120 gradi elettrici.\\
+	L'applicazione della corretta sequenza di correnti alle fasi dello statore richiede la conoscenza della posizione angolare in ogni istante di tempo. Il Turnigy Plush 40A stima tale informazione in maniera indiretta, misurando la forza controelettromotrice indotta dal rotore, evitando così l'uso di sensori di posizione; il dispositivo in interesse può dunque essere definito \textit{sensorless}.
+	L'ESC in questione può essere concettualmente suddiviso in due sezioni principali: la sezione di potenza e la sezione di controllo.
+	La \textbf{sezione di potenza} è responsabile della conversione \textit{continua-trifase}. Tale conversione è mediata da un ponte trifase a sei MOSFET, suddiviso a sua volta in tre mezzi ponti, ciascuno associato ad una fase del motore.
+	Ogni mezzo ponte è composto da un transistor di alto lato e da un transistor di basso lato, collegati rispettivamente al potenziale positivo della batteria e a massa. L'opportuna commutazione di apertura e chiusura dei sei MOSFET comporta la generazione di un segnale di tensione alternato per ogni fase.\\
+	La \textbf{sezione di controllo} ha come protagonista un microcontrollore che si occupa della generazione di segnali di pilotaggio e della stima della posizione del rotore. Il microcontrollore riceve in ingresso il comando di velocità di rotazione del motore sotto forma di segnale PWM.
+	Sulla base di tale comando, il microcontrollore determina il \textit{duty cycle} del PWM e calcola la sequenza di commutazione dei sei MOSFET, con conseguente generazione del campo magnetico rotante dello statore.\\
+	Il \textit{Double Propeller Ducted Fan} monta due Turnigy Plush 40A, uno per ogni motore.
+	
+	\subsection{Turnigy Plush 40A. Caratteristiche fisiche}
+	\begin{itemize}
+		\item Corrente nominale: 40 [A].
+		\item Corrente di picco: 55 [A].
+		\item Presenza di un \textit{Battery Eliminator Circuit} (BEC): 5 [V] a 3 [A].
+		\item Celle di batteria necessarie per il corretto funzionamento del dispositivo: $[2\div6]$.
+		\item Peso: 39 [g].
+		\item Dimensioni in [mm]: $60\times24\times15$.
+	\end{itemize}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/TurnigyPlush40A.jpg}
+		\caption{Turnigy Plush 40A}
+		\label{fig:turnigy-plush-40a}
+	\end{figure}
+	
+	\subsection{Turnigy Plush 40A. Programmazione}
+	Il Turnigy Plush 40A offre la possibilità di programmare il suo comportamento operativo, soddisfando così un vasto spettro di possibili esigenze progettuali.\\
+	Al fine di ottenere uno specifico comportamento dei motori, tale da adeguarsi alle particolari esigenze di un UAV come il \textit{Double Propeller Ducted Fan}, entrambi gli ESC sono stati minuziosamente riprogrammati.\\
+	L'accesso alla \textit{Programming Mode} e l'effettiva programmazione sono state effettuate mediante l'apposita \textit{Turnigy Programming Card}, acquistata separatamente.
+	Per effettuare la programmazione, è necessario disporre i collegamenti elettrici come in figura:
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/SchemaCollegamentiProgrammazioneEsc.png}
+		\caption{Schema dei collegamenti per la programmazione dell'ESC}
+		\label{fig:programmazione-esc}
+	\end{figure}
+	
+	La \textit{Turnigy Programming Card} richiede di essere alimentata da un segnale continuo di tensione appartenente al seguente intervallo: $[4.8\div6]$ [V]. Per la navigazione fra i parametri è necessario utilizzare il pulsante \textit{up/down}, mentre per la selezione dei corrispondenti valori deve essere utilizzato il pulsante \textit{left/right}.\\
+	Nel momento in cui verrà selezionato il valore desiderato del parametro in programmazione, il LED blu, che risponde al nome di \textit{connecting}, lampeggerà, segnalando così il successo dell'operazione.
+	A seguire, una piccola spiegazione del significato dei parametri e i valori attualmente selezionati:
+	
+	\paragraph{\small{Brake}}\mbox{}\\
+	Il parametro \textit{Brake} si riferisce alla modalità con cui viene gestita la mancanza di segnale PWM di controllo. Nel caso in cui dovesse essere impostato ad "ON" il motore verrà immediatamente frenato.\\
+	Il parametro in analisi non ha grande valenza ai fini progettuali dal momento che qualsiasi prova di volo è stata effettuata nell'apposita gabbia, per cui qualunque combinazione del parametro è accettabile. Nello svolgersi del progetto il parametro è stato impostato ad "OFF".
+	
+	\paragraph{\small{Battery Type}}\mbox{}\\
+	Il \textit{Battery Type} riferisce al dispositivo la tipologia di batteria in utilizzo, questo perché l'ESC monitora costantemente la tensione della batteria: quando questa scende sotto una certa soglia, entra in azione il \textit{Low Voltage Cut-off}, riducendo o interrompendo la potenza fornita al motore con il fine di evitare il danneggiamento delle celle.
+	Diverse tipologie di batterie hanno diverse curve di scarica.
+	L'ESC può gestire solamente due tipologie di batterie, LiPo e NiMH. Il progetto prevede l'utilizzo delle \textbf{Tattu LiPo} perciò il parametro è stato impostato ad Li-xx.
+	
+	\paragraph{\small{Low Voltage Protection Mode (Cut-off Type)}}\mbox{}\\
+	Come già riferito in precedenza, la \textit{Low Voltage Cut-Off} evita il danneggiamento delle celle delle batterie quando queste scendono sotto una certa soglia impostabile.\\
+	Il dispositivo permette di scegliere tra \textit{Soft Cut-Off} e \textit{Cut-Off}. Se si dovesse scegliere la modalità \textit{Soft}, al superamento della soglia, l'ESC ridurrà gradualmente la potenza in uscita. Se si dovesse invece scegliere l'altra modalità, il dispositivo interromperà immediatamente la linea di fornitura di potenza al motore.\\
+	Al fine di evitare il danneggiamento del sistema, dovuto a un'interruzione improvvisa della fornitura di potenza ai motori durante il volo, seppur all'interno della gabbia, è stata impostata la modalità \textit{Soft Cut-Off}.
+	
+	\paragraph{\small{Cut Off Voltage}}\mbox{}\\
+	Il parametro permette di impostare la soglia al di sotto della quale entra in azione la \textit{Low Voltage Protection Mode}.
+	\begin{itemize}
+		\item \textit{Low}: 2.6 [V].
+		\item \textit{Medium}: 2.85 [V].
+		\item \textit{High}: 3.1 [V].
+	\end{itemize}
+	Con il fine di limitare il danneggiamento delle batterie, ottenendo contemporaneamente una discreta autonomia di volo, il parametro è stato impostato a \textit{\textbf{Medium}}.\\
+	Numericamente, considerando le batterie \textbf{Tattu LiPo} a 4 celle, la soglia di attivazione del LVC è: $2.85\,V\cdot4 = 11.4\,V$.
+	
+	\paragraph{\small{Start Mode}}\mbox{}\\
+	La \textit{Start Mode} gestisce la modalità di accelerazione del motore da fermo. Sono disponibili tre diverse modalità di partenza, pensate per adattarsi a qualsiasi applicazione.\\
+	La \textit{Normal Start Mode} costituisce la modalità di accelerazione più reattiva. L'ESC applica una rampa di potenza relativamente breve: nel giro di $[0.3\div0.5]$ [s] il motore raggiunge i primi giri utili. L'appena descritta modalità è stata scartata a priori dal momento che, come conseguenza di un'accelerazione repentina, si ha forte stress meccanico sull'albero motore; inoltre l'improvvisa accelerazione delle eliche può generare forze indesiderate.\\
+	Nella \textit{Soft Start} la rampa di ingresso è più dolce: il motore, sotto il controllo dell'ESC, impiega $[1\div1.5]$ [s] per arrivare a regime. Infine, nella \textit{Very Soft Start} la potenza viene incrementata nell'arco di $[2\div3]$ [s].\\
+	Qualsiasi prova di volo del \textit{D.P.D.F} è stata eseguita nell'apposita gabbia di contenimento, in cui il sistema è stato sospeso mediante funi di sostegno; perciò, con il fine di evitare movimenti indesiderati, stress meccanico ed errori di misurazione, è stata impostata la \textit{Very Soft Start}.
+	
+	\paragraph{\small{Timing Mode}}\mbox{}\\
+	L'ESC, con il fine di genesi di rotazione, genera campi magnetici rotanti commutando le tre fasi in sequenza. Le commutazioni devono avvenire in sincronia con la posizione del rotore. Il \textit{Timing} è l'anticipo angolare con cui l'ESC commuta le fasi rispetto alla posizione stimata del rotore.\\
+	Se il \textit{Timing} dovesse essere basso, il campo magnetico rotante sarebbe quasi allineato con il rotore, disposizione che aumenterebbe l'\textbf{efficienza elettro-meccanica} complessiva del sistema ma diminuirebbe coppia e velocità. Al contrario, se dovesse essere alto, si avrebbe più potenza e velocità ma anche più dispersione di calore e meno efficienza.\\
+	L'\textit{High Timing Mode}, a cui corrisponde un anticipo angolare di $[16\div30]^{\circ}$, favorisce potenza e velocità, utile per dispositivi ad alto numero di giri o da corsa. La \textit{Low Timing Mode}, con un anticipo angolare di $[0\div7]^{\circ}$, garantisce una coppia stabile con minima dispersione di calore con una leggera diminuzione della velocità massima.\\
+	La \textit{Medium Timing Mode} ($[8\div15]^{\circ}$) costituisce un buon compromesso fra efficienza e prestazioni, dunque è stata scelta ai fini progettuali.
+	
+	\paragraph{\small{Music Li-Po Cells}}\mbox{}\\
+	La funzionalità è puramente estetica e non influisce sulle prestazioni, per cui non è stata impostata alcuna musica.
+	
+	\paragraph{\small{Governor Mode}}\mbox{}\\
+	La \textit{Governor Mode} ha lo scopo di mantenere la velocità di rotazione del motore costante indipendentemente dalle variazioni di carico o tensione della batteria. Non essendo utile ai fini progettuali, il parametro è stato impostato su "OFF".
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/TurnigyProgrammingCard.jpg}
+		\caption{Turnigy Programming Card}
+		\label{fig:turnigy-programming-card}
+		\vspace{2mm}
+		{\footnotesize L'immagine riportata sopra non è riferita alla configurazione attuale degli ESC, ma ha esclusivamente scopo illustrativo.}
+	\end{figure}
+	
+	\subsection{Turnigy Plush 40A. Risoluzione e controllo dei motori}
+	\label{ESCRisoluzioneEControllo}
+	\textit{Il Turnigy Plush 40A}, al fine di controllare la velocità di rotazione dei motori, richiede un segnale del tipo PWM alla frequenza tipica del modellismo, vale a dire $50$ [Hz].\\
+	In primo luogo, è necessaria una procedura di armamento dei motori, che consiste nell'invio del segnale PWM con \textit{duty cycle} del $4.75\%$. L'esito dell'operazione di armamento può
+	essere stabilito mediante delle segnalazioni acustiche emesse dall'ESC. A seguire, le emissioni acustiche più comuni:
+	
+	\paragraph{\small{Attesa di un segnale di armamento valido}}\mbox{}\\
+	Un'emissione ogni due secondi segnala l'attesa di un segnale PWM idoneo all'armamento iniziale dei motori. L'emissione viene attivata dal dispositivo immediatamente dopo la connessione di questo all'alimentazione.
+	
+	\paragraph{\small{Esito positivo dell'operazione di armamento}}\mbox{}\\
+	Tre emissioni sonore consecutive seguite da un'emissione prolungata indicano l'esito positivo dell'operazione di armamento.
+	
+	\paragraph{\small{Esito negativo dell'operazione di armamento}}\mbox{}\\
+	Una rapida ripetizione di emissioni sonore (una ogni 0.25 [s]) segnala il mancato armamento dei motori, dovuto ad un segnale di ingresso errato. Comunemente l'esito negativo di armamento si può presentare
+	nel caso in cui il segnale PWM dovesse avere un \textit{duty cycle} superiore al $4.75\%$ oppure nel caso in cui il \textit{duty cycle} dovesse repentinamente variare dal $4.75\%$ a valori superiori.
+	Si consiglia di attendere $[2\div6]$ [s] prima di iniziare la variazione del \textit{duty cycle} del segnale per il controllo della velocità dei motori.
+	Al seguito di vari accertamenti empirici, è stato stabilito l'intervallo di lavoro dei motori espresso in \textit{duty cycle}: $[6\%\div12\%]$.
+	
+	\paragraph{Risoluzione}\mbox{}\\
+	Quando si tratta di ESC, con il termine "risoluzione" non ci si riferisce al numero di campioni di tensione logica distinguibili dal dispositivo, bensì allo "\textit{span}" di valori del \textit{duty cycle} distinguibili.\\
+	La conoscenza della risoluzione del dispositivo è utile nella determinazione della variazione minima del \textit{duty cycle} del segnale PWM di controllo, che a sua volta permette lo sviluppo di un algoritmo di controllo più efficace.
+	Per quanto riguarda il \textit{Turnigy Plush 40A}, la documentazione ufficiale non specifica la risoluzione del dispositivo; pertanto, si è fatto riferimento a fonti non ufficiali, che indicano una risoluzione compresa tra 8 e 12 bit.\\
+	Si è optato per uno sviluppo del controllore capace di trascurare la risoluzione del dispositivo, a causa dell'ambiguità di tale informazione.
+	
+	\section{Eliche}
+	Al fine di ottenere una corretta realizzazione progettuale, si rende necessario un minuzioso studio delle eliche da utilizzare.
+	Le eliche e i motori costituiscono un perfetto connubio: se si dovessero scegliere eliche non adeguate, potrebbe non verificarsi la generazione della portanza necessaria al sollevamento del \textit{D.P.D.F}.\\
+	I parametri fondamentali per selezionare un'elica sono il \textbf{diametro} e il \textbf{passo}.\\
+	Con il primo si indica il diametro della circonferenza che l'elica descrive durante la rotazione. Con il secondo, invece, si fa riferimento alla distanza teorica che l'elica percorrerebbe lungo il proprio asse in una singola rotazione completa, assumendo un fluido perfettamente solido e assenza di slittamento.
+	Per chiarire il concetto, si può pensare a una vite che compie un giro completo mentre viene inserita nel legno.
+	
+	Il \textbf{diametro} di un'elica ne influenza:
+	\begin{itemize}
+		\item \textbf{Spinta}. Un aumento del diametro comporta un aumento della spinta a parità di RPM.
+		\item \textbf{Efficienza}. Un aumento del diametro suggerisce un, seppur leggero, aumento dell'efficienza aerodinamica, dal momento che viene mosso un volume d'aria maggiore con una minore velocità del getto.
+		\item \textbf{Coppia del motore richiesta}. A parità di regime di rotazione, eliche con diametro maggiore oppongono una coppia più elevata da parte del motore per essere mantenute in rotazione. Questo effetto non è in contrasto con il miglioramento dell'efficienza sopra descritto, poiché riguarda lo sforzo necessario a sostenere un determinato RPM, non la potenza richiesta per generare la medesima spinta.
+		\item \textbf{Reattività}. Più è alto il valore del diametro e più è alta l'inerzia rotazionale, diminuendo la reattività del sistema.
+	\end{itemize}
+	Un elevato diametro è consigliato per sistemi che hanno l'obiettivo di stabilità.
+	Per quanto riguarda il \textbf{passo}, il parametro influisce su:
+	\begin{itemize}
+		\item \textbf{Velocità in volo orizzontale}. Un aumento del passo costituisce un aumento della velocità espressa orizzontalmente.
+		\item \textbf{Spinta}. La spinta espressa dall'elica aumenta se se ne aumenta il passo; tuttavia, il diametro dell'elica ha un'influenza maggiore.
+		\item \textbf{Coppia del motore richiesta}. Un maggior passo richiede una maggior coppia indotta dai motori, con conseguente aumento dello stress meccanico.
+		\item \textbf{Bassa efficienza di hovering}. Un aumento del passo comporta un aumento della velocità dell'aria mossa dall'elica, con conseguente diminuzione della stabilità.
+	\end{itemize}
+	Al contrario, un elevato passo è tipico dei sistemi focalizzati sulla velocità orizzontale e verticale.
+	
+	\subsection{APC 9x4.5. Caratteristiche fisiche}
+	I dati riportati in \cite{Relazione1} indicano le seguenti caratteristiche fisiche:
+	\begin{itemize}
+		\item Diametro: 9 [in], pari a 228.6 [mm].
+		\item Passo: 4.5 [in], pari a 114.3 [mm].
+		\item Peso: 17.9 [g].
+		\item Materiale: Nylon rinforzato con fibra di vetro (\textit{Fiberglass-Reinforced Nylon, FRN}).
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.55\textwidth]{figures/Eliche.png}
+		\caption{Elica APC 9x4.5}
+		\label{fig:apc-9x45}
+	\end{figure}
+	
+	\section{Hitec HS-82MG Gear micro servo}
+	\label{HitecHS82MG}
+	Il disegno strutturale rende il \textit{D.P.D.F} suscettibile a rotazioni indesiderate sul piano definito dagli assi X ed Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinandone una completa perdita di controllo del mezzo.\\
+	Al fine di limitare tali perturbazioni, sono stati integrati due \textit{flap}, uno relativo al controllo lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.\\
+	I \textit{flap} operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{rollio} e \textit{beccheggio}. Sono posizionati sulla parte terminale del condotto ed interagiscono con il getto generato
+	dai motori controrotanti. L'intervento si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso.
+	Nel progetto sono stati integrati due servomotori del tipo sopra citato, uno per ogni \textit{flap}.
+	
+	\subsection{HS-82 MG Hitec. Caratteristiche fisiche}
+	\begin{itemize}
+		\item Dimensioni: $29.8\times 12.0\times 29.6$ [mm].
+		\item Peso: 19.0 [g].
+	\end{itemize}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.4\textwidth]{figures/HS-82 MG_caratteristiche fisiche.jpg}
+		\caption{HS-82 MG Hitec. Misure}
+		\label{fig:hs82-misure}
+	\end{figure}
+	
+	\paragraph{Coppia di stasi}\mbox{}\\
+	Con \textit{coppia di stasi} si fa riferimento alla coppia massima che il servomotore può mantenere in posizione statica mentre oppone resistenza ad una forza esterna.\\
+	L'\textit{HS-82} offre una coppia di stasi pari a: \textbf{2.2 [Kg$\cdot$cm]} con \textbf{4.8 [V]} in ingresso e \textbf{2.7 [Kg$\cdot$cm]} a \textbf{6.0 [V]}.
+	
+	\paragraph{Coppia di stallo}\mbox{}\\
+	La coppia di stallo è la massima coppia teorica che il servomotore può generare a velocità angolare nulla, vale a dire con carico irremovibile.\\
+	Per il dispositivo, la coppia di stallo assume i seguenti valori: \textbf{2.8 [Kg$\cdot$cm]} a \textbf{4.8 [V]} e \textbf{3.4 [Kg$\cdot$cm]} a \textbf{6.0 [V]}.
+	
+	\paragraph{Velocità angolare}\mbox{}\\
+	La velocità angolare del dispositivo senza carico è di \textbf{60\degree\, in 0.12 [s]} a \textbf{4.8 [V]}, mentre è di \textbf{60\degree\, in 0.10 [s]} a \textbf{6.0 [V]}.
+	Rapportando ad un singolo grado di variazione, si ha: \textbf{1\degree\, in 0.0020 [s]} a \textbf{4.8 [V]} e \textbf{1\degree\, in 0.0017 [s]} a \textbf{6.0 [V]}.
+	
+	\paragraph{Corrente operativa}\mbox{}\\
+	La corrente operativa è la corrente assorbita dal servomotore mentre questo è in movimento. Le informazioni qui sotto riportate si riferiscono al servomotore privo di carico.\\
+	Si ha un assorbimento di \textbf{220 [mA] per 60\degree} a \textbf{4.8 [V]} e un assorbimento di \textbf{280 [mA] per 60\degree} a \textbf{6.0 [V]}.
+	
+	\paragraph{Corrente di stallo}\mbox{}\\
+	Con \textit{corrente di stallo} si fa riferimento alla massima corrente che il dispositivo assorbe quando è alimentato in condizione di blocco meccanico.
+	Con questa configurazione, l'assorbimento di corrente ammonta a \textbf{1450 [mA]} a \textbf{4.8 [V]} e \textbf{1800 [mA]} a \textbf{6.0 [V]}.
+	
+	\paragraph{Corsa operativa}\mbox{}\\
+	La \textit{corsa operativa} fa riferimento all'intervallo angolare che il servomotore copre in risposta ad un segnale PWM \textbf{standard}.
+	Nel caso del \textit{HS-82}, l'intervallo è pari a \textbf{120\degree}.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/HS-82MG_foto.jpg}
+		\caption{HS-82 MG}
+		\label{fig:hs82-foto}
+	\end{figure}
+	
+	\subsection{HS-82 MG Hitec. Caratteristiche tecniche e controllo}
+	\label{HS82ControlloAlimentazione}
+	
+	\paragraph{Alimentazione}\mbox{}\\
+	L'intervallo di tensione operativa è il seguente: \textbf{[4.8$\div$6.0] [V]}.\\
+	Per valori di tensione prossimi all'estremo superiore dell'intervallo si hanno dei miglioramenti sulle prestazioni generali del dispositivo. Tuttavia aumentano anche gli effetti dei comportamenti indesiderati, come un aumento della dispersione di calore per effetto Joule o dello stress sull'elettronica interna di controllo.\\
+	Per evitare complicazioni, il valore di tensione in ingresso è stato impostato a \textbf{5.5 [V]}.
+	
+	\paragraph{Controllo}\mbox{}\\
+	Il controllo della posizione angolare del rotore avviene tramite segnale PWM. Analogamente al \textit{Turnigy Plush 40A}, si è optato per una frequenza di \textbf{50 [Hz]}, mentre l'ampiezza è pari a \textbf{3.3 [V]}.
+	Con il fine di ottenere il posizionamento dei \textit{flap} in configurazione perpendicolare al terreno, è necessario fornire un impulso di attivazione pari a \textbf{1.5 [ms]}. Con la frequenza scelta, tale valore corrisponde ad un \textbf{duty cycle del 7.5\%}, che rappresenta la posizione centrale del servomotore.\\
+	La documentazione indica una \textit{Dead Band Width} pari a \textbf{5 [$\mu$s]}, ovvero la minima variazione di impulso che il servomotore è in grado di rilevare. Da ciò si deduce che la minima variazione angolare attuabile col servomotore è di \textbf{0.5\degree}. Nel contesto applicativo ciò equivale ad una variazione minima del \textit{duty cycle} pari a \textbf{0.025\%}.
+	Per ottenere una rotazione oraria del rotore, il comando deve operare nel seguente intervallo di impulsi: \textbf{1.5$\div$2.1 [ms]}. L'effetto di rotazione antioraria si ha per: \textbf{0.9$\div$1.5 [ms]}.
+	Analizzando il dato di velocità dei servomotori, è possibile determinare il tempo necessario affinché il servo compia la minima variazione angolare. Da questa informazione si può calcolare la frequenza massima di variazione della posizione del rotore, che si aggira intorno ai \textbf{400 [Hz]}.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.7\textwidth]{figures/Collegamenti elettrici .png}
+		\caption{HS-82 MG Hitec. Disposizione dei terminali}
+		\label{fig:hs82-terminali}
+	\end{figure}
+	
+	\section{BNO-055 Bosch Sensortec. Unità di misura inerziale e magnetometro}
+	Al fine di controllare l'orientamento nello spazio del \textit{D.P.D.F} mediante servomotori, si necessita dell'informazione di rotazione del sistema nello spazio di riferimento. Si richiede, dunque, un dispositivo
+	capace di ottenere tale informazione. Il \textbf{BNO-055} della casa \textbf{Bosch Sensortec}, con la sua accuratezza, è il miglior canditato per tale responsabilità.
+	Il \textbf{BNO-055} è un sensore di orientamento assoluto a 9 assi sviluppato da \textbf{Bosch Sensortec}.
+	Il dispositivo è un \textit{System in Package}\textcolor{blue}{[A]} che integra un accelerometro triassiale a 14 bit, un giroscopio triassiale a 16 bit, un sensore geomagnetico triassiale e un
+	microcontrollore Cortex $M0^+$ a 32 bit incaricato nell'eseguire il \textit{software di sensor fusion} integrato.\\
+	Il \textit{software}, poc'anzi citato, combina i dati provenienti da accelerometro, giroscopio e magnetometro, fornendo: \textbf{Quaternioni, Angoli di Eulero come pitch, roll e yaw e Vettori di orientamento lineari e gravitazionali}.
+	Nel presente progetto, il \textit{chip} BNO-055 è stato acquistato con montaggio su \textit{scheda di breakout} incluso, dunque nel paragrafo sottostante sono state aggiunte sia le dimensioni/peso del modulo che le dimensioni/peso del chip.
+	
+	\subsection{BNO-055 Bosch Sensortec. Catatteristiche fisiche}
+	\begin{itemize}
+		\item dimensioni del modulo: $20\times24\times2$ mm.
+		\item dimensioni del chip: $3.8\times5.2\times1.1$ mm.
+		\item massa del modulo: 3 g.
+		\item massa del chip: $\approx 150 mg$.
+	\end{itemize}
+	
+	\subsection{BNO-055 Bosch Sensortec. Infrastruttura di alimentazione, comunicazione ed integrazione del sensore}
+	\paragraph{\small{Alimentazione}}\mbox{}\\
+	Il sensore ha due distinti ingressi di alimentazione: il \textbf{$V_{DD}$} e il \textbf{$V_{DDIO}$}.
+	Il $V_{DD}$ è il principale terminale di alimentazione dei sensori. Il valore di tensione iniettabile nell'ingresso in analisi appartiene al seguente intervallo: \textbf{[2.4$\div$3.6] [V]}.
+	Il \textbf{$V_{DDIO}$}, invece, è il distinto ingresso di alimentazione del \textit{$\mu C$} e delle interfacce digitali. In questo caso, il valore di tensione può assumere valori di questo intervallo: \textbf{[1.7$\div$3.6] [V]}.
+	Tuttavia, il dispositivo è montato su di una \textit{breakout board} che offre a disposizione solamente un terminale di alimentazione, chiamato $V_{IN}$, il quale fornisce, mediante un micro regolatore di tensione, l'alimentazione sia al $V_{DD}$ che al $V_{DDIO}$.
+	Il valore di tensione in ingresso al terminale $V_{IN}$ appartiene all'intervallo: \textbf{[2.4$\div$3.6] [V]}.
+	Il BNO-055, inoltre, supporta tre differenti modalità di alimentazione: \textit{Normal mode}, \textit{Low power mode} and \textit{Suspend mode}. Per lo sviluppo è stata scelta la \textbf{\textit{Normal mode}}.
+	
+	\paragraph{\small{Protocollo di comunicazione}}\mbox{}\\
+	Il \textit{BNO-055} offre la possibilità di utilizzare due distinti protocolli di comunicazione seriale, \textit{$I^{2}C$} e \textit{UART}. Nel presente progetto è stato utilizzato esclusivamente il protocollo \textit{$I^{2}C$}.
+	Come per il \textit{VL53L1X di STMicroelectronics}, precedentemente trattato, il sensore dispone della capacità di comunicare in \textit{Fast Mode}, scambiando byte a 400 [kHz] (oltre che in \textit{Standard Mode a 100 [kHz]}).
+	Anche in questo caso, sia la \textit{breakout board} che il sensore forniscono i terminali di \textbf{Serial DAta (SDA)} e \textbf{Serial CLock (SCL)}.
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.4\textwidth]{figures/sensors_BNO055_STEMMA_pinouts_top.jpg}
+		\caption{\textcolor{black}{BNO-055 Bosch Sensortec. Configuraizone dei pin e breakout board}}
+		\label{fig:bno055-pinout}
+	\end{figure}
+	
+	
+	
+	\subsection{Principio di misura dell'accelerometro, giroscopio e magnetometro}
+	Prima di descrivere le \textit{features} dell'accelerometro, giroscopio e magnetometro installati nel \textit{BNO-055}, si ritiene necessario dedicare una sezione di approfondimento circa i principi di funzionamento dei sensori precedentemente citati.
+	\paragraph{Accelerometro}\mbox{}\\
+	L'accelerometro integrato nel BNO-055 Bosch Sensortec è di tipo capacitivo M.E.M.S, \textit{Micro-Eletro-Mechanical System}. Il dispositivo consente la misura dell'accelerazione lungo i tre assi cartesiani.\\
+	Il principio di funzionamento si basa sulla rilevazione delle variazioni di capacità tra microstrutture mobili e fisse realizzate su un substrato di silicio.\\
+	L'elemento sensibile di ciascun asse è costituito da una massa sospesa, \textit{proof mass}, vincolata da microtravi elastiche ad una cornice ancorata al substrato. In condizioni di quiete, la massa è in equilibrio e la capacità tra le piastre interdigitate\textcolor{blue}{[A]} rimangono simmetriche.\\
+	Quando il dispositivo è sottoposto ad un'accelerazione lungo uno degli assi sensibili, la massa inerziale si sposta in direzione opposta a quella dell'accelerazione, generando una variazione differenziale delle capacità tra le piastre.\\
+	La variazione di capacità viene rilevata da un circuito integrato, che la converte in un segnale elettrico, proporzionale alla velocità applicata.\\
+	Il segnale analogico prodotto, viene successivamente digitalizzato da un convertirore analogico digitale integrato nel chip.
+	
+	\paragraph{Giroscopio}\mbox{}\\
+	Il giroscopio integrato nel dispositivo fa parte della categoria M.E.M.S di tipo vibrante, \textit{vibrating structure gyroscope}, e consente la misura della velocità angolare lungo i tre assi cartesiani.\\
+	Il principio di funzionamento si basa sull'effetto Coriolis, che si manifesta quando una massa in moto oscillatorio subisce una rotazione rispetto ad un sistema di riferimento inerziale.
+	All'interno del sensore, ciascun asse dispone di una o più masse vibranti, le quali vengono mantenute in oscillazione a frequenza costante, mediante un circuito di attuazione elettrostatica. Quando il dispositivo ruota attorno ad uno degli assi
+	la massa subisce una forza di Coriolis data da:
+	\begin{equation}
+		\vec{F_c}=2m(\vec{v}\times \vec{\omega })
+	\end{equation}
+	dove $m$ è la massa oscillante, $\vec{v}$ è la velocità della massa nella sua traiettoria vibrante, $\vec{\omega}$ è la velocità angolare del corpo.\\
+	Questa forza induce uno spostamento trasversale rispetto alla direzione di vibrazione, che viene rilevato attraverso variazioni di capacità tra elettrodi fissi e mobili, similmente a quanto avviene nell'accelerometro.\\
+	Tali variazioni, proporzionali alla velocità angolare, vengono convertite in un segnale elettrico mediante un circuito di lettura differenziale e successivamente digitalizzate tramite un convertitore analogico digitale integrato.
+	
+	\paragraph{Magnetometro}\mbox{}\\
+	Il sensore integra inoltre un \textbf{magnetometro ad effetto Hall}, sfruttante il fenomeno fisico della tensione di Hall per misurare l'orientamento del dispositivo rispetto al campo magnetico terrestre.\\
+	Nella sua forma più semplice, un elemento di Hall è una sottilissima lamina di materiale conduttore o semiconduttore attraversata da una corrente continua controllata. Se su questa lamina agisce un campo magnetico con componente perpendicolare alla direzione della corrente,
+	i portatori di carica vengono deviati lateralmente della \textbf{forza di Lorentz}:
+	\begin{equation}
+		F = q(\vec{v}\times\vec{B})
+	\end{equation}
+	con $\vec{v}$ vettore velocità della carica e $\vec{B}$ vettore campo magnetico. Questa deviazione produce un accumulo di carica ai bordi opposti della lamina e, in regime stazionario, un campo elettrico trasversale
+	che equilibria la forza magnetica. Il risultato è una differenza di potenziale trasversale, la \textbf{tensione di Hall}: $V_H$ che risulta proporzionale alla componente di campo magnetico normale alla superficie del
+	sensore e alla corrente che lo attraversa. Per un elemento \textit{Hall} omogeneo abbiamo:
+	\begin{equation}
+		V_H = \frac{I\vec{B_{\perp}}}{nqs}
+	\end{equation}
+	In tale relazione, $\vec{B_{\perp}}$ è la componente del campo perpendicolare al piano della lamina, $n$ è la densità di portatori, $q$ è il valore di carica elementare e $s$ è lo spessore del \textit{film} attivo.
+	Nel magnetometro ogni elemento di Hall è disposto in modo da avere la propria normale allineata con uno degli assi cartesiani del sistema di riferimento del sensore. Quando il campo magnetico terrestre
+	attraversa il dispositivo, ciascun elemento rileva la proiezione del vettore $\vec{B}$ lungo il proprio asse, trasformandola in una tensione di Hall proporzionale.\\
+	Dopo un'opportuna amplificazione della tensione di Hall percepita e una conversione analogico-digitale si ottiene un tripletto di valori numerici che rappresentano le tre componenti cartesiane del campo magnetico locale.\\
+	Il vettore tridimensionale ottenuto viene ricostruito e poi confrontato con il valore atteso del campo geomagnetico.\\
+	Attraverso il \textit{sensor fusion}, il magnetometro fornisce quindi il riferimento assoluto per l'\textit{azimut}, vale a dire, la direzione del Nord magnetico rispetto al sistema di riferimento solidale del sensore.
+	
+	\subsection{BNO-055 Bosch Sensortec. Accelerometro, giroscopio e magnetometro integrati}
+	L'accelerometro, il giroscopio e il magnetometro sono tutti prodotti da Bosch Sensortec.
+	
+	\paragraph{Accelerometro}\mbox{}\\
+	L'accelerometro installato sul \textit{BNO-055} appartiene alla famiglia \textit{Bosch Sensortec}. La sua \textbf{risoluzione} è di \textbf{14 bit}.
+	L'accelerometro, per adattarsi ad una vasta gamma di esigenze progettuali, mette a disposizione diversi intervalli di misura:
+	\begin{itemize}
+		\item $[\pm 2]$ [g]. Modalità utile nella rilevazione di piccolissime accelerazioni.
+		\item $[\pm 4]$ [g]. Rappresenta un compromesso equilibrato. Adatto alla maggior parte delle applicazioni, di fatti, quando attiva la \textit{sensor fusion}, viene impostato tale intervallo di misura.
+		\item $[\pm 8]$ [g] e [$\pm 16$] [g]. Le modalità vengono utilizzate in applicazioni dinamiche estremamente veloci. Questi intervalli difficilmente vengono saturati. Nel presente progetto non sono stati nemmeno presi in considerazioni.
+	\end{itemize}
+	L'accelerometro, con attiva la \textit{sensor fusion}, ha una banda passante di \textbf{62.5 Hz}.
+	
+	\paragraph{Giroscopio}\mbox{}\\
+	Come per l'accelerometro, anche il giroscopio appartiene alla casa \textit{Bosch Sensortec}. La sua \textbf{risoluzione}, però, è di \textbf{16 bit}.
+	Anche in questo caso si dispone di diversi intervalli di misura:
+	\begin{itemize}
+		\item $[\pm 125]$\degree/s. Modalità pensata per movimenti lenti e precisi, di fatti, possono essere rilevate minime variazioni d'angolo.
+		\item $[\pm 250]$\degree/s. Viene conservata la precisione a fronte di un intervallo più permissivo rispetto al precedente.
+		\item $[\pm 500]$\degree/s. Questa modalità è adottata dalla maggioranza delle applicazioni.
+		\item $[\pm 1000]$\degree/s. La modalità è stata pensata per azionamenti energici.
+		\item $[\pm 2000]$\degree/s. Quest'ampio intervallo è adatto ad applicazioni estremamente veloci. I dati in questa modalità sono estremamente rumorosi. Nonostante questo, è la modalità operativa impostata, quando la \textit{sensor fusion} è attiva. L'estremo rumore di questa modalità, viene attenuato dalla \textit{sensor fusion}.
+	\end{itemize}
+	A un aumento dell'ampiezza dell'intervallo, corrisponde una diminuzione della qualità del dato.
+	Il giroscopio, nel mentre che la \textit{sensor fusion} è attiva,  ha una banda passante di \textbf{32 Hz}.
+	
+	\paragraph{Magnetometro}\mbox{}\\
+	Anche il magnetometro porta il marchio \textit{Bosch Sensortec}. Il dispositivo misura campi nell'ordine dei \textbf{$\pm$ 1300\,\,$[\mu T]$} sugli assi X e Y, e \textbf{$\pm$ 2500\,\,$[\mu T]$} sull'asse Z. Seguendo il precedente ordinamento degli
+	assi, la \textbf{risoluzione} è rispettivamente di \textbf{13 bit} e \textbf{15 bit}. La documentazione suggerisce un'elevata sensibilità ai disturbi (\textit{soft iron}, \textit{hard iron}). Difetto che può essere corretto attivando la \textit{sensor fusion}.\\
+	La banda passante del dispositivo, quando è attivata la\textit{sensor fusion} è di \textbf{10 Hz}.
+	
+	\paragraph{Sensor fusion}\mbox{}\\
+	Se presi singolarmente, nessuno dei sensori trattati fornisce misure accurate e complete. Il progetto necessita di un sensore che possa fornire la rotazione del sistema intorno agli assi.
+	Questa rotazione è ottenuta dall'integrazione della grandezza estratta dal giroscopio, tuttavia, è intrinsecamente suscettibile ad errori (amplificazione di rumore o \textit{bias}).\\
+	L'accelerometro fornisce un'informazione assoluta circa la direzione del vettore gravità, da cui possono essere ricavati gli angoli di \textit{roll} e \textit{pitch}; in combinazione con il magnetometro si ottiene anche lo \textit{yaw}. Tuttavia, il limite principale
+	risiede nella presenza di accelerazioni non dovute alla gravità, di fatti, rapidi movimenti o vibrazioni producono rumore che interferiscono con la determinazione del vettore gravità.\\
+	Infine, il magnetometro è suscettibile alla presenza di elementi ferromagnetici o correnti elettriche, determinando, così, errori significativi nella misura.\\
+	La \textit{sensor fusion} nasce con l'obiettivo di superare tali limiti, combinando coerentemente le informazioni disponibili. Nei sistemi più evoluti, utilizzati nelle piattaforme di navigazione di veicoli
+	e velivoli, si impiegano filtri come \textit{EKF} (Filtro di Kalman esteso) o \textit{UKF} (Filtro di Kalman a Punti Sigma). La documentazione ufficiale del BNO-055 riporta che il microcontrollore presenta un
+	algoritmo di \textit{sensor fusion} utilizza il \textbf{Filtro di Kalman esteso}.\\
+	Nel presente progetto, con il fine di aumentare l'attendibilità, l'accuratezza e la stabilità della misura, la \textbf{\textit{sensor fusion} è stata sempre tenuta attiva}.\\
+	A seguire una rappresentazione schematica del \textit{System in package BNO-055 Bosch Sensortec}.
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.4\textwidth]{figures/IMG3-Architettura BNO-055.png}
+		\caption{\textcolor{black}{BNO-055 Bosch Sensortec. Architettura di sistema}}
+		\label{fig:bno055-architettura}
+	\end{figure}
+	
+	\subsection{BNO-055 Bosch Sensortec. Modalità operative}
+	Il dispositivo di misura fornisce una grande varietà di segnali di \textit{output}, che possono essere scelti selezionando l'appropriata modalità operativa.\\
+	Le modalità operative vengono classificate in base all'attivazione o meno del \textit{software di sensor fusion}, nello specifico distinguiamo tra le \textit{Non-Fusion modes} e le \textit{Fusion modes}.
+	\paragraph{Fusion-modes}\mbox{}\\
+	Nel momento in cui viene impostata una delle seguenti modalità, l'algoritmo di fusione \textbf{esegue automaticamente, in \textit{background}, la calibrazione dei sensori}.
+	\begin{itemize}
+		\item \textbf{IMU (Inertial Measurement Unit)}. In questa modalità di fusione, l'orientamento relativo del \textit{BNO-055} nello spazio, è determinato utilizzado i dati estratti dall'accelerometro e dal giroscopio. La computazione è veloce, di fatti è suggerita nelle applicazioni ad alta velocità.
+		\item \textbf{M4G (Magnet for Gyroscope)}. Simile alla precedente modalità, tuttavia, il giroscopio non viene più utilizzato per la rilevazione della rotazione bensì la variazione dell'orientamento del magnetometro nel campo magnetico terrestre.
+		\item \textbf{COMPASS}. In questa modalità, il \textit{BNO-055} opera come una bussola elettronica, stimando l'orientamento sul piano orizzontale rispetto al nord magnetico. Rispetto alle modalità IMU e NDOF, che sfruttano il giroscopio per una risposta più pronta e stabile, questa modalità utilizza il magnetometro con consumi inferiori ma robustezza minore.
+		\item \textbf{NDOF}. In questa modalità, la computazione dell'orientamento del dispositivo, è eseguita servendosi di tutti i dati provenienti dai sensori. La presente modalità è quella con il più alto consumo di corrente.
+	\end{itemize}
+	Nel presente progetto, la modalità \textbf{NDOF} è sempre stata scelta come modalità operativa del \textit{BNO-055}.
+	A seguire, un'immagine riportata dalla documentazione ufficiale, specificante la frequenza con cui il sensore produce dati in uscita, nel mentre che la \textit{sensor fusion} è attiva.
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=1.0\textwidth]{figures/Frequenza di aggiornamento del BNO-055.png}
+		\caption{\textcolor{black}{Frequenza di acquisizione della misura per ciascuna modalità
+				di fusione sensoriale, tabella ripresa dal datasheet ufficiale}}
+		\label{fig:bno055-frequenza}
+	\end{figure}
+	\paragraph{Non-Fusion Modes}
+	\begin{itemize}
+		\item \textbf{ACCONLY}. Il dispositivo fornisce solamente dati grezzi provenienti dall'accelerometro, ponendo magnetometro e giroscopio nella modalità a basso consumo.
+		\item \textbf{MAGONLY}. Se impostata, il dispositivo fornisce solamente i dati del magnetometro, sospendendo accelerometro e giroscopio.
+		\item \textbf{GYROONLY}. La modalità è simile alle precedenti, però, in questo caso il dispositivo fornisce solo le misure del giroscopio, sospendendo l'accelerometro ed il magnetometro.
+		\item \textbf{ACCMAG}. In questa modalità, il sistema fornisce sia le misure dell'accelerometro che quelle del magnetometro. Il giroscopio è sospeso.
+		\item \textbf{ACCGYRO}. Simile alla precedente, ma il sensore rende disponibili solo le misure dell'accelerometro e del giroscopio.
+		\item \textbf{MAGGYRO}. In questo caso, il sensore fornisce le misure del magnetometro e del giroscopio, sospendendo l'accelerometro.
+		\item \textbf{AMG (ACC-MAG-GYRO)}. Con la presente modalità, il $\mu C$ attiva tutti i sensori, fornendo le misure di accelerometro, giroscopio e magnetometro.
+	\end{itemize}
+	
+	\section{VL53L1X ST. Sensore Time-of-Flight per la misurazione a lunga distanza}
+	Al fine di ottenere il comportamento desiderato del \textbf{D.P.D.F}, è necessario conoscere la distanza da terra mentre quest'ultimo è in volo.
+	Bisogna, dunque, includere un sensore apposito.\\
+	Il \textbf{VL53L1X di STMicroelectronics} è pienamente coerente con i requisiti precedentemente espressi. Tuttavia, non si è optato per l'integrazione
+	diretta del sensore della casa STMicroelectronics, si è preferito acquistare il modulo \textbf{IRIS11A0J9776} prodotto da \textbf{Pololu}. La \textit{breakout board} di Pololu, contenente
+	il sensore VL53L1X è stata scelta per semplificare la fase di configurazione elettronica del dispositivo.\\
+	Per comprendere il suo principio di misura, è opportuno dedicare un'intera sezione alla sua descrizione.
+	
+	\subsection{Il principio di misura di un sensore \textit{Time-of-Flight (ToF)}}
+	La modalità di misura conosciuta come \textit{Time-of-Flight} si basa sulla determinazione del tempo impiegato da un segnale, generalmente un impulso luminoso nella banda dell'infrarosso, per compiere un viaggio
+	di andata e ritorno tra un emettitore ed un bersaglio riflettente. In particolare, per il dispositivo in analisi, la sorgente di emissione luminosa è costituita da un laser a cavità verticale (VCSEL), che emette
+	brevi impulsi di luce modulata. Il segnale emesso si propaga nell'ambiente fino ad incontrare un oggetto. Parte della radiazione viene riflessa e raccolta da un rilevatore sensibile alla luce, generalmente un \textit{SPAD array} o
+	\textit{"Single-Photon Avalanche Diode"}. Questo rilevatore è in grado di registrare fino all'arrivo di singoli fotoni, consentendo una misura estremamente sensibile del tempo di volo.
+	Una volta noto l'intervallo temporale tra l'istante di emissione dell'impulso e quello di ricezione del suo \textit{"eco"}, il calcolo della distanza si ottiene applicando la relazione:
+	\begin{equation}
+		d=\frac{c\cdot \Delta{t}}{2}
+	\end{equation}
+	dove $d$ è la distanza dell'oggetto dalla superficie, $c$ è la velocità della luce nel vuoto e $\Delta{t}$ è il tempo di volo misurato. Il fattore 2 al denominatore tiene conto che il segnale percorre il tragitto due volte, andata e ritorno.
+	I "ToF" moderni possono utilizzare tecniche avanzate di correlazione temporale o modulazione di fase per migliorare la precisione e la resistenza al rumore ambientale.\\
+	Nel caso in esame, il VL53L1X utilizza la tecnologia base ToF o dToF, \textit{"Direct Time-of-Flight"}.
+	
+	\subsection{VL53L1X STMicroelectronics. Caratteristiche fisiche}
+	A seguire, un breve elenco delle principali caratteristiche fisiche:
+	\begin{itemize}
+		\item dimensioni del chip: $4.90\times 1.25\times 1.56$ [mm].
+		\item dimensioni del modulo: $17.50\times 12\times 2.56$ [mm].
+		\item massa del chip: 30 [mg].
+		\item massa del modulo: 0.5 [g] (senza i \textit{pin header}).
+	\end{itemize}
+	
+	\subsection{VL53L1X STMicroelectronics. Catatteristiche tecniche}
+	\paragraph{\small{Alimentazione}}\mbox{}\\
+	Il sensore presenta un unico ingresso di alimentazione il cui nome è $V_{DD}$. L'intervallo di tensione di alimentazione è: \textbf{[2.6$\div$3.5][V]}
+	
+	\paragraph{\small{Protocollo di comunicazione}}\mbox{}\\
+	Il dispositivo è stato sviluppato per comunicare con il microcontrollore utilizzando esclusivamente il protocollo di comunicazione $I^2C$. Il sensore dispone della capacità di comunicare in \textit{Fast Mode}, scambiando byte ad una frequenza di 400 [kHz].\\
+	Il \textit{VL53L1X} fornisce i pin di \textbf{Serial DAta (SDA)} e di \textbf{Serial CLock (SCL)}.
+	
+	\paragraph{\small{XSHUT e GPIO 1 (Interrupt)}}\mbox{}\\
+	Il \textit{VL53L1X} dispone di un ingresso denominato \textbf{XSHUT}, che consente di spegnere o riavviare il dispositivo a livello \textit{hardware}, indipendentemente dall'\textit{Host}.
+	Portando l'ingresso al livello logico basso, il sensore entra in modalità di \textit{shutdown}, interrompendo le misurazioni e riducendo il consumo di corrente. Al contrario, applicando
+	un livello di tensione alto, il sensore viene inizializzato e reso operativo.\\
+	Oltre che l'ingresso \textbf{XSHUT}, il sensore dispone di un'\textbf{uscita} denominata \textbf{GPIO1}, spesso indicata anche come \textbf{INT (interrupt)}, la cui funzione principale è segnalare al microcontrollore
+	eventi o stati del sensore.\\
+	Nel presente progetto, il pin XSHUT è stato utilizzato esclusivamente per il \textit{reset} forzato del sensore, mentre il GPIO1 è stato impiegato per segnalare la disponibilità della misura,
+	semplificando il firmware, riducendo il carico computazionale e consentendo la gestione della temporizzazione, aspetti che verrano approfonditi nella dedicata sezione nel capitolo \textit{Software}.
+	\begin{figure}[h]
+		\centering
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{figures/PinConfigurationModuloPololu.jpg}
+			\caption{Pin Configuration}
+			\label{fig:img1}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.45\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{figures/PinCongifVL53L1X.png}
+			\caption{System Block Diagram}
+			\label{fig:img2}
+		\end{minipage}
+	\end{figure}\\
+	L'immagine a sinistra specifica la disposizione della piedinatura del modulo \textit{Pololu} (\textit{P.C: Pin Configuration}), mentre la figura di destra rappresenta la suddivisione modulare del \textit{VL53L1X} (\textit{S.B.D: System Block Diagram}).
+	\paragraph{\small{Emettitore}}\mbox{}\\
+	Il \textit{VL53L1X} monta un emettitore \textbf{laser ad infrarossi con lunghezza d'onda pari a 940 [nm] appartenente alla \textit{classe uno}}. Quest'ultimo fa riferimento alla classificazione di sicurezza stabilita dalla norma internazionale \textbf{IEC 60825-1}.
+	La classificazione ha il dovere di descrivere quanto un emissione laser possa essere pericolosa per l'interazione umana (occhi, pelle ecc). La normativa organizza gli emettitori in \textit{classi}, dove
+	ogni classe rappresenta un livello crescente di rischio. Per un laser di \textit{classe uno}, come quello emesso dal dispositivo, le condizioni operative normali sono considerate sicure per occhi e pelle.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{figures/Emetittore_VL53L1X.png}
+		\caption{VL53L1X, dettaglio sull'emettitore}
+		\label{fig:Hardware drone}
+	\end{figure}
+	
+	\paragraph{\small{Field of View  (FoV)}}\mbox{}\\
+	Il \textit{Field of View} è l'angolo massimo entro il quale il dispositivo rileva un oggetto. Per quanto riguarda l'emettitore in esame, il \textbf{FoV} è all'incirca di \textbf{27\degree}.\\
+	A seguire, un'immagine esplicativa del \textit{FoV}:
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.7\textwidth]{figures/cone.jpg}
+		\caption{Field of View del VL53L1X}
+		\label{fig:Hardware drone}
+	\end{figure}
+	
+	\paragraph{\small{Region-of-interest (R.O.I)}}\mbox{}\\
+	Con \textit{Region-Of-Interest} si fa riferimento ad un'opzione offerta dal \textit{VL53L1X} che permette di restringere il \textit{Field of View} utilizzato nella misura.
+	La funzione è utile nel caso in cui si voglia migliorare la precisione di misura su oggetti piccoli.\\
+	Nel presente progetto, il sensore è responsabile della misura dell'altitudine del \textit{D.P.D.F}, per
+	cui la tecnologia \textit{(R.O.I)} non è mai stata utilizzata, lasciando il \textit{FoV} a 27\degree.
+	
+	\paragraph{\small{Prestazioni di misura, Timing Budget e modalità operative di misura}}\mbox{}\\
+	Il \textit{VL53L1X} vanta di ottime prestazioni di misura, di fatti questa è accurata e veloce. Il dispositivo ha la capacità di misurare distanze fino ai 4 [m] ad una frequenza di 50 [Hz].
+	Con il fine di coprire una più vasta gamma di applicazioni, il dispositivo fornisce la possibilità di selezionare la modalità di misura più adatta alla specifica applicazione, oltre che la velocità e l'accuratezza.
+	A seguire, una tabella esplicante le varie modalità di misura offerte dal dispositivo:
+	\begin{table}[htb]
+		\centering
+		\caption{VL53L1X. Modalità di misura}
+		\resizebox{\textwidth}{!}{
+			\begin{tabular}{l c c}
+				\toprule
+				\textit{Modalità} & Range massimo in condizioni di scarsa luce (approssimato) & Range massimo con luce ambientale \\
+				\midrule
+				\textit{Short} & 136 [cm] & 135 [cm]\\
+				\textit{Medium} & 290 [cm] & 76 [cm]\\
+				\textit{Long} & 360 [cm] & 73 [cm]\\
+				\bottomrule
+			\end{tabular}
+		}
+		\label{tab:VL53L1X. Hardware}
+	\end{table}
+	\begin{center}
+		\footnotesize \textit{Tabella riportata dal datasheet ufficiale del VL53L1X. I valori presentati, sono stati ricavati sotto le seguenti condizioni : \textit{timing budget} = 100 [ms], bersaglio bianco, riflettanza : 88\%, luce ambientale : 200 [kcps/SPAD].}
+	\end{center}
+	
+	La \textit{Short ranging mode} è stata sviluppata per misure ravvicinate ad alta stabilità e in ambienti luminosi. La \textit{Long range mode} è pensata, invece, per la massimizzazione della portata, al costo di accettare segnali più "nervosi". Oltre a quelle precedenti,
+	il dispositivo offre la possibilità di selezionare la \textit{Medium range mode}, che rappresenta un buon compromesso tra distanza operativa e robustezza al rumore.\\
+	L'ambiente in cui sono stati effettuati i test di volo è molto luminoso, inoltre, i fili di sostegno, si sono rilevati un vincolo per l'altitudine massima raggiungibile, così da non superare i 60 [cm].\\
+	Dunque, ai fini progettuali, la \textbf{\textit{Short ranging mode}} è stata privilegiata, diventando l'unica modalità operativa utilizzata per tutto l'arco del progetto.\\
+	Con il fine di minuziosa gestione della temporizzazione e dell'accuratezza, è stata sfruttata la funzione di \textbf{Timing Budget} del sensore. Con \textit{Timing Budget} si fa riferimento al tempo totale che il sensore impiega per
+	eseguire una singola misurazione di distanza. Il \textit{Timing Budget} è espresso in [ms] e può assumere i seguenti valori: \textbf{[20$\div$1000] [ms]}.
+	Un aumento del \textit{Timing Budget} comporta una riduzione della frequenza di misura ma, al tempo stesso, ne migliora l'accuratezza e la stabilità.\\
+	La documentazione suggerisce che un \textit{Timing Budget} di \textbf{33 ms} offre ottime prestazioni in termini di velocità ed accuratezza, per cui, ai fini progettuali, è stato selezionato tale valore. Per la gestione dell'effettiva temporizzazione
+	è stato variato \textit{l'Inter-Measurement Period}, approfondito nella sezione \textit{Software}.\\
+	A seguire, un'immagine riportata direttamente dallo \textit{User Manual} del \textit{VL53L1X}, raffigurante le prestazioni di misura a fronte di diversi valori del \textit{Timing Budget}.
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.7\textwidth]{figures/Esperimento TimingBudget.png}
+		\caption{VL53L1X, prestazioni di misura}
+		\label{fig:Hardware drone}
+	\end{figure}
+	
+	\section{Schema dei collegamenti}
+	Inserire uno schema dei collegamenti analogo a quello in Figura \ref{fig:schema}. Si suggerisce per lo scopo di usare il software "draw.io". Nello schema riportare tutti i collegamenti tra i componenti, specificando quale pin di un componente1 si collega con quale pin di un componente2 (per la maggior parte dei collegamenti dovete cioè avere una linea con 2 label). \\
+	Inserire anche una descrizione testuale dello schema.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/Schema_collegamenti.jpeg}
+		\caption{Schema dei collegamenti}
+		\label{fig:schema}
+	\end{figure}
+	
+	
+	\chapter{Software}
+	Nell'introduzione al capitolo specificate anche la versione dell'STM32CubeIDE e dell'STM32CubeMX che avete usato (se avete cambiato versione nel corso del progetto mettete l'ultima, quella su cui è sviluppato il codice che consegnate).
+	
+	\section{Diagramma di flusso}
+	Inserire un diagramma di flusso analogo a quello in Figura \ref{fig:diagramma} che spiega il funzionamento generale del codice sviluppato. Inserire anche una descrizione testuale del funzionamento.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/diagramma.JPG}
+		\caption{Diagramma di flusso del codice sviluppato}
+		\label{fig:diagramma}
+	\end{figure}
+	
+	\section{Gestione singoli componenti}
+	Dedicare un pagagrafo ad ogni componente in cui viene spiegato il codice che lo gestisce. Inserite prima una descrizione generale di come si gestisce un componente di quel tipo (aiutandovi con schemi o altro). Poi le configurazioni che sono state fatte sul .ioc per poterlo utilizzare (quale periferiche sono state abilitate, come sono state configurate.. mettete degli screen del .ioc). Infine inserite e spiegate le parti di codice che lo gestiscono.
+	
+	\textcolor{red}{NOTA per il codice}: per rendere il codice modulare e riutilizzabile è buona prassi non caricare troppo il main ma creare una libreria per ogni componente. Quindi il componente1 avrà un header file "componente1.h" e un source file "componente1.c", nel source file sono implementate le funzioni che gestiscono il componente, nell'header file ci sono i prototipi di tali funzioni in modo che esse possano essere usate nel main includendolo.
+	
+	\textcolor{red}{NOTA per il codice}: non inserire mai nel codice dei parametri numerici senza contesto ma renderli delle costanti definite (usando la direttiva \%define). Se sono delle costanti relative ad uno specifico componente vanno inserite nel relativo header file.
+	
+	\textcolor{red}{NOTA per il codice}: per inserire il codice, anziché utilizzare screenshot utilizzate i seguenti comandi.
+	Per codice scritto in latex (con linguaggio Python):
+	\begin{lstlisting}[language=Python, caption="Codice in Python"]
+		import numpy as np
+		
+		def incmatrix(genl1,genl2):
+		m = len(genl1) # The length of the first array
+		n = len(genl2) # The length of the second array
+		sum = 0
+		
+		# Compute 
+		for i in range(0,n):
+		for j in range(0, m):
+		sum += genl1[n]*genl2[m]
+		
+		# Print
+		print("The sum is %2d" %(sum))   
+		
+		return M
+	\end{lstlisting}
+	Per codice richiamato da file (con linguaggio C):
+	
+	\lstinputlisting[language=Cpp, firstline=4, lastline=8, caption="Codice in C"]{codefiles/example_code.cpp}
+	
+	Funziona anche per codice MATLAB:
+	\begin{lstlisting}[language=MATLABc, caption="Codice in MATLAB"]
+		%% PREPARE WORKSPACE
+		close all
+		clearvars
+		clc
+		
+		%% OPERATIONS
+		sayhello;
+		
+		%% FUNCTIONS
+		function sayhello
+		fprintf("Hello world!");
+		end
+		
+	\end{lstlisting}
+	
+	
+	\subsection{Gestione componente1}
+	
+	\subsection{Gestione componente2}
+	
+	\section{Funzionamento complessivo}
+	Dopo aver spiegato il codice che gestisce i singoli componenti, inserire e commentare le porzioni di codice relative al funzionamento complessivo del programma.
+	
+	\chapter{Test e risultati}
+	Dedicate un capitolo a tutti i test effettuati con relativi risultati, includete sia i test finali relativi al funzionamento complessivo, sia i test delle singole parti (se significativi). \\
+	Descrivete in dettaglio le condizioni in cui sono stati svolti i test in modo che siano ripetibili. Durante i test fate dei video e acquisite i dati (es usando la funzione di log di Putty), per i test più rilevanti è opportuno consegnare anche questo materiale per documentare i test effettuati. Nella relazione riportate i risultati con dei grafici come quello in Figura \ref{fig:grafico} (inserite sempre nei grafici le label sugli assi con grandezza e relativa unità di misura). Commentate in modo critico i risultati ottenuti, evidenziando sia quelli positivi sia quelli negativi. 
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/grafico.JPG}
+		\caption{Esempio di grafico}
+		\label{fig:grafico}
+	\end{figure}
+	\section{Test1}
+	Per ogni test riportate: cosa state testando, in che condizioni si è svolto il test, riferimenti a video/file di log che consegnate insieme a relazione e codice, grafici dei risultati, commento dei risultati.
+	
+	\section{Test2}
+	
+	\newpage
+	\addcontentsline{toc}{chapter}{Conclusioni e sviluppi futuri}
+	\section*{Conclusioni e sviluppi futuri}
+	Riassumere brevemente il lavoro svolto rispetto al task assegnato, evidenziando quali risultati sono stati raggiunti e quali no. Se ci sono aspetti del task non completati spiegare quali sono stati i problemi riscontrati in merito.\\
+	Inserire considerazioni personali su possibili sviluppi futuri dell'attività svolta (idee per migliorarla che non avete avuto modo di sperimentare, aspetti che suggerite di approfondire, problemi da risolvere..).
+	
+	\addcontentsline{toc}{chapter}{Appendici}
+	\appendix
+	\chapter{Appendice1}
+	Se necessario ricorrete alle appendici per spiegare le parti "di contorno" dell'attività svolta e/o ciò che non riuscite ad inserire nello schema generale dei capitoli della relazione (es acquisizione dei dati con Matlab).
+	
+	
+	\bibliographystyle{ieeetr}
+	\bibliography{bibl} 
+\end{document}
+}}
