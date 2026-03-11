@@ -8,7 +8,6 @@
  *| ______________________________________________________________________________________________________|
  *********************************************************************************************************/
 
-
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 			 INCLUDE DIRECTIVES 				      						 */
 /*-------------------------------------------------------------------------------------------------------*/
@@ -16,7 +15,6 @@
 #include "stdio.h"
 #include "stdbool.h"
 #include "stm32h7xx.h"
-
 
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 			MACORS / DEFINITIONS 				      						 */
@@ -28,7 +26,6 @@
  * @brief this macro is used to specify the length of the message for the output
  */
 #define STANDARD_MESSAGE_LENGTH															50
-
 
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 			MOTOR-RELATED MACROS 				      						 */
@@ -78,8 +75,6 @@
  */
 #define LOWER_LIMIT_TOP_MOTOR_SATURATION 800
 
-
-
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 			SERVOS-RELATED MACROS 				      					     */
 /*-------------------------------------------------------------------------------------------------------*/
@@ -117,8 +112,6 @@
  */
 #define LOWER_LIMIT_SERVO_SATURATION													705
 
-
-
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 	     VARIABLES AND DATA STRUCTURES 				      					 */
 /*-------------------------------------------------------------------------------------------------------*/
@@ -127,19 +120,19 @@
  * @brief This data structure contains the initial angular values read from gyroscope, which are
  * 		  used to determine the origin of the drone's reference frame.
  */
-typedef struct{
+typedef struct {
 
 	uint32_t zero_rot_x;
 	uint32_t zero_rot_y;
 	uint32_t zero_rot_z;
 
-}DPDF_axis_zero_rot_t;
+} DPDF_axis_zero_rot_t;
 
 /**
  * @brief This data structure is used to store the instantaneous rotation values around the
  * 		  Cartesian axes.
  */
-typedef struct{
+typedef struct {
 
 	int32_t rot_x;
 	int32_t rot_y;
@@ -147,18 +140,17 @@ typedef struct{
 
 } DPDF_axis_rot_t;
 
-
 /**
  * @brief this struct contains the proportional, integral and derivative gains, as well as the
  * 		  sample time of the PID. The sampling time is expressed in milliseconds.
  */
-typedef struct{
+typedef struct {
 	float prop_coeff;
 	float der_coeff;
 	float int_coeff;
 	float sampl_time;
-    float err_old;
-    float int_term;
+	float err_old;
+	float int_term;
 } pid_prmts_t;
 
 /**
@@ -176,18 +168,15 @@ typedef DPDF_axis_rot_t *DPDF_axis_rotation;
  */
 typedef pid_prmts_t *pid_pars;
 
-
 typedef struct {
-    // Parameters
-    float kp;
-    float ki;
-    float kd;
-    float sample_time;
+	// Parameters
+	float kp;
+	float ki;
+	float kd;
+	float sample_time;
 
-    // Controller state (memory)
-    float int_term;
-    float e_old;
+	// Controller state (memory)
+	float int_term;
+	float e_old;
 } pid_controller_t;
-
-
 
