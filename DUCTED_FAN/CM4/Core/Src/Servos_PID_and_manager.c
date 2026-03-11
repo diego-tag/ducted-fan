@@ -136,7 +136,7 @@ void servos_turn_off(void) {
 	TIM2->CCR2 = CENTER_UPPER_LOWER_SERVO_SATURATION;
 
 	HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Stop(&htim5, TIM_CHANNEL_5);
+	HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_2);
 
 }
 

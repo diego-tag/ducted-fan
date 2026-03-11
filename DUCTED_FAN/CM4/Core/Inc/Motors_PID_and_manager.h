@@ -87,6 +87,10 @@ void motors_pid_turner_and_turn_on(float kp, float ki, float kd, float t_c, pid_
 void motors_secure_turn_off(void);
 
 
+
+void shutdown(void);
+
+
 /**
  * @brief This function applies PID control theory to compute the input value to be written into
  * 		  the timer compare register responsible for generating the PWM signal.

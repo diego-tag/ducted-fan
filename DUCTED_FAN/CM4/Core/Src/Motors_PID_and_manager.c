@@ -17,13 +17,13 @@
 /*					  		 		EXTERN VARIABLES DECLARATIONS				      					 */
 /*-------------------------------------------------------------------------------------------------------*/
 
-extern uint8_t ld_st_loop_counter;
+extern uint8_t current_number_of_toggles;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim12;
 extern TIM_HandleTypeDef htim7;
 extern TIM_HandleTypeDef htim3;
-extern int flag;
+extern int run;
 extern int flag_int;
 extern int flag_int_servo_control;
 extern int flag_int_motor_control;
@@ -33,14 +33,19 @@ extern int flag_int_motor_control;
 /*-------------------------------------------------------------------------------------------------------*/
 
 void safe_startup(TIM_HandleTypeDef *tim_secure_start) {
+	// Reset counter before starting
+	current_number_of_toggles = 0;
 
 	HAL_TIM_Base_Start_IT(tim_secure_start);
 
-	while (ld_st_loop_counter <= NUMBER_OF_TOGGLES) {
+	// Use  __WFI() in all waiting loops to save power and prevents busy-waiting CPU hogs
+	while (current_number_of_toggles <= NUMBER_OF_TOGGLES) {
+		__WFI();
 	}
 
 	HAL_TIM_Base_Stop_IT(tim_secure_start);
 
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_SET); // turn on LD2 (yellow led)
 }
 
 uint16_t actual_perpendicular_ranging_data(VL53L1_DEV dev, VL53L1_RangingMeasurementData_t ranging_data,
@@ -74,8 +79,7 @@ void motors_pid_turner_and_turn_on(float kp, float ki, float kd, float t_c, pid_
     poi->err_old    = 0.0f; // Initialize states
     poi->int_term   = 0.0f;
 
-    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2); // Start PWM for TIM4-CH2: top motor
-    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3); // Start PWM for TIM4-CH3: bottom motor
+
 }
 
 uint16_t pid_motors(pid_prmts_t *poi, int16_t ranging_measurement, uint16_t ref) {
@@ -110,15 +114,31 @@ uint16_t pid_motors(pid_prmts_t *poi, int16_t ranging_measurement, uint16_t ref)
 
 void motor_actuation(uint16_t ing_motor) {
 
-	TIM4->CCR3 = ing_motor;
 	TIM4->CCR2 = ing_motor;
+	TIM4->CCR3 = ing_motor;
 
 }
 
-void motors_safe_turn_off(void) {
+void shutdown(void)
+{
+    // Stop all critical actuators immediately
+	motors_secure_turn_off();
+	servos_turn_off();
 
-	TIM4->CCR3 = CCR_VALUE_FOR_MOTOR_ACT;
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET); // Turn off LD1 (green led)
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET); // Turn on LD3 (red led)
+
+    // Final system lock-up (Prevents code from wandering after shutdown)
+    while (1) {
+        // Halt system. Keeps power draw low. System requires a hard reset to restart.
+        __WFI();
+    }
+}
+
+void motors_secure_turn_off(void) {
+
 	TIM4->CCR2 = CCR_VALUE_FOR_MOTOR_ACT;
+	TIM4->CCR3 = CCR_VALUE_FOR_MOTOR_ACT;
 
 	HAL_Delay(500); //0.5 s
 
@@ -133,14 +153,13 @@ void motors_safe_turn_off(void) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
-	if (htim == &htim6) {
+	if (htim->Instance == TIM6) {
 		// Tim 6 emits at 2 Hz
 		HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1); // Toggle LD2 (yellow led)
-		ld_st_loop_counter++;
-
+		current_number_of_toggles++;
 	}
 
-	if (htim == &htim7) {
+	if (htim->Instance == TIM7) {
 		flag_int_servo_control = true;
 	}
 
@@ -148,16 +167,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	// When user button is pressed (used for safe startup)
 	if (GPIO_Pin == GPIO_PIN_13) {
-		if (flag == 0) {
-			flag = 1;
-		}
+		run = !run;
 	}
 
-	if (GPIO_Pin == GPIO_PIN_7) {
-		flag_int = true;
-	}
-
+	// When VL53L1X data is ready, trigger PID
 	if (GPIO_Pin == GPIO_PIN_12) {
 		flag_int_motor_control = true;
 	}

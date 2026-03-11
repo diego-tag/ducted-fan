@@ -57,10 +57,10 @@ TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart3;
+DMA_HandleTypeDef hdma_usart3_tx;
 
 /* USER CODE BEGIN PV */
-volatile int flag = 0;
-volatile bool flag_int = false;
+volatile bool run = 0;
 volatile bool flag_int_servo_control = false;
 volatile bool flag_int_motor_control = false;
 uint16_t counter_interrupt = 0;
@@ -70,12 +70,13 @@ uint8_t buff[50];
 
 /* Private function prototypes -----------------------------------------------*/
 static void MX_GPIO_Init(void);
-static void MX_USART3_UART_Init(void);
+static void MX_DMA_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_USART3_UART_Init(void);
 static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -83,7 +84,7 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-volatile uint8_t ld_st_loop_counter = 0;
+volatile uint8_t current_number_of_toggles = 0;
 
 /* USER CODE END 0 */
 
@@ -128,12 +129,13 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART3_UART_Init();
+  MX_DMA_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
   MX_TIM4_Init();
+  MX_USART3_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
@@ -170,9 +172,14 @@ int main(void)
 	/*					  		    			  SAFE STARTUP				      			 				 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
+	// Ensure button is not held down during power-up
+	while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_SET) {
+		__WFI();
+	}
+
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Waiting safe startup (press user button)...\n",strlen("Waiting safe startup (press user button)...\n"), HAL_MAX_DELAY);
 
-	while (flag == 0) {
+	while (!run) {
 		__WFI();
 	}
 
@@ -180,7 +187,7 @@ int main(void)
 			HAL_MAX_DELAY);
 
 	safe_startup(&htim6);
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_SET); // turn on LD2 (yellow led)
+
 	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_12, GPIO_PIN_SET); // Power the altitude sensor
 
 	/*-------------------------------------------------------------------------------------------------------*/
@@ -193,7 +200,7 @@ int main(void)
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, GPIO_PIN_SET);
 	HAL_Delay(10);
 
-	VL53L1_Error status = VL53L1_total_platform_init(Dev, 0x52, VL53L1_I2C, 400, 20000, 25);
+	VL53L1_Error status = VL53L1_total_platform_init(Dev, 0x52, VL53L1_I2C, 400, 20000, 33);
 
 	if(status == VL53L1_ERROR_NONE) {
 		HAL_UART_Transmit(&huart3, (uint8_t*) "Altitude sensor (VL53L1X) initialized\n", strlen("Altitude sensor (VL53L1X) initialized\n"),HAL_MAX_DELAY);
@@ -217,16 +224,19 @@ int main(void)
 	HAL_UART_Transmit(&huart3, (uint8_t*) "IMU (BNO055) initialized\n", strlen("IMU (BNO055) initialized\n"), HAL_MAX_DELAY);
 
 	/*-------------------------------------------------------------------------------------------------------*/
-	/*					  		    	 PID INITIALIZATIONS				      			 				 */
+	/*					  		    	 ACTUATORS AND PID INITIALIZATIONS				      				 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); // Start PWM associated with TIM1-CH2 (roll servo)
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); // Start PWM associated with TIM2-CH2 (pitch servo)
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); // Start PWM for TIM1-CH2 (roll servo)
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); // Start PWM for TIM2-CH2 (pitch servo)
 
 	pid_servo_init(&pid_roll, 2.0f, 0.0f, 0.0f, 0.01f);
 	pid_servo_init(&pid_pitch, 2.0f, 0.0f, 0.0f, 0.01f);
 
-	motors_pid_turner_and_turn_on(6, 0, 0, 0.025f, &motor_pid_params);
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2); // Start PWM for TIM4-CH2: top motor
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3); // Start PWM for TIM4-CH3: bottom motor
+
+	motors_pid_turner_and_turn_on(6, 0, 0, 0.033f, &motor_pid_params);
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Initialization completed!\n", strlen("Initialization completed!\n"), HAL_MAX_DELAY);
 
 	/*-------------------------------------------------------------------------------------------------------*/
@@ -251,7 +261,7 @@ int main(void)
 
 
 
-	// Start measurement LAST — first edge arrives ~25ms from NOW ──
+	// Start measurement LAST because first edge arrives ~25ms from now
 	VL53L1_StartMeasurement(Dev);
 
   /* USER CODE END 2 */
@@ -260,30 +270,37 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1) {
 
+		// Break out of main loop immediately if shutdown is flagged
+		if(!run) {
+			HAL_UART_Transmit_DMA(&huart3, (uint8_t*)"User requested shutdown\n", strlen("User requested shutdown\n"));
+
+			shutdown();
+			break;
+		}
+
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (flag_int_motor_control == true) {
+		if (flag_int_motor_control) {
 			flag_int_motor_control = false;
 
-			VL53L1_GetRangingMeasurementData(Dev, &rangingData);
-
 			VL53L1_ClearInterruptAndStartMeasurement(Dev);
+
+			VL53L1_GetRangingMeasurementData(Dev, &rangingData);
 
 			uint16_t pwm_motors = pid_motors(&motor_pid_params, rangingData.RangeMilliMeter, ref_altitude);
 
 			motor_actuation(pwm_motors);
 
-
-
 			// Only for debug: remove these lines in production to avoid slowing down the control
-			sprintf(msg_VL53L1X, "%d,%d,%d\n",HAL_GetTick(), rangingData.RangeMilliMeter, pwm_motors); // Current_height, command_sent_to_the_motors
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X), HAL_MAX_DELAY);
+			sprintf(msg_VL53L1X, "%d,%d\n", rangingData.RangeMilliMeter, pwm_motors); // Current_height, command_sent_to_the_motors
+			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X));
 
 		}
 
 		/*--------------------------------------------- SERVO-MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (flag_int_servo_control == true && false) {
+		if (flag_int_servo_control && false) {
+			flag_int_servo_control = false;
 
 			DPDF_BNO055_firmware_read(axis_zero_rot, axis_rotation_ist);
 
@@ -292,11 +309,9 @@ int main(void)
 
 			execution_servo(pwm_roll, pwm_pitch);
 
-			flag_int_servo_control = false;
-
 			// Only for debug: remove these lines in production to avoid slowing down the control
 			sprintf(msg_bno, "%ld,%ld,%d,%d\n", axis_rotation_ist->rot_x, axis_rotation_ist->rot_y, pwm_roll, pwm_pitch);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_bno, strlen(msg_bno), HAL_MAX_DELAY);
+			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_bno, strlen(msg_bno));
 
 		}
 
@@ -634,6 +649,22 @@ static void MX_USART3_UART_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -661,11 +692,11 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(POWER_VL53L1X___BNO055_GPIO_Port, POWER_VL53L1X___BNO055_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pin : PC13 */
-  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  /*Configure GPIO pin : USER_BUTTON_Pin */
+  GPIO_InitStruct.Pin = USER_BUTTON_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(USER_BUTTON_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD1_Pin LD3_Pin */
   GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin;
@@ -676,7 +707,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PE7 */
   GPIO_InitStruct.Pin = GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
@@ -701,9 +732,6 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(POWER_VL53L1X___BNO055_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
-
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 

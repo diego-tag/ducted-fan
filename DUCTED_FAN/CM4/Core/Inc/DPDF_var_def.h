@@ -64,7 +64,7 @@
  * 		  corresponds to a duty cycle of 12%
  *
  */
-#define UPPER_LIMIT_TOP_MOTOR_SATURATION 1800
+#define UPPER_LIMIT_TOP_MOTOR_SATURATION 900
 
 /**
  * @def LOWER_LIMIT_TOP_MOTOR_SATURATION
@@ -76,7 +76,7 @@
  * 		  corresponds to a duty cycle of 6%.
  * 		  NOTE: the actual minimum value accepted by ESC is 758 which is the corresponds to 1000 µs (in the current configuration of the timer)
  */
-#define LOWER_LIMIT_TOP_MOTOR_SATURATION 900
+#define LOWER_LIMIT_TOP_MOTOR_SATURATION 800
 
 
 
