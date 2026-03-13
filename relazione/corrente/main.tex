@@ -1075,17 +1075,119 @@
 	\end{figure}
 	
 	\section{Schema dei collegamenti}
-	Inserire uno schema dei collegamenti analogo a quello in Figura \ref{fig:schema}. Si suggerisce per lo scopo di usare il software "draw.io". Nello schema riportare tutti i collegamenti tra i componenti, specificando quale pin di un componente1 si collega con quale pin di un componente2 (per la maggior parte dei collegamenti dovete cioè avere una linea con 2 label). \\
-	Inserire anche una descrizione testuale dello schema.
-	
+
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/01_hardware/SCHEMA COLLEGAMENTI DUCTED FAN.drawio.png}
 		\caption{Schema dei collegamenti}
 		\label{fig:schema}
 	\end{figure}
-	
-	
+
+	\subsection{Tabelle dei collegamenti}
+	Di seguito sono riportati i collegamenti elettrici tra i principali componenti del sistema e la scheda di controllo.
+
+	\paragraph{Collegamenti NUCLEO-H745ZI-Q e VL53L1X}\mbox{}\\
+	Il sensore \textit{VL53L1X} (STMicroelectronics) è stato collegato direttamente alla \textit{NUCLEO-H745ZI-Q}.
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{l l}
+			\toprule
+			\textbf{VL53L1X} & \textbf{NUCLEO-H745ZI-Q} \\
+			\midrule
+			Vin & PG12, CN10-2 \\
+			GND & GND, CN10-5 \\
+			SCL & SCL I2C2: PB10, CN10-32 \\
+			SDA & SDA I2C2: PB11, CN10-34 \\
+			XSHUT & PE14, CN10-8 \\
+			GPIO & CN10-26 \\
+			\bottomrule
+		\end{tabular}
+		\caption{Collegamenti NUCLEO-H745ZI-Q e VL53L1X}
+	\end{table}
+
+	\paragraph{Collegamenti NUCLEO-H745ZI-Q e BNO-055}\mbox{}\\
+	Il sensore \textit{BNO-055} (Bosch Sensortec) è stato collegato direttamente alla \textit{NUCLEO-H745ZI-Q}.
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{l l}
+			\toprule
+			\textbf{BNO-055} & \textbf{NUCLEO-H745ZI-Q} \\
+			\midrule
+			Vin & 3.3V, CN8-7 \\
+			GND & GND, CN8-11 \\
+			SCL & SCL I2C1: PB6, CN10-14 \\
+			SDA & SDA I2C1: PB7, CN10-16 \\
+			\bottomrule
+		\end{tabular}
+		\caption{Collegamenti NUCLEO-H745ZI-Q e BNO-055}
+	\end{table}
+
+	\paragraph{Collegamenti DF-Robot, servo e NUCLEO-H745ZI-Q}\mbox{}\\
+	Per garantire il corretto funzionamento del comparto servomotori è necessario un riferimento di massa comune. Nel progetto è stata utilizzata una \textit{breadboard} esterna per distribuire la massa proveniente dalla NUCLEO-H745ZI-Q (GND, CN7-8). L'alimentazione dei servomotori è stata prelevata direttamente dall'uscita dei convertitori di tensione collegati in serie.
+
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{l l l l}
+			\toprule
+			\textbf{DF-Robot roll} & \textbf{Roll-servo} & \textbf{Common GND} & \textbf{NUCLEO-H745ZI-Q} \\
+			\midrule
+			Vout-3 & Vin (5.5V) & - & - \\
+			Vout-GND & GND & C.GND & GND, CN7-8 \\
+			- & Signal & - & TIM2-CH1: PA5, CN7-10 \\
+			\bottomrule
+		\end{tabular}
+		\caption{Collegamenti NUCLEO-H745ZI-Q e Roll-servo}
+	\end{table}
+
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{l l l l}
+			\toprule
+			\textbf{DF-Robot pitch} & \textbf{Pitch-servo} & \textbf{Common GND} & \textbf{NUCLEO-H745ZI-Q} \\
+			\midrule
+			Vout-3 & Vin (5.5V) & - & - \\
+			Vout-GND & GND & C.GND & GND, CN7-8 \\
+			- & Signal & - & TIM2-CH2: PB3, CN7-15 \\
+			\bottomrule
+		\end{tabular}
+		\caption{Collegamenti NUCLEO-H745ZI-Q e Pitch-servo}
+	\end{table}
+
+	\paragraph{Collegamenti Power Distribution Module, ESC e NUCLEO-H745ZI-Q}\mbox{}\\
+	Per il comparto motori, gli ESC sono collegati al \textit{Power Distribution Module}, a sua volta connesso al comparto batterie-PSM e ai motori tramite i rispettivi connettori trifase. Il terminale di massa degli ESC deve condividere la massa della NUCLEO-H745ZI-Q, mentre il terminale \textit{Signal} deve essere connesso al pin PWM della scheda.
+
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{l l l}
+			\toprule
+			\textbf{Power Distribution Module} & \textbf{Top-motor-ESC} & \textbf{NUCLEO-H745ZI-Q} \\
+			\midrule
+			Vout XT-60 & Vin XT-60 & - \\
+			GND XT-60 & GND XT-60 & - \\
+			- & Signal & TIM4-CH2: PD13, CN10-19 \\
+			- & GND & GND \\
+			\bottomrule
+		\end{tabular}
+		\caption{Collegamenti NUCLEO-H745ZI-Q e Top-motor-ESC}
+	\end{table}
+
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{l l l}
+			\toprule
+			\textbf{Power Distribution Module} & \textbf{Bottom-motor-ESC} & \textbf{NUCLEO-H745ZI-Q} \\
+			\midrule
+			Vout XT-60 & Vin XT-60 & - \\
+			GND XT-60 & GND XT-60 & - \\
+			- & Signal & TIM4-CH3: PD14, CN7-16 \\
+			- & GND & GND \\
+			\bottomrule
+		\end{tabular}
+		\caption{Collegamenti NUCLEO-H745ZI-Q e Bottom-motor-ESC}
+	\end{table}
+
+	\textit{Nota}: il dispositivo che riceve il segnale PWM deve condividere lo stesso riferimento di massa del dispositivo che genera tale segnale.
+
 	\chapter{Software}
 	Nell'introduzione al capitolo specificate anche la versione dell'STM32CubeIDE e dell'STM32CubeMX che avete usato (se avete cambiato versione nel corso del progetto mettete l'ultima, quella su cui è sviluppato il codice che consegnate).
 	
