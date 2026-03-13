@@ -12,19 +12,18 @@ build/
 Thumbs.db
 desktop.ini
 
-# Latex useless files
-relazione/template/main.log
-relazione/corrente/main.log
-relazione/corrente/main.aux
-relazione/corrente/main.bbl
-relazione/corrente/main.blg
-relazione/corrente/main.synctex.gz
-relazione/corrente/main.toc
-relazione/corrente/main.fdb_latexmk
-relazione/corrente/main.fls
+# Latex generated files
+relazione/template/*.log
+relazione/corrente/*.log
+relazione/corrente/*.aux
+relazione/corrente/*.bbl
+relazione/corrente/*.blg
+relazione/corrente/*.synctex.gz
+relazione/corrente/*.toc
+relazione/corrente/*.fdb_latexmk
+relazione/corrente/*.fls
 relazione/corrente/indent.log
-relazione/corrente/main.bak0
-relazione/corrente/main.bak2
-relazione/corrente/main.bak1
-relazione/corrente/main.bak3
-relazione/corrente/main.bak4
+relazione/corrente/*.bak*
+relazione/corrente/*.lof
+relazione/corrente/*.lot
+relazione/corrente/*.out
