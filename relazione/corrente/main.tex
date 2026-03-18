@@ -212,6 +212,21 @@
 	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere un'ottima distribuzione dei pesi. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione permette di evitare l'allentamento del dado di fissaggio causato dal flusso d'aria incidente generato dai motori.
 	
 	L'intera struttura cilindrica, i \textit{flap}, il supporto di sostegno dei motori e i piedi di appoggio sono stati realizzati tramite stampa 3D, utilizzando PVC come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
+
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.48\textwidth}
+			\centering
+			\includegraphics[height=5.5cm,keepaspectratio]{figures/001_sistema/struttura_ducted_fan_1.jpg}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}[b]{0.48\textwidth}
+			\centering
+			\includegraphics[height=5.5cm,keepaspectratio]{figures/001_sistema/struttura_ducted_fan_2.jpg}
+		\end{subfigure}
+		\caption{\textcolor{black}{Struttura ducted fan}}
+		\label{fig:struttura_ducted_fan}
+	\end{figure}
 	
 	\section{Controllo del Double Propeller Ducted-Fan}
 	L'attuale obiettivo di controllo prevede l'ottenimento dell'\textit{hovering} del \textit{DPDF}.
@@ -358,7 +373,7 @@
 	\end{figure}
 	
 	
-	\section{TATTU LiPo. Batteria ricaricabile}
+	\section{TATTU LiPo. Batteria ricaricabile \textcolor{red}{[DA MODIFICARE]}}
 	Motori, Servomotori e E.S.C richiedono specifici livelli di tensione per il loro funzionamento, tensioni che non possono essere fornite dalla NUCLEO H745ZI-Q.
 	Si rende, quindi, necessario l'inserimento nel progetto di batterie ricaricabili.\\
 	La selezione delle batterie disponibili sul mercato è stata condotta a seguito di un'analisi approfondita delle caratteristiche elettriche di motori, servomotori ed E.S.C,
@@ -496,7 +511,7 @@
 	Con \textbf{Power Distribution Board (PDB)} si fa riferimento ad un sottosistema elettrico la cui principale funzione è la \textbf{distribuzione in modo sicuro ed efficiente dell'energia fornita dal pacco batterie} agli \textit{E.S.C} e, conseguentemente, ai motori.
 	Ai fini progettuali, è stata selezionata una \textit{PDB}, il cui punto di prelievo del segnale presenta un connettore \textbf{XT60}, adatto al pacco batterie.
 	
-	\begin{figure}[htbp]
+	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.6\textwidth]{figures/01_hardware/scheda_distribuzione_potenza_quad.jpg}
 		\caption{Power Distribution Board}
