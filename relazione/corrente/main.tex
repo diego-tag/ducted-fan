@@ -34,7 +34,7 @@
 
 
 \lstdefinestyle{base}{
-	language=C++,
+	language=C,
 	backgroundcolor=\color{white},  
 	basicstyle=\footnotesize\ttfamily\color{black},   
 	breakatwhitespace=false,       
@@ -130,26 +130,16 @@
 	Nel presente capitolo viene descritta la struttura meccanica del \textit{Double Propeller Ducted-Fan (DPDF)} e viene introdotto l'obiettivo di controllo adottato nel progetto.
 	
 	\section{Double Propeller Ducted-Fan. Struttura}
-	Il \textit{DPDF} presenta una struttura cilindrica cava di \textbf{220 [mm]} di altezza e con un diametro esterno pari a \textbf{235 [mm]}. Il diametro interno, pari a \textbf{230 [mm]}, contiene le componenti necessarie al volo stabile dell'\textbf{UAV}.
-	
-	La configurazione con montaggio interno delle componenti responsabili del moto rappresenta l'elemento distintivo rispetto alle architetture di droni convenzionali. Tale configurazione risulta vantaggiosa per qualsiasi forma di interazione di contatto, sia con l'operatore umano sia con oggetti esterni, in quanto le eliche non sono esposte ma risultano integrate e protette dalla stessa struttura portante del drone.
-	
-	Proseguendo con la descrizione della struttura interna del \textit{DPDF}, nella parte superiore sono posizionati due motori disposti in configurazione controrotante. L'implementazione di tale assetto garantisce la generazione di spinte verticali senza che il drone ruoti su se stesso attorno all'asse Z, passante per il centro della struttura cilindrica. Le eliche, infatti, generano momenti torcenti in direzione opposta e, bilanciandosi, restituiscono un momento risultante nullo per il velivolo.
-	
-	Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste. I motori sono ancorati a una struttura a croce usata sia come base sia come rinforzo per le sollecitazioni che il \textit{DPDF} può subire. Tale struttura è stata progettata con una geometria e una finitura superficiale tali da minimizzare l'insorgenza di turbolenze aerodinamiche potenzialmente destabilizzanti per il volo del drone.
-	
-	Il disegno strutturale rende il \textit{DPDF} suscettibile a rotazioni indesiderate sul piano definito dagli assi X e Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinando una completa perdita di controllo del mezzo.
-	
-	Al fine di limitare tali perturbazioni, la parte inferiore del \textit{DPDF} integra due \textbf{flap}: uno dedicato al controllo dell'assetto lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.
-	
-	I \textit{flap}, interagendo con il getto d'aria generato dai motori, operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{roll} e \textit{pitch}. L'intervento di regolazione si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso. Il \textit{flap}, ruotando di un piccolo angolo, genera una deviazione del getto che lo investe. Tale deviazione produce una variazione della distribuzione di pressione tra il lato esposto al flusso (lato di pressione) e il lato opposto (lato di depressione). La differenza di pressione genera una forza aerodinamica risultante che produce un momento correttivo sull'assetto del velivolo. In prima approssimazione, la forza può essere considerata perpendicolare alla superficie del \textit{flap}. La direzione e il verso della forza devono essere tali da contrastare il momento perturbativo.
-	
-	Entrambi i \textit{flap} sono collegati, a un'estremità, al servomotore che ne gestisce il movimento, mentre all'altra sono inseriti in un apposito modulo strutturale che, oltre a fissare ciascun sensore del sistema, lo mantiene parallelo al terreno. I \textit{flap} sono posizionati in modo tale da risultare perpendicolari tra loro.
-	
-	Lungo la superficie esterna del cilindro sono state posizionate le componenti hardware necessarie al perseguimento degli scopi progettuali. La posizione di tali componenti è stata oggetto di studio al fine di ottenere un preciso bilanciamento del sistema. Gli elementi hardware utilizzati verranno approfonditi nel Capitolo 2.
-	
-	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere un'ottima distribuzione dei pesi. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione permette di evitare l'allentamento del dado di fissaggio causato dal flusso d'aria incidente generato dai motori.
-	
+	Il \textit{DPDF} presenta una struttura cilindrica cava di \textbf{220 [mm]} di altezza e con un diametro esterno pari a \textbf{235 [mm]}. Il diametro interno, pari a \textbf{230 [mm]}, contiene le componenti necessarie al volo stabile dell'\textbf{UAV}.\\
+	La configurazione con montaggio interno delle componenti responsabili del moto rappresenta l'elemento distintivo rispetto alle architetture di droni convenzionali. Tale configurazione risulta vantaggiosa per qualsiasi forma di interazione di contatto, sia con l'operatore umano sia con oggetti esterni, in quanto le eliche non sono esposte ma risultano integrate e protette dalla stessa struttura portante del drone.\\
+	Proseguendo con la descrizione della struttura interna del \textit{DPDF}, nella parte superiore sono posizionati due motori disposti in configurazione controrotante. L'implementazione di tale assetto garantisce la generazione di spinte verticali senza che il drone ruoti su se stesso attorno all'asse Z, passante per il centro della struttura cilindrica. Le eliche, infatti, generano momenti torcenti in direzione opposta e, bilanciandosi, restituiscono un momento risultante nullo per il velivolo.\\
+	Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste. I motori sono ancorati a una struttura a croce usata sia come base sia come rinforzo per le sollecitazioni che il \textit{DPDF} può subire. Tale struttura è stata progettata con una geometria e una finitura superficiale tali da minimizzare l'insorgenza di turbolenze aerodinamiche potenzialmente destabilizzanti per il volo del drone.\\
+	Il disegno strutturale rende il \textit{DPDF} suscettibile a rotazioni indesiderate sul piano definito dagli assi X e Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinando una completa perdita di controllo del mezzo.\\
+	Al fine di limitare tali perturbazioni, la parte inferiore del \textit{DPDF} integra due \textbf{flap}: uno dedicato al controllo dell'assetto lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.\\
+	I \textit{flap}, interagendo con il getto d'aria generato dai motori, operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{roll} e \textit{pitch}. L'intervento di regolazione si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso. Il \textit{flap}, ruotando di un piccolo angolo, genera una deviazione del getto che lo investe. Tale deviazione produce una variazione della distribuzione di pressione tra il lato esposto al flusso (lato di pressione) e il lato opposto (lato di depressione). La differenza di pressione genera una forza aerodinamica risultante che produce un momento correttivo sull'assetto del velivolo. In prima approssimazione, la forza può essere considerata perpendicolare alla superficie del \textit{flap}. La direzione e il verso della forza devono essere tali da contrastare il momento perturbativo.\\
+	Entrambi i \textit{flap} sono collegati, a un'estremità, al servomotore che ne gestisce il movimento, mentre all'altra sono inseriti in un apposito modulo strutturale che, oltre a fissare ciascun sensore del sistema, lo mantiene parallelo al terreno. I \textit{flap} sono posizionati in modo tale da risultare perpendicolari tra loro.\\
+	Lungo la superficie esterna del cilindro sono state posizionate le componenti hardware necessarie al perseguimento degli scopi progettuali. La posizione di tali componenti è stata oggetto di studio al fine di ottenere un preciso bilanciamento del sistema. Gli elementi hardware utilizzati verranno approfonditi nel Capitolo 2.\\
+	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere un'ottima distribuzione dei pesi. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione permette di evitare l'allentamento del dado di fissaggio causato dal flusso d'aria incidente generato dai motori.\\
 	L'intera struttura cilindrica, i \textit{flap}, il supporto di sostegno dei motori e i piedi di appoggio sono stati realizzati tramite \textbf{stampa 3D}, utilizzando \textbf{PVC} come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
 
 	\begin{figure}[H]
@@ -157,11 +147,13 @@
 		\begin{subfigure}[b]{0.48\textwidth}
 			\centering
 			\includegraphics[height=5.5cm,keepaspectratio]{figures/01_sistema/struttura_ducted_fan_1.jpg}
+			\caption{Struttura di sostegno dei motori}
 		\end{subfigure}
 		\hfill
 		\begin{subfigure}[b]{0.48\textwidth}
 			\centering
 			\includegraphics[height=5.5cm,keepaspectratio]{figures/01_sistema/struttura_ducted_fan_2.jpg}
+			\caption{Vista frontale}
 		\end{subfigure}
 		\caption{\textcolor{black}{Struttura del ducted fan}}
 		\label{fig:struttura_ducted_fan}
@@ -170,7 +162,6 @@
 	\section{Controllo del Double Propeller Ducted-Fan}
 	L'attuale obiettivo di controllo prevede l'ottenimento dell'\textbf{hovering} del \textit{DPDF}.
 	Con il termine \textit{hovering} si fa riferimento alla condizione di volo stazionario, in cui l'UAV rimane fermo nello spazio rispetto a un riferimento inerziale, mantenendo posizione e \textbf{quota} costanti nel tempo.
-	
 	Per soddisfare l'obiettivo di \textit{hovering}, il firmware implementa la teoria dei regolatori PID: un regolatore è relativo al controllo di quota, mediante la regolazione della portanza dei motori, e due regolatori sono coinvolti nel controllo della posizione mediante la regolazione del comparto \textit{flap-servo}.
 	
 	\newpage
@@ -1143,7 +1134,14 @@
 	\textit{Nota}: il dispositivo che riceve il segnale PWM deve condividere lo stesso riferimento di massa del dispositivo che genera tale segnale.
 
 	\chapter{Software}
-	Nell'introduzione al capitolo specificate anche la versione dell'STM32CubeIDE e dell'STM32CubeMX che avete usato (se avete cambiato versione nel corso del progetto mettete l'ultima, quella su cui è sviluppato il codice che consegnate).
+	Il firmware di controllo del \textit{Double Propeller Ducted-Fan (DPDF)} è stato sviluppato con l'obiettivo di ottenere una condizione di \textit{hovering} sufficientemente stabile del velivolo.
+	L'implementazione è stata realizzata in linguaggio C all'interno di \textit{STM32CubeIDE} (versione \textbf{1.16.1}), utilizzando i flussi di configurazione hardware, generazione codice basata su HAL (\textit{Hardware Abstraction Layer}), compilazione e debug integrati nell'ambiente.
+	Per la configurazione delle periferiche del microcontrollore \textit{STM32H745ZI-TQ6} è stato impiegato \textit{STM32CubeMX} (versione \textbf{6.12.1}).
+	
+	Per i sensori \textit{BNO055} (Bosch Sensortec) e \textit{VL53L1X} (STMicroelectronics) sono stati integrati i driver ufficiali dei produttori, nativamente \textit{platform-agnostic}, e adattati al contesto HAL tramite un sottile livello di interfaccia per comunicazione, interrupt e gestione dei pin.
+	In coerenza con la natura di questa attività, che è una \textbf{relazione di progetto} e non una tesi, è importante evidenziare che una parte del sub-firmware di base (in particolare l'infrastruttura iniziale e i moduli driver) era già stata sviluppata dal gruppo precedente: il lavoro attuale si è concentrato su analisi, integrazione, validazione e documentazione tecnica del codice nel contesto del progetto DPDF.
+	
+	Nelle sezioni successive vengono quindi descritti i diagrammi di flusso e l'organizzazione del firmware adottata nel progetto, mantenendo la terminologia operativa usata nel codice (i termini \textit{procedura} e \textit{funzione} sono considerati equivalenti in questa relazione).
 	
 	\section{Diagrammi di flusso}
 	Nella presente sezione sono stati riportati i diagrammi di flusso esplicativi del funzionamento del \textit{firmware}. Poiché i driver di gestione del \textit{VL53L1X} e \textit{BNO-055} sono esterni allo sviluppo, sono stati riportati anche i diagrammi di flusso di questi, in tal modo da specificare la procedura di estrazione dell'informazione.
@@ -1159,24 +1157,95 @@
 	\end{figure}
 	
 	\section{Gestione singoli componenti}
-	Dedicare un paragrafo ad ogni componente in cui viene spiegato il codice che lo gestisce. Inserite prima una descrizione generale di come si gestisce un componente di quel tipo (aiutandovi con schemi o altro). Poi le configurazioni che sono state fatte sul .ioc per poterlo utilizzare (quali periferiche sono state abilitate, come sono state configurate.. mettete degli screen del .ioc). Infine inserite e spiegate le parti di codice che lo gestiscono.
+	Il firmware è organizzato in modo modulare: il file \texttt{main.c} contiene l'orchestrazione (startup sicuro, inizializzazioni e ciclo principale), mentre la logica di controllo è distribuita in moduli dedicati:
+	\begin{itemize}
+		\item \texttt{Motors\_PID\_and\_manager.c}: gestione motori, PID di quota, startup sicuro e shutdown;
+		\item \texttt{Servos\_PID\_and\_manager.c}: lettura IMU, PID di roll/pitch e attuazione servomotori;
+		\item \texttt{DPDF\_var\_def.h}: costanti e strutture dati condivise tra i moduli.
+	\end{itemize}
+	Questa scelta riduce la complessità del \texttt{main} e separa chiaramente l'elaborazione ``lenta'' (nel ciclo principale) dalla gestione eventi ``rapida'' (nelle interrupt). In particolare, le callback di interrupt sono implementate in \texttt{Motors\_PID\_and\_manager.c} e non eseguono direttamente i controlli PID: si limitano a impostare flag condivise (\texttt{actuate\_motors\_control}, \texttt{actuate\_servo\_control}) poi consumate nel \texttt{while(1)}. In questo modo il tempo passato in ISR resta ridotto e il comportamento è più prevedibile.
+
+	\subsection{Definizione delle costanti e delle strutture condivise}
+	I limiti dei comandi PWM e i parametri comuni sono dichiarati tramite macro in \texttt{DPDF\_var\_def.h}. In particolare:
+	\begin{itemize}
+		\item \texttt{CCR\_VALUE\_FOR\_MOTOR\_ACT} definisce il duty-cycle di armamento ESC;
+		\item \texttt{UPPER/LOWER\_LIMIT\_TOP\_MOTOR\_SATURATION} definiscono i limiti del PID quota;
+		\item \texttt{UPPER/CENTER/LOWER\_SERVO\_SATURATION} definiscono i limiti dei servomotori.
+	\end{itemize}
+	Sono inoltre definite due strutture PID: \texttt{pid\_prmts\_t} (motori) e \texttt{pid\_controller\_t} (servi), entrambe comprensive di guadagni e stato interno (errore precedente e termine integrale). La distinzione in due strutture riflette due strategie diverse di anti-windup implementate nei due rami di controllo.
+
+	\begin{lstlisting}[style=base,language=C,caption={Esempio di costanti firmware usate per evitare ``numeri magici''}]
+		#define CCR_VALUE_FOR_MOTOR_ACT                712
+		#define UPPER_LIMIT_TOP_MOTOR_SATURATION       900
+		#define LOWER_LIMIT_TOP_MOTOR_SATURATION       800
+		#define UPPER_LIMIT_SERVO_SATURATION           1545
+		#define CENTER_UPPER_LOWER_SERVO_SATURATION    1125
+		#define LOWER_LIMIT_SERVO_SATURATION           705
+
+		typedef struct {
+			float prop_coeff;
+			float int_coeff;
+			float der_coeff;
+			float sampl_time;
+			float err_old;
+			float int_term;
+		} pid_prmts_t;
+	\end{lstlisting}
+
+	\subsection{Gestione quota: VL53L1X + PID motori}
+	Il controllo della quota usa il sensore ToF \textit{VL53L1X} come misura e pilota i due ESC con lo stesso comando PWM, così da variare la portanza totale senza introdurre sbilanciamenti intenzionali (\texttt{TIM4->CCR2 = TIM4->CCR3}).
 	
-	\textcolor{red}{NOTA per il codice}: per rendere il codice modulare e riutilizzabile è buona prassi non caricare troppo il main ma creare una libreria per ogni componente. Quindi il componente1 avrà un header file "componente1.h" e un source file "componente1.c", nel source file sono implementate le funzioni che gestiscono il componente, nell'header file ci sono i prototipi di tali funzioni in modo che esse possano essere usate nel main includendolo.
+	Dal punto di vista \texttt{.ioc}, i blocchi principali coinvolti sono:
+	\begin{itemize}
+		\item periferiche \textbf{I2C} per la comunicazione sensori (nel progetto risultano inizializzate \texttt{I2C1} e \texttt{I2C2});
+		\item \textbf{TIM4 CH2-CH3} in PWM a 50 Hz per i due ESC;
+		\item \textbf{EXTI su pin data-ready del VL53L1X} per attivare il loop motori a nuova misura disponibile.
+	\end{itemize}
 	
-	\textcolor{red}{NOTA per il codice}: non inserire mai nel codice dei parametri numerici senza contesto ma renderli delle costanti definite (usando la direttiva \#define). Se sono delle costanti relative ad uno specifico componente vanno inserite nel relativo header file.
-	
-	\textcolor{red}{NOTA per il codice}: per inserire il codice, anziché utilizzare screenshot utilizzate i seguenti comandi.
-	Per codice scritto in latex (con linguaggio Python):
-	
-	\lstinputlisting[style=base,language=C++,caption={esempio}]{codefiles/example_code.cpp}	
-	
-	
-	\subsection{Gestione componente1}
-	
-	\subsection{Gestione componente2}
+	La logica PID è implementata con anti-windup a saturazione (clamping): se l'uscita supera i limiti consentiti, viene bloccata; il termine integrale viene aggiornato solo in zona lineare. Nel \texttt{main} l'elaborazione quota parte quando la callback EXTI del pin \texttt{GPIO\_PIN\_12} imposta la flag \texttt{actuate\_motors\_control}. Nel ciclo principale, alla ricezione dell'evento, il firmware esegue in sequenza: clear interrupt del VL53L1X, lettura misura, calcolo PID, scrittura PWM.
+
+	\lstinputlisting[style=base,language=C,caption={PID quota motori con saturazione anti-windup},firstline=85,lastline=114]{codefiles/Motors_PID_and_manager.c}
+
+	L'attuazione viene poi applicata direttamente ai registri \texttt{CCR} dei due canali PWM di \texttt{TIM4}.
+
+	\lstinputlisting[style=base,language=C,caption={Attuazione simultanea dei due motori},firstline=116,lastline=120]{codefiles/Motors_PID_and_manager.c}
+
+	\subsection{Gestione assetto: BNO055 + PID servomotori}
+	Il controllo di assetto utilizza il \textit{BNO055} in modalità \texttt{NDOF}. In fase di inizializzazione viene acquisito l'assetto iniziale (offset) e successivamente si lavora sulle rotazioni relative lungo gli assi di interesse.
+
+	Dal punto di vista \texttt{.ioc}, i blocchi principali sono:
+	\begin{itemize}
+		\item periferica \textbf{I2C} per lettura IMU;
+		\item \textbf{TIM2 CH1-CH2} in PWM a 50 Hz per roll-servo e pitch-servo;
+		\item \textbf{TIM7} come base tempi periodica per attivare il loop servo.
+	\end{itemize}
+
+	Il PID dei servomotori è implementato con offset centrale (posizione 0\degree) e anti-windup condizionale: quando l'uscita è saturata, l'integratore continua ad accumulare solo se l'errore tende a riportare il comando dentro il range attuabile. Il loop di assetto viene attivato periodicamente da \texttt{TIM7} tramite la flag \texttt{actuate\_servo\_control}. Anche in questo caso la callback imposta solo la flag, mentre lettura IMU, calcolo PID e aggiornamento \texttt{CCR1/CCR2} avvengono nel \texttt{main}.
+
+	\lstinputlisting[style=base,language=C,caption={PID servomotori per controllo roll/pitch},firstline=80,lastline=125]{codefiles/Servos_PID_and_manager.c}
+
+	L'attuazione finale aggiorna i registri \texttt{CCR1} e \texttt{CCR2} di \texttt{TIM2}.
+
+	\lstinputlisting[style=base,language=C,caption={Scrittura del comando PWM ai due servomotori},firstline=127,lastline=131]{codefiles/Servos_PID_and_manager.c}
 	
 	\section{Funzionamento complessivo}
-	Dopo aver spiegato il codice che gestisce i singoli componenti, inserire e commentare le porzioni di codice relative al funzionamento complessivo del programma.
+	L'esecuzione complessiva segue una sequenza deterministica ed evento-driven:
+	\begin{enumerate}
+		\item \textbf{Safe startup}: avvio consentito solo dopo pressione del pulsante utente; segue conto alla rovescia visivo tramite LED (gestito da \texttt{TIM6}) e attesa in low-power (\texttt{\_\_WFI()});
+		\item \textbf{Inizializzazione sensori}: reset/abilitazione VL53L1X, inizializzazione BNO055 e acquisizione offset iniziale;
+		\item \textbf{Inizializzazione attuatori}: avvio PWM servi e motori, configurazione PID;
+		\item \textbf{Arming ESC}: comando PWM fisso di armamento (valore \texttt{712}) e attesa stabilizzazione (\texttt{5 s});
+		\item \textbf{Controllo concorrente nel main loop}: quota su evento \texttt{data-ready} VL53L1X (flag \texttt{actuate\_motors\_control}), assetto su evento periodico \texttt{TIM7} (flag \texttt{actuate\_servo\_control});
+		\item \textbf{Shutdown sicuro}: su pressione del pulsante utente durante l'esecuzione (toggle della variabile \texttt{run}), riporta attuatori in stato sicuro e blocca il sistema.
+	\end{enumerate}
+
+	La porzione seguente mostra la parte centrale del \texttt{main}: inizializzazione dei moduli, attivazione del controllo e doppio loop evento-driven per quota e assetto.
+
+	\lstinputlisting[style=base,language=C,caption={Sequenza di inizializzazione e ciclo principale di controllo},firstline=178,lastline=312]{codefiles/main.c}
+
+	La gestione degli eventi asincroni (pulsante utente, data-ready del sensore quota, base tempi servo) è concentrata nelle callback di interrupt:
+
+	\lstinputlisting[style=base,language=C,caption={Callback di interrupt per startup e scheduling dei controlli},firstline=154,lastline=179]{codefiles/Motors_PID_and_manager.c}
 	
 	\chapter{Test e risultati}
 	Dedicate un capitolo a tutti i test effettuati con relativi risultati, includete sia i test finali relativi al funzionamento complessivo, sia i test delle singole parti (se significativi). \\
