@@ -20,7 +20,6 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{booktabs}
-\usepackage{listings}
 \usepackage{xcolor}
 \usepackage{textcomp}
 \usepackage{gensymb}
@@ -29,102 +28,42 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definecolor{custom_green}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-\definecolor{custom_blue}{rgb}{  0.05, 0.05, 0.97}
-\definecolor{custom_brown}{rgb}{ 0.69, 0.38, 0.10}
-\definecolor{custom_purple}{rgb}{0.58, 0.00, 0.82}
-\definecolor{custom_orange}{rgb}{0.94, 0.59, 0.09}
+\definecolor{custom_blue}{rgb}{0.05,0.05,0.97}
+\definecolor{custom_purple}{rgb}{0.58,0.00,0.82}
+\definecolor{custom_orange}{rgb}{0.94,0.59,0.09}
 
-\lstdefinestyle{MATLABstyle}{   
-	commentstyle=\color{custom_green},
-	keywordstyle=\color{magenta},
-	numberstyle=\tiny\color{codegray},
-	stringstyle=\color{codepurple},
-	basicstyle=\ttfamily\footnotesize,
-	breakatwhitespace=false,         
-	breaklines=true,                 
-	captionpos=b,                    
-	keepspaces=true,                 
-	numbers=left,                    
-	numbersep=5pt,                  
-	showspaces=false,                
-	showstringspaces=false,
-	showtabs=false,                  
-	tabsize=2
-}
-\lstdefinelanguage{Cpp}{
+
+\lstdefinestyle{base}{
 	language=C++,
 	backgroundcolor=\color{white},  
-	basicstyle=\footnotesize \ttfamily \color{black} \bfseries,   
+	basicstyle=\footnotesize\ttfamily\color{black},   
 	breakatwhitespace=false,       
 	breaklines=true,               
+	columns=fullflexible,
 	captionpos=b,                   
 	commentstyle=\color{custom_green},   
-	deletekeywords={...},          
+	inputencoding=utf8,
+	extendedchars=true,
+	keepspaces=true,
+	literate={à}{{\`a}}1 {è}{{\`e}}1 {é}{{\'e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1,
 	escapeinside={\%*}{*)},
 	keywordstyle=\color{custom_purple},
-	identifierstyle=\color{blue},
-	stringstyle=\color{blue},      
+	identifierstyle=\color{custom_blue},
+	stringstyle=\color{custom_orange},      
 	numbers=left,                 
 	numbersep=5pt,                  
-	numberstyle=\tiny\color{black}, 
+	numberstyle=\tiny\color{codegray}, 
 	rulecolor=\color{black},        
 	showspaces=false,               
 	showstringspaces=false,        
 	showtabs=false,                
 	stepnumber=1,                   
-	tabsize=5,                     
-	title=\lstname,               
+	tabsize=4,                     
 }
 
-\lstdefinelanguage{Python}{
-	keywords={from, import, def, return, as, in, len, if, elif, else, for, while},
-	breakatwhitespace=false,       
-	breaklines=true,   
-	morecomment=[l]{\#},
-	morestring=[b]",
-	commentstyle=\color{red},
-	keywordstyle=\color{custom_purple},
-	numberstyle=\tiny\color{black},
-	stringstyle=\color{custom_green},
-	basicstyle=\ttfamily\footnotesize,
-	captionpos=b,
-	showstringspaces=false,        
-	showtabs=false,                
-	numbers=left,                 
-	numbersep=5pt,                  
-	numberstyle=\tiny\color{black}, 
-	rulecolor=\color{black},                      
-	tabsize=5,                     
-	title=\lstname,    
-}
+\lstset{style=base}
 
-\lstdefinelanguage{MATLABc}{
-	language=MATLAB,
-	backgroundcolor=\color{white},  
-	basicstyle=\footnotesize \ttfamily \color{black} \bfseries,   
-	breakatwhitespace=false,       
-	breaklines=true,               
-	captionpos=b,
-	morestring=[b]",
-	commentstyle=\color{custom_green},   
-	keywordstyle=\color{custom_blue},
-	morekeywords={clearvars},
-	deletekeywords={fprintf},
-	identifierstyle=\color{black},
-	stringstyle=\color{custom_purple},      
-	numbers=left,                 
-	numbersep=5pt,                  
-	numberstyle=\tiny\color{black}, 
-	rulecolor=\color{black},        
-	showspaces=false,               
-	showstringspaces=false,        
-	showtabs=false,                
-	stepnumber=1,                   
-	tabsize=5,                     
-	title=\lstname,                 
-}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -191,7 +130,7 @@
 	Nel presente capitolo viene descritta la struttura meccanica del \textit{Double Propeller Ducted-Fan (DPDF)} e viene introdotto l'obiettivo di controllo adottato nel progetto.
 	
 	\section{Double Propeller Ducted-Fan. Struttura}
-	Il \textit{DPDF} presenta una struttura cilindrica cava di 220 [mm] di altezza e con un diametro esterno pari a 235 [mm]. Il diametro interno, pari a 230 [mm], contiene le componenti necessarie al volo stabile dell'UAV.
+	Il \textit{DPDF} presenta una struttura cilindrica cava di \textbf{220 [mm]} di altezza e con un diametro esterno pari a \textbf{235 [mm]}. Il diametro interno, pari a \textbf{230 [mm]}, contiene le componenti necessarie al volo stabile dell'\textbf{UAV}.
 	
 	La configurazione con montaggio interno delle componenti responsabili del moto rappresenta l'elemento distintivo rispetto alle architetture di droni convenzionali. Tale configurazione risulta vantaggiosa per qualsiasi forma di interazione di contatto, sia con l'operatore umano sia con oggetti esterni, in quanto le eliche non sono esposte ma risultano integrate e protette dalla stessa struttura portante del drone.
 	
@@ -201,7 +140,7 @@
 	
 	Il disegno strutturale rende il \textit{DPDF} suscettibile a rotazioni indesiderate sul piano definito dagli assi X e Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinando una completa perdita di controllo del mezzo.
 	
-	Al fine di limitare tali perturbazioni, la parte inferiore del \textit{DPDF} integra due \textit{flap}: uno dedicato al controllo dell'assetto lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.
+	Al fine di limitare tali perturbazioni, la parte inferiore del \textit{DPDF} integra due \textbf{flap}: uno dedicato al controllo dell'assetto lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.
 	
 	I \textit{flap}, interagendo con il getto d'aria generato dai motori, operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{roll} e \textit{pitch}. L'intervento di regolazione si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso. Il \textit{flap}, ruotando di un piccolo angolo, genera una deviazione del getto che lo investe. Tale deviazione produce una variazione della distribuzione di pressione tra il lato esposto al flusso (lato di pressione) e il lato opposto (lato di depressione). La differenza di pressione genera una forza aerodinamica risultante che produce un momento correttivo sull'assetto del velivolo. In prima approssimazione, la forza può essere considerata perpendicolare alla superficie del \textit{flap}. La direzione e il verso della forza devono essere tali da contrastare il momento perturbativo.
 	
@@ -211,7 +150,7 @@
 	
 	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere un'ottima distribuzione dei pesi. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione permette di evitare l'allentamento del dado di fissaggio causato dal flusso d'aria incidente generato dai motori.
 	
-	L'intera struttura cilindrica, i \textit{flap}, il supporto di sostegno dei motori e i piedi di appoggio sono stati realizzati tramite stampa 3D, utilizzando PVC come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
+	L'intera struttura cilindrica, i \textit{flap}, il supporto di sostegno dei motori e i piedi di appoggio sono stati realizzati tramite \textbf{stampa 3D}, utilizzando \textbf{PVC} come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
 
 	\begin{figure}[H]
 		\centering
@@ -229,8 +168,8 @@
 	\end{figure}
 	
 	\section{Controllo del Double Propeller Ducted-Fan}
-	L'attuale obiettivo di controllo prevede l'ottenimento dell'\textit{hovering} del \textit{DPDF}.
-	Con il termine \textit{hovering} si fa riferimento alla condizione di volo stazionario, in cui l'UAV rimane fermo nello spazio rispetto a un riferimento inerziale, mantenendo posizione e quota costanti nel tempo.
+	L'attuale obiettivo di controllo prevede l'ottenimento dell'\textbf{hovering} del \textit{DPDF}.
+	Con il termine \textit{hovering} si fa riferimento alla condizione di volo stazionario, in cui l'UAV rimane fermo nello spazio rispetto a un riferimento inerziale, mantenendo posizione e \textbf{quota} costanti nel tempo.
 	
 	Per soddisfare l'obiettivo di \textit{hovering}, il firmware implementa la teoria dei regolatori PID: un regolatore è relativo al controllo di quota, mediante la regolazione della portanza dei motori, e due regolatori sono coinvolti nel controllo della posizione mediante la regolazione del comparto \textit{flap-servo}.
 	
@@ -1207,10 +1146,10 @@
 	Nell'introduzione al capitolo specificate anche la versione dell'STM32CubeIDE e dell'STM32CubeMX che avete usato (se avete cambiato versione nel corso del progetto mettete l'ultima, quella su cui è sviluppato il codice che consegnate).
 	
 	\section{Diagrammi di flusso}
-	Nella presente sezione sono stati riportati i diagrammi di flusso esplicativi del funzionamento del firmware. Poiché i driver di gestione del VL53L1X e BNO-055 sono esterni allo sviluppo, sono stati riportati anche i diagrammi di flusso di questi, in tal modo da specificare la procedura di estrazione dell'informazione.
+	Nella presente sezione sono stati riportati i diagrammi di flusso esplicativi del funzionamento del \textit{firmware}. Poiché i driver di gestione del \textit{VL53L1X} e \textit{BNO-055} sono esterni allo sviluppo, sono stati riportati anche i diagrammi di flusso di questi, in tal modo da specificare la procedura di estrazione dell'informazione.
 
 	\subsection{Diagramma di flusso del VL53L1X per misurazione di quota}
-	Il presente diagramma di flusso, ripreso dal datasheet relativo al driver di gestione del VL53L1X [15], è illustrativo della sequenza di invocazione di funzione da operare per estrarre l'informazione di misura di quota dal sensore. Successivamente alla funzione 	extit{StartMeasurement()}, il diagramma offre tre alternative circa la modalità con cui verificare la presenza di una nuova misura. Nel caso in esame, viene adottata la /textbf{Interrupt mode}, applicata nel loop di controllo del comparto motori.
+	Il presente diagramma di flusso, ripreso dal \textit{datasheet} relativo al driver di gestione del \textit{VL53L1X} [15], è illustrativo della sequenza di invocazione di funzione da operare per estrarre l'informazione di misura di quota dal sensore. Successivamente alla funzione \textit{StartMeasurement()}, il diagramma offre tre alternative circa la modalità con cui verificare la presenza di una nuova misura. Nel caso in esame, viene adottata la \textbf{Interrupt mode}, applicata nel \textit{loop} di controllo del comparto motori.
 	
 	\begin{figure}[H]
 		\centering
@@ -1228,44 +1167,8 @@
 	
 	\textcolor{red}{NOTA per il codice}: per inserire il codice, anziché utilizzare screenshot utilizzate i seguenti comandi.
 	Per codice scritto in latex (con linguaggio Python):
-	\begin{lstlisting}[language=Python, caption="Codice in Python"]
-		import numpy as np
-		
-		def incmatrix(genl1,genl2):
-		m = len(genl1) # The length of the first array
-		n = len(genl2) # The length of the second array
-		sum = 0
-		
-		# Compute 
-		for i in range(0,n):
-		for j in range(0, m):
-		sum += genl1[n]*genl2[m]
-		
-		# Print
-		print("The sum is %2d" %(sum))   
-		
-		return M
-	\end{lstlisting}
-	Per codice richiamato da file (con linguaggio C):
 	
-	\lstinputlisting[language=Cpp, firstline=4, lastline=8, caption="Codice in C"]{codefiles/example_code.cpp}
-	
-	Funziona anche per codice MATLAB:
-	\begin{lstlisting}[language=MATLABc, caption="Codice in MATLAB"]
-		%% PREPARE WORKSPACE
-		close all
-		clearvars
-		clc
-		
-		%% OPERATIONS
-		sayhello;
-		
-		%% FUNCTIONS
-		function sayhello
-		fprintf("Hello world!");
-		end
-		
-	\end{lstlisting}
+	\lstinputlisting[style=base,language=C++,caption={esempio}]{codefiles/example_code.cpp}	
 	
 	
 	\subsection{Gestione componente1}
