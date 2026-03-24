@@ -1145,6 +1145,15 @@
 	
 	\section{Diagrammi di flusso}
 	Nella presente sezione sono stati riportati i diagrammi di flusso esplicativi del funzionamento del \textit{firmware}. Poiché i driver di gestione del \textit{VL53L1X} e \textit{BNO-055} sono esterni allo sviluppo, sono stati riportati anche i diagrammi di flusso di questi, in tal modo da specificare la procedura di estrazione dell'informazione.
+	
+	\subsection{Diagramma di flusso del fimware}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.55\textwidth,keepaspectratio]{figures/03_software/diagramma_di_flusso_generale.png}
+		\caption{Diagramma di flusso del funzionamento del firmware}
+		\label{fig:diagramma-firmware-generale}
+	\end{figure}
+	
 
 	\subsection{Diagramma di flusso del VL53L1X per misurazione di quota}
 	Il presente diagramma di flusso, ripreso dal \textit{datasheet} relativo al driver di gestione del \textit{VL53L1X} [15], è illustrativo della sequenza di invocazione di funzione da operare per estrarre l'informazione di misura di quota dal sensore. Successivamente alla funzione \textit{StartMeasurement()}, il diagramma offre tre alternative circa la modalità con cui verificare la presenza di una nuova misura. Nel caso in esame, viene adottata la \textbf{Interrupt mode}, applicata nel \textit{loop} di controllo del comparto motori.
