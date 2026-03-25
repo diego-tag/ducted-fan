@@ -53,6 +53,8 @@ void safe_startup(TIM_HandleTypeDef *tim_secure_start);
 uint16_t actual_perpendicular_ranging_data(VL53L1_DEV dev, VL53L1_RangingMeasurementData_t ranging_data, DPDF_zero_axis_rotation axis_zero_rot,
 		DPDF_axis_rotation axis_curr_rot);
 
+static float apply_median_filter(pid_prmts_t *poi, int16_t new_val);
+
 /**
  * @brief This function is used to set the PID controller parameters for the motor
  *

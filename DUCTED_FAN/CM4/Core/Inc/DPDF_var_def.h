@@ -141,16 +141,26 @@ typedef struct {
 } DPDF_axis_rot_t;
 
 /**
- * @brief this struct contains the proportional, integral and derivative gains, as well as the
- * 		  sample time of the PID. The sampling time is expressed in milliseconds.
+ * @brief this struct contains the proportional, integral and derivative gains, as well as other 
+ * parameters for a stable and robust PID. 
  */
 typedef struct {
-	float prop_coeff;
+    // Tuning parameters
+    float prop_coeff;
 	float der_coeff;
 	float int_coeff;
-	float sampl_time;
-	float err_old;
-	float int_term;
+
+	float sampl_time;         // Sampling time in seconds (~0.033f)
+    float lpf_alpha;          // Coefficient for LPF (0.0 = max filter, 1.0 = no filter)
+    // Memory
+    float int_term;           // Integral accumulator
+    float prev_meas;          // Past measurement (for derivative)
+    float prev_d_term;        // Previous D coefficient (for low pass filter)
+
+    // Buffer for median filter
+    int16_t med_buf[3];
+    uint8_t med_idx;
+    bool initialized;         // Flag for first boot
 } pid_prmts_t;
 
 /**

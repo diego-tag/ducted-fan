@@ -309,7 +309,7 @@ int main(void) {
 
 		/*--------------------------------------------- SERVO-MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (actuate_servo_control) {
+		if (actuate_servo_control && false) {
 			actuate_servo_control = false;
 
 			DPDF_BNO055_firmware_read(axis_zero_rot, axis_rotation_ist);
