@@ -24,26 +24,24 @@ extern TIM_HandleTypeDef htim5;
 /*					  		 		    FUNCTIONS DEFINITIONS				      					     */
 /*-------------------------------------------------------------------------------------------------------*/
 
-void DPDF_BNO055_firmware_read_init(DPDF_zero_axis_rotation axis_zero_rot) {
+void DPDF_BNO055_firmware_read_init(DPDF_zero_axis_rotation axis_zero_rot)
+{
+    struct bno055_euler_float_t euler;
+    bno055_convert_float_euler_hpr_deg(&euler);
 
-	struct bno055_euler_float_t euler_data_init;
-
-	bno055_convert_float_euler_hpr_deg(&euler_data_init);
-
-	axis_zero_rot->zero_rot_x = (int) euler_data_init.r;
-	axis_zero_rot->zero_rot_y = (int) euler_data_init.p;
-	axis_zero_rot->zero_rot_z = (int) euler_data_init.h;
+    axis_zero_rot->zero_rot_x = (int32_t) euler.r;   // roll  → x
+    axis_zero_rot->zero_rot_y = (int32_t) euler.p;    // pitch → y
+    axis_zero_rot->zero_rot_z = (int32_t) euler.h;    // heading → z
 }
 
-void DPDF_BNO055_firmware_read(DPDF_zero_axis_rotation init_axis_rot, DPDF_axis_rotation ist_axis_rot) {
+void DPDF_BNO055_firmware_read(DPDF_zero_axis_rotation init, DPDF_axis_rotation ist)
+{
+    struct bno055_euler_float_t euler;
+    bno055_convert_float_euler_hpr_deg(&euler);
 
-	struct bno055_euler_float_t euler_data_ist;
-
-	bno055_convert_float_euler_hpr_deg(&euler_data_ist);
-
-	ist_axis_rot->rot_x = (int) euler_data_ist.p - init_axis_rot->zero_rot_x;
-	ist_axis_rot->rot_y = (int) euler_data_ist.r - init_axis_rot->zero_rot_y;
-	ist_axis_rot->rot_z = (int) euler_data_ist.h - init_axis_rot->zero_rot_z;
+    ist->rot_x = (int32_t) euler.r - init->zero_rot_x;   // roll  − roll_init
+    ist->rot_y = (int32_t) euler.p - init->zero_rot_y;    // pitch − pitch_init
+    ist->rot_z = (int32_t) euler.h - init->zero_rot_z;    // heading − heading_init
 }
 
 void pid_servo_roll_turner_and_turn_on(float kp, float ki, float kd, float sample_time, pid_pars pointer_pid_pars_roll) {

@@ -122,9 +122,9 @@
  */
 typedef struct {
 
-	uint32_t zero_rot_x;
-	uint32_t zero_rot_y;
-	uint32_t zero_rot_z;
+	int32_t zero_rot_x;
+	int32_t zero_rot_y;
+	int32_t zero_rot_z;
 
 } DPDF_axis_zero_rot_t;
 

@@ -218,6 +218,19 @@ int main(void) {
 	myBNO.delay_msec = delay_func;
 	myBNO.dev_addr = BNO055_I2C_ADDR1;
 	bno055_init(&myBNO);
+
+	// Enter config mode to remap axis
+	bno055_set_operation_mode(BNO055_OPERATION_MODE_CONFIG);
+	HAL_Delay(20);  //BNO055 requires ~19ms to enter CONFIG mode
+
+	// Axis mapping: unchanged (default = 0x24 → X=X, Y=Y, Z=Z)
+	bno055_set_axis_remap_value(BNO055_DEFAULT_AXIS);
+
+	// Y e Z inverted to compensate flip of 180° over Y
+	bno055_set_remap_x_sign(BNO055_REMAP_AXIS_NEGATIVE);
+	bno055_set_remap_y_sign(BNO055_REMAP_AXIS_POSITIVE);
+	bno055_set_remap_z_sign(BNO055_REMAP_AXIS_NEGATIVE);
+
 	bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
 	//bno055_calibration();
 	DPDF_BNO055_firmware_read_init(axis_zero_rot);
@@ -278,7 +291,7 @@ int main(void) {
 
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (actuate_motors_control) {
+		if (actuate_motors_control && false) {
 			actuate_motors_control = false;
 
 			VL53L1_ClearInterruptAndStartMeasurement(Dev);
