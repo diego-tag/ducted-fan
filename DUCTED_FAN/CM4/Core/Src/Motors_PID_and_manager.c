@@ -223,29 +223,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 }
 
-// Read from serial
+// When RX pin reads something
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+	// This is the usb cable
     if (huart->Instance == USART3)
     {
+    	// At every message (with terminator), toggle run flag. This is useful for remote start/stop
 		if (rx_byte == '\n')
 		{
 			run = !run;
 		}
-
-		// Arm the interrupt again to catch the next byte, overwriting the old one
-		HAL_UART_Receive_IT(&huart3, &rx_byte, 1);
-    }
-}
-
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART3)
-    {
-        // 1. Clear the Overrun flag just to be safe
-        __HAL_UART_CLEAR_OREFLAG(huart);
-
-        // 2. Restart the interrupt so it doesn't stay dead!
-        HAL_UART_Receive_IT(&huart3, &rx_byte, 1);
     }
 }
