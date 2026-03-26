@@ -75,77 +75,76 @@ void motors_pid_turner_and_turn_on(float kp, float ki, float kd, float t_c, pid_
 
 // Helper function: Median filter of 3 elements
 static float apply_median_filter(pid_prmts_t *poi, int16_t new_val) {
-    poi->med_buf[poi->med_idx] = new_val;
-    poi->med_idx = (poi->med_idx + 1) % 3;
+	poi->med_buf[poi->med_idx] = new_val;
+	poi->med_idx = (poi->med_idx + 1) % 3;
 
-    int16_t a = poi->med_buf[0];
-    int16_t b = poi->med_buf[1];
-    int16_t c = poi->med_buf[2];
+	int16_t a = poi->med_buf[0];
+	int16_t b = poi->med_buf[1];
+	int16_t c = poi->med_buf[2];
 
-    // Compute median using an hard-coded algorithm for max efficiency
-    int16_t median = (a > b) ? ((b > c) ? b : ((a > c) ? c : a))
-                             : ((a > c) ? a : ((b > c) ? c : b));
-    return (float)median;
+	// Compute median using an hard-coded algorithm for max efficiency
+	int16_t median = (a > b) ? ((b > c) ? b : ((a > c) ? c : a)) : ((a > c) ? a : ((b > c) ? c : b));
+	return (float) median;
 }
 
 uint16_t pid_motors(pid_prmts_t *poi, int16_t raw_measurement, uint16_t ref) {
-    // Safety control and prevention of division-by-zero
-    if (!poi || poi->sampl_time <= 0.001f) {
-        return 0;
-    }
+	// Safety control and prevention of division-by-zero
+	if (!poi || poi->sampl_time <= 0.001f) {
+		return 0;
+	}
 
-    // Initialized at first boot (to avoid problems if buffer is at zero)
-    if (!poi->initialized) {
-        poi->med_buf[0] = poi->med_buf[1] = poi->med_buf[2] = raw_measurement;
-        poi->prev_meas = (float)raw_measurement;
-        poi->int_term = 0.0f;
-        poi->prev_d_term = 0.0f;
-        poi->initialized = true;
-    }
+	// Initialized at first boot (to avoid problems if buffer is at zero)
+	if (!poi->initialized) {
+		poi->med_buf[0] = poi->med_buf[1] = poi->med_buf[2] = raw_measurement;
+		poi->prev_meas = (float) raw_measurement;
+		poi->int_term = 0.0f;
+		poi->prev_d_term = 0.0f;
+		poi->initialized = true;
+	}
 
-    // Signal conditioning (median filter to compensate ToF spikes)
-    float filtered_meas = apply_median_filter(poi, raw_measurement);
+	// Signal conditioning (median filter to compensate ToF spikes)
+	float filtered_meas = apply_median_filter(poi, raw_measurement);
 
-    // Error
-    float err = (float)ref - filtered_meas;
+	// Error
+	float err = (float) ref - filtered_meas;
 
-    // --- PROPORTIONAL ---
-    float p_term = poi->prop_coeff * err;
+	// --- PROPORTIONAL ---
+	float p_term = poi->prop_coeff * err;
 
-    // --- INTEGRAL (with anti-windup) ---
-    float new_int_term = poi->int_term + (poi->int_coeff * poi->sampl_time * err);
+	// --- INTEGRAL (with anti-windup) ---
+	float new_int_term = poi->int_term + (poi->int_coeff * poi->sampl_time * err);
 
-    // --- DERIVATIVE (on measurement + Low pass filter) ---
-    // Use-(meas - prev_meas) instead of (err - prev_err) to avoid derivative kick
-    float d_raw = - (poi->der_coeff / poi->sampl_time) * (filtered_meas - poi->prev_meas);
+	// --- DERIVATIVE (on measurement + Low pass filter) ---
+	// Use-(meas - prev_meas) instead of (err - prev_err) to avoid derivative kick
+	float d_raw = -(poi->der_coeff / poi->sampl_time) * (filtered_meas - poi->prev_meas);
 
-    // Exponential low pass filter on derivative
-    float d_term = (poi->lpf_alpha * d_raw) + ((1.0f - poi->lpf_alpha) * poi->prev_d_term);
+	// Exponential low pass filter on derivative
+	float d_term = (poi->lpf_alpha * d_raw) + ((1.0f - poi->lpf_alpha) * poi->prev_d_term);
 
-    // Update memory for next loop
-    poi->prev_meas = filtered_meas;
-    poi->prev_d_term = d_term;
+	// Update memory for next loop
+	poi->prev_meas = filtered_meas;
+	poi->prev_d_term = d_term;
 
-    // Total output
-    float output = p_term + new_int_term + d_term;
+	// Total output
+	float output = p_term + new_int_term + d_term;
 
-    // ANTI-WINDUP (clamping method) & SATURATION
-    if (output > UPPER_LIMIT_TOP_MOTOR_SATURATION) {
-        output = UPPER_LIMIT_TOP_MOTOR_SATURATION;
-        // Do not accumulate integral if it's saturated (upper) AND error keep increasing
-        if (err < 0.0f) poi->int_term = new_int_term;
-    }
-    else if (output < LOWER_LIMIT_TOP_MOTOR_SATURATION) {
-        output = LOWER_LIMIT_TOP_MOTOR_SATURATION;
-        // Do not accumulate integral if it's saturated (bottom) AND error keep decreasing
-        if (err > 0.0f) poi->int_term = new_int_term;
-    }
-    else {
-        // If not saturated, accumulate integral
-        poi->int_term = new_int_term;
-    }
+	// ANTI-WINDUP (clamping method) & SATURATION
+	if (output > UPPER_LIMIT_TOP_MOTOR_SATURATION) {
+		output = UPPER_LIMIT_TOP_MOTOR_SATURATION;
+		// Do not accumulate integral if it's saturated (upper) AND error keep increasing
+		if (err < 0.0f)
+			poi->int_term = new_int_term;
+	} else if (output < LOWER_LIMIT_TOP_MOTOR_SATURATION) {
+		output = LOWER_LIMIT_TOP_MOTOR_SATURATION;
+		// Do not accumulate integral if it's saturated (bottom) AND error keep decreasing
+		if (err > 0.0f)
+			poi->int_term = new_int_term;
+	} else {
+		// If not saturated, accumulate integral
+		poi->int_term = new_int_term;
+	}
 
-    return (uint16_t)output;
+	return (uint16_t) output;
 }
 
 void motor_actuation(uint16_t ing_motor) {
