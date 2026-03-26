@@ -27,3 +27,8 @@ relazione/corrente/*.bak*
 relazione/corrente/*.lof
 relazione/corrente/*.lot
 relazione/corrente/*.out
+DUCTED_FAN/CM4/DUCTED_FAN_CM4.launch
+DUCTED_FAN/CM4/.settings/language.settings.xml
+DUCTED_FAN/CM4/.settings/stm32cubeide.project.prefs
+DUCTED_FAN/CM7/.settings/language.settings.xml
+DUCTED_FAN/CM7/.settings/stm32cubeide.project.prefs

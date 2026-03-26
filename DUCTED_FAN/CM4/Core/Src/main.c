@@ -284,7 +284,6 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
-		HAL_UART_Transmit_DMA(&huart3, (uint8_t*) "Running inside while\n", strlen("Running inside while\n"));
 
 		// Break out of main loop immediately if shutdown is flagged
 		if (!run) {
@@ -296,7 +295,7 @@ int main(void) {
 
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (actuate_motors_control ) {
+		if (actuate_motors_control) {
 			actuate_motors_control = false;
 
 			VL53L1_ClearInterruptAndStartMeasurement(Dev);
@@ -314,7 +313,7 @@ int main(void) {
 
 		/*--------------------------------------------- SERVO-MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (actuate_servo_control ) {
+		if (actuate_servo_control) {
 			actuate_servo_control = false;
 
 			DPDF_BNO055_firmware_read(axis_zero_rot, axis_rotation_ist);
