@@ -1,6 +1,6 @@
 # Progetto Double Propeller Ducted-Fan (DPDF)
 
-![System Image](relazione/corrente/figures/00_frontespizio/logo_univpm.jpg)
+![Logo Univpm](relazione/corrente/figures/00_frontespizio/logo_univpm.jpg)
 
 Questo repository contiene la documentazione completa e il firmware per l’UAV **Double Propeller Ducted-Fan (DPDF)** sviluppato come parte del corso di *Laboratorio di Automazione* presso l’Università Politecnica delle Marche.
 
@@ -17,16 +17,15 @@ Il **DPDF** è un UAV ducted-fan progettato su misura che presenta:
 - Misurazione dell’altitudine tramite sensore ToF VL53L1X  
 - Implementazione del controllo di hovering basato su PID  
 
-Il sistema è stato sviluppato per ottenere un **hovering** stabile in un ambiente di prova vincolato.
-
-> Specifiche dettagliate e schemi sono disponibili in [`relazione/corrente/main.tex`](relazione/corrente/main.tex).
+Il sistema è stato sviluppato per ottenere un **hovering** stabile.
 
 ## 📁 Struttura del repository
 
 ```
 root/
-├── relazione/               # Relazione in LaTeX
-│   └── corrente/main.tex
+├── relazione/
+│   └── corrente/main.tex      # Relazione in LaTeX
+├── utils/                     # Scripts in python utili (lettura/scrittura seriale)
 └── DUCTED_FAN/                # Codice sorgente STM32 in C
 ```
 
@@ -40,11 +39,7 @@ root/
 
 ## 📚 Documentazione
 
-La relazione tecnica completa è scritta in LaTeX ed è disponibile in:
-
-```
-relazione/corrente/main.tex
-```
+La relazione tecnica completa con tanto di specifiche e schemi è scritta in LaTeX ed è disponibile [qui](relazione/corrente/main.pdf)
 
 ## 📎 Autori
 
