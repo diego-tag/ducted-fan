@@ -63,6 +63,7 @@ DMA_HandleTypeDef hdma_usart3_tx;
 volatile bool run = 0;
 volatile bool actuate_servo_control = false;
 volatile bool actuate_motors_control = false;
+uint8_t rx_byte; // The "trash can" byte
 uint16_t counter_interrupt = 0;
 uint8_t buff[50];
 
@@ -166,6 +167,9 @@ int main(void) {
 	VL53L1_RangingMeasurementData_t rangingData;
 	VL53L1_Dev_t vl53l1_c;
 	VL53L1_DEV Dev = &vl53l1_c;
+
+	// Setup USART to listen for exactly 1 byte (used for start/stop from serial)
+	HAL_UART_Receive_IT(&huart3, &rx_byte, 1);
 
 	/*-------------------------------------------------------------------------------------------------------*/
 	/*					  		    			  SAFE STARTUP				      			 				 */
@@ -280,6 +284,7 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
+		HAL_UART_Transmit_DMA(&huart3, (uint8_t*) "Running inside while\n", strlen("Running inside while\n"));
 
 		// Break out of main loop immediately if shutdown is flagged
 		if (!run) {
@@ -291,7 +296,7 @@ int main(void) {
 
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (actuate_motors_control && false) {
+		if (actuate_motors_control ) {
 			actuate_motors_control = false;
 
 			VL53L1_ClearInterruptAndStartMeasurement(Dev);
@@ -309,7 +314,7 @@ int main(void) {
 
 		/*--------------------------------------------- SERVO-MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (actuate_servo_control && false) {
+		if (actuate_servo_control ) {
 			actuate_servo_control = false;
 
 			DPDF_BNO055_firmware_read(axis_zero_rot, axis_rotation_ist);
