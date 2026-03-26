@@ -63,10 +63,9 @@ DMA_HandleTypeDef hdma_usart3_tx;
 volatile bool run = 0;
 volatile bool actuate_servo_control = false;
 volatile bool actuate_motors_control = false;
-uint8_t rx_byte; // The "trash can" byte
-uint16_t counter_interrupt = 0;
+uint8_t rx_byte;
 uint8_t buff[50];
-
+volatile uint8_t current_number_of_toggles = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -85,7 +84,7 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-volatile uint8_t current_number_of_toggles = 0;
+
 
 /* USER CODE END 0 */
 
@@ -755,6 +754,50 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+/*-------------------------------------------------------------------------------------------------------*/
+/*					  		INTERRUPT & CALLBACK FUNCTIONS				      					         */
+/*-------------------------------------------------------------------------------------------------------*/
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+
+	if (htim->Instance == TIM6) {
+		// Tim 6 emits at 2 Hz
+		HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1); // Toggle LD2 (yellow led)
+		current_number_of_toggles++;
+	}
+
+	if (htim->Instance == TIM7) {
+		actuate_servo_control = true;
+	}
+
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	// When user button is pressed (used for safe startup)
+	if (GPIO_Pin == GPIO_PIN_13) {
+		run = !run;
+	}
+
+	// When VL53L1X data is ready, trigger PID
+	if (GPIO_Pin == GPIO_PIN_12) {
+		actuate_motors_control = true;
+	}
+
+}
+
+// When RX pin reads something
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	// This is the usb cable
+    if (huart->Instance == USART3)
+    {
+    	// At every message (with terminator), toggle run flag. This is useful for remote start/stop
+		if (rx_byte == '\n')
+		{
+			run = !run;
+		}
+    }
+}
 /* USER CODE END 4 */
 
 /**

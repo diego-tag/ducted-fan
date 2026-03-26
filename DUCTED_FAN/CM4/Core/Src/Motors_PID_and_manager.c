@@ -18,17 +18,7 @@
 /*-------------------------------------------------------------------------------------------------------*/
 
 extern uint8_t current_number_of_toggles;
-extern UART_HandleTypeDef huart3;
-extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim4;
-extern TIM_HandleTypeDef htim12;
-extern TIM_HandleTypeDef htim7;
-extern TIM_HandleTypeDef htim3;
-extern int run;
-extern int flag_int;
-extern int actuate_servo_control;
-extern int actuate_motors_control;
-extern uint8_t rx_byte;
 
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 		    FUNCTIONS DEFINITIONS				      					     */
@@ -190,49 +180,4 @@ void motors_secure_turn_off(void) {
 	HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_3);
 	HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_2);
 
-}
-
-/*-------------------------------------------------------------------------------------------------------*/
-/*					  		 		  INTERRUPT FUNCTIONS				      					         */
-/*-------------------------------------------------------------------------------------------------------*/
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-
-	if (htim->Instance == TIM6) {
-		// Tim 6 emits at 2 Hz
-		HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1); // Toggle LD2 (yellow led)
-		current_number_of_toggles++;
-	}
-
-	if (htim->Instance == TIM7) {
-		actuate_servo_control = true;
-	}
-
-}
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	// When user button is pressed (used for safe startup)
-	if (GPIO_Pin == GPIO_PIN_13) {
-		run = !run;
-	}
-
-	// When VL53L1X data is ready, trigger PID
-	if (GPIO_Pin == GPIO_PIN_12) {
-		actuate_motors_control = true;
-	}
-
-}
-
-// When RX pin reads something
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	// This is the usb cable
-    if (huart->Instance == USART3)
-    {
-    	// At every message (with terminator), toggle run flag. This is useful for remote start/stop
-		if (rx_byte == '\n')
-		{
-			run = !run;
-		}
-    }
 }
