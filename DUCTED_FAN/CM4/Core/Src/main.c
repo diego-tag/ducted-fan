@@ -760,6 +760,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 		if (rx_byte == '\n') {
 			run = !run;
 		}
+
+		HAL_UART_Receive_IT(&huart3, &rx_byte, 1);
 	}
 }
 /* USER CODE END 4 */
