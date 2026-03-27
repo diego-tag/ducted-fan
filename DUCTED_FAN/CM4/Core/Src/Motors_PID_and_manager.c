@@ -154,21 +154,6 @@ void motor_actuation(uint16_t ing_motor) {
 
 }
 
-void shutdown(void) {
-	// Stop all critical actuators immediately
-	motors_secure_turn_off();
-	servos_turn_off();
-
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET); // Turn off LD1 (green led)
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET); // Turn on LD3 (red led)
-
-	// Final system lock-up (Prevents code from wandering after shutdown)
-	while (1) {
-		// Halt system. Keeps power draw low. System requires a hard reset to restart.
-		__WFI();
-	}
-}
-
 void motors_secure_turn_off(void) {
 
 	TIM4->CCR2 = CCR_VALUE_FOR_MOTOR_ACT;

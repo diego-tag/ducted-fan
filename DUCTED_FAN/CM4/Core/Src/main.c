@@ -285,10 +285,24 @@ int main(void) {
 
 		// Break out of main loop immediately if shutdown is flagged
 		if (!run) {
+			/*-------------------------SHUTDOWN----------------------------------*/
+
+			// Stop all critical actuators immediately
+			motors_secure_turn_off();
+			servos_turn_off();
+
 			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) "User requested shutdown\n", strlen("User requested shutdown\n"));
 
-			shutdown();
-			break;
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET); // Turn off LD1 (green led)
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET); // Turn on LD3 (red led)
+
+			// Final system lock-up (Prevents code from wandering after shutdown)
+			while (1) {
+				// Halt system. Keeps power draw low. System requires a hard reset to restart.
+				__WFI();
+			}
+
+			break; // This is actually redundant but who knows
 		}
 
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
