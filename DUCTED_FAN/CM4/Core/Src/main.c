@@ -259,7 +259,7 @@ int main(void) {
 	/*-------------------------------------------------------------------------------------------------------*/
 
 	// Setup signal for ESC (duty cycle at 4.75%)
-	motor_actuation(712);
+	motor_actuation(CCR_VALUE_FOR_MOTOR_ACT);
 
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Wait 5 seconds for ESC setup...\n", strlen("Wait 5 seconds for ESC setup...\n"), HAL_MAX_DELAY);
 
@@ -756,7 +756,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	// This is the usb cable
 	if (huart->Instance == USART3) {
-		// At every message (with terminator), toggle run flag. This is useful for remote start/stop
+		// At every terminator, toggle run flag. This is useful to trigger start/stop from serial
 		if (rx_byte == '\n') {
 			run = !run;
 		}
