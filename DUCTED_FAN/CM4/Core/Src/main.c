@@ -280,30 +280,8 @@ int main(void) {
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
-	/* USER CODE BEGIN WHILE */
-	while (1) {
-
-		// Break out of main loop immediately if shutdown is flagged
-		if (!run) {
-			/*-------------------------SHUTDOWN----------------------------------*/
-
-			// Stop all critical actuators immediately
-			motors_secure_turn_off();
-			servos_turn_off();
-
-			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) "User requested shutdown\n", strlen("User requested shutdown\n"));
-
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET); // Turn off LD1 (green led)
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET); // Turn on LD3 (red led)
-
-			// Final system lock-up (Prevents code from wandering after shutdown)
-			while (1) {
-				// Halt system. Keeps power draw low. System requires a hard reset to restart.
-				__WFI();
-			}
-
-			break; // This is actually redundant but who knows
-		}
+	/* USER CODE BEGIN WHILE /* USER CODE BEGIN WHILE */
+	while (run) {
 
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
@@ -340,13 +318,23 @@ int main(void) {
 
 		}
 
-		/* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-		/* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
 	}
-	/* USER CODE END 3 */
-}
 
+	/*-------------------------SHUTDOWN----------------------------------*/
+
+	// Stop all critical actuators immediately
+	motors_secure_turn_off();
+	servos_turn_off();
+
+	HAL_UART_Transmit_DMA(&huart3, (uint8_t*) "User requested shutdown\n", strlen("User requested shutdown\n"));
+
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET); // Turn off LD1 (green led)
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET); // Turn on LD3 (red led)
+  /* USER CODE END 3 */
+}
 /**
  * @brief I2C1 Initialization Function
  * @param None
