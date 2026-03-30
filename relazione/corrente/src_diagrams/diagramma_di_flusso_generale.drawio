@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" version="29.6.3">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
-    <mxGraphModel dx="1429" dy="793" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+    <mxGraphModel dx="1572" dy="872" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
       <root>
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
@@ -210,8 +210,8 @@
         <mxCell id="umyYBIwiswsBDor0uyhl-24" parent="WIyWlLk6GJQsqaUBKTNV-1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CCCCCC;" value="LOOP DI COONTROLLO MOTORI&amp;nbsp;&lt;div&gt;&lt;br&gt;&lt;div&gt;actuate_motors_control = false&lt;/div&gt;&lt;div&gt;VL53L1_ClearInterruptAndStartMeasurement&lt;/div&gt;&lt;div&gt;VL53L1_GetRangingMeasurementData&lt;/div&gt;&lt;div&gt;pid_motors()&lt;/div&gt;&lt;div&gt;motor_actuation()&lt;/div&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="110" width="282.88" x="187.56" y="1110" as="geometry" />
         </mxCell>
-        <mxCell id="umyYBIwiswsBDor0uyhl-26" parent="WIyWlLk6GJQsqaUBKTNV-1" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;dashed=1;fillColor=#FFFFCC;" value="User Button Interrupt" vertex="1">
-          <mxGeometry height="30" width="160" x="33" y="960" as="geometry" />
+        <mxCell id="umyYBIwiswsBDor0uyhl-26" parent="WIyWlLk6GJQsqaUBKTNV-1" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;dashed=1;fillColor=#FFFFCC;" value="User Button/serial Interrupt" vertex="1">
+          <mxGeometry height="30" width="187" x="33" y="960" as="geometry" />
         </mxCell>
         <mxCell id="umyYBIwiswsBDor0uyhl-29" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="umyYBIwiswsBDor0uyhl-11" style="rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=11;endArrow=block;endFill=0;endSize=8;strokeWidth=1;shadow=0;labelBackgroundColor=none;edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0;exitY=1;exitDx=0;exitDy=0;" target="umyYBIwiswsBDor0uyhl-31" value="">
           <mxGeometry relative="1" as="geometry">
