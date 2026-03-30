@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" version="29.6.3">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
-    <mxGraphModel dx="1572" dy="872" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+    <mxGraphModel dx="786" dy="436" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
       <root>
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
@@ -46,8 +46,8 @@
             <mxPoint x="390" y="180" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="_F4HPG08rYeuFU8AS3ax-10" parent="WIyWlLk6GJQsqaUBKTNV-1" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;dashed=1;fillColor=#FFFFCC;" value="NUCLEO User Button Interrupt" vertex="1">
-          <mxGeometry height="30" width="210" x="80" y="250" as="geometry" />
+        <mxCell id="_F4HPG08rYeuFU8AS3ax-10" parent="WIyWlLk6GJQsqaUBKTNV-1" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;dashed=1;fillColor=#FFFFCC;" value="User Button/serial Interrupt" vertex="1">
+          <mxGeometry height="30" width="200" x="120" y="250" as="geometry" />
         </mxCell>
         <mxCell id="_F4HPG08rYeuFU8AS3ax-12" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="_F4HPG08rYeuFU8AS3ax-13" style="endArrow=block;startArrow=block;html=1;rounded=0;startFill=0;endFill=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="_F4HPG08rYeuFU8AS3ax-7" value="">
           <mxGeometry height="50" relative="1" width="50" as="geometry">
@@ -211,14 +211,14 @@
           <mxGeometry height="110" width="282.88" x="187.56" y="1110" as="geometry" />
         </mxCell>
         <mxCell id="umyYBIwiswsBDor0uyhl-26" parent="WIyWlLk6GJQsqaUBKTNV-1" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;dashed=1;fillColor=#FFFFCC;" value="User Button/serial Interrupt" vertex="1">
-          <mxGeometry height="30" width="187" x="33" y="960" as="geometry" />
+          <mxGeometry height="30" width="187" x="33" y="940" as="geometry" />
         </mxCell>
         <mxCell id="umyYBIwiswsBDor0uyhl-29" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="umyYBIwiswsBDor0uyhl-11" style="rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=11;endArrow=block;endFill=0;endSize=8;strokeWidth=1;shadow=0;labelBackgroundColor=none;edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0;exitY=1;exitDx=0;exitDy=0;" target="umyYBIwiswsBDor0uyhl-31" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="300" y="910" />
-              <mxPoint x="300" y="1000" />
-              <mxPoint x="93" y="1000" />
+              <mxPoint x="300" y="980" />
+              <mxPoint x="91" y="980" />
             </Array>
             <mxPoint x="330" y="910" as="sourcePoint" />
             <mxPoint x="200" y="1040" as="targetPoint" />
@@ -226,11 +226,11 @@
         </mxCell>
         <mxCell id="umyYBIwiswsBDor0uyhl-30" connectable="0" parent="umyYBIwiswsBDor0uyhl-29" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="true" vertex="1">
           <mxGeometry relative="1" x="-0.1808" y="-4" as="geometry">
-            <mxPoint x="101" y="-86" as="offset" />
+            <mxPoint x="111" y="-66" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="umyYBIwiswsBDor0uyhl-31" parent="WIyWlLk6GJQsqaUBKTNV-1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#A9C4EB;" value="shutdown()" vertex="1">
-          <mxGeometry height="20" width="120" x="33" y="1020" as="geometry" />
+        <mxCell id="umyYBIwiswsBDor0uyhl-31" parent="WIyWlLk6GJQsqaUBKTNV-1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#CCCCCC,#CCCCCC);" value="SHUTDOWN&lt;div&gt;spegnimento&amp;nbsp;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="117" x="40" y="1000" as="geometry" />
         </mxCell>
         <mxCell id="umyYBIwiswsBDor0uyhl-33" parent="WIyWlLk6GJQsqaUBKTNV-1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#66B2FF;" value="if( actuate_servo_control == true)" vertex="1">
           <mxGeometry height="50" width="270" x="195" y="1250" as="geometry" />
