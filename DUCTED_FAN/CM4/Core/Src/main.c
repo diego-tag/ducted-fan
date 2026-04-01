@@ -72,7 +72,6 @@ volatile bool run = 0;
 volatile bool actuate_servo_control = false;
 volatile bool actuate_motors_control = false;
 uint8_t rx_byte;
-uint8_t buff[50];
 volatile uint8_t current_number_of_toggles = 0;
 /* USER CODE END PV */
 
