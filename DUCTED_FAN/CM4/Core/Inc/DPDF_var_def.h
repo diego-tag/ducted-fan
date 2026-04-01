@@ -9,14 +9,6 @@
  *********************************************************************************************************/
 
 /*-------------------------------------------------------------------------------------------------------*/
-/*					  		 			 INCLUDE DIRECTIVES 				      						 */
-/*-------------------------------------------------------------------------------------------------------*/
-#include "stdint.h"
-#include "stdio.h"
-#include "stdbool.h"
-#include "stm32h7xx.h"
-
-/*-------------------------------------------------------------------------------------------------------*/
 /*					  		 			MACORS / DEFINITIONS 				      						 */
 /*-------------------------------------------------------------------------------------------------------*/
 
@@ -52,7 +44,7 @@
 /* MOTOR PID */
 
 /**
- * @def UPPER_LIMIT_TOP_MOTOR_SATURATION
+ * @def UPPER_LIMIT_MOTOR
  *
  * @brief This macro defines the upper limit for the compare register value used in PWM generation
  * 		  for the control of the motors.
@@ -61,10 +53,10 @@
  * 		  corresponds to a duty cycle of 12%
  *
  */
-#define UPPER_LIMIT_TOP_MOTOR_SATURATION 900
+#define UPPER_LIMIT_MOTOR 900
 
 /**
- * @def LOWER_LIMIT_TOP_MOTOR_SATURATION
+ * @def LOWER_LIMIT_MOTOR
  *
  * @brief This macro defines the lower limit for the compare register value used in PWM generation
  * 		  for the control of the motors.
@@ -73,14 +65,14 @@
  * 		  corresponds to a duty cycle of 6%.
  * 		  NOTE: the actual minimum value accepted by ESC is 758 which is the corresponds to 1000 µs (in the current configuration of the timer)
  */
-#define LOWER_LIMIT_TOP_MOTOR_SATURATION 800
+#define LOWER_LIMIT_MOTOR 800
 
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 			SERVOS-RELATED MACROS 				      					     */
 /*-------------------------------------------------------------------------------------------------------*/
 
 /**
- * @def UPPER_LIMIT_SERVO_SATURATION
+ * @def UPPER_LIMIT_SERVO
  *
  * @brief This macro defines the upper limit for the compare register value used in PWM generation
  * 		  for the control of the servos.
@@ -90,18 +82,18 @@
  * 		  This value rotates the servo motor clockwise to its maximum range: 60°.
  *
  */
-#define UPPER_LIMIT_SERVO_SATURATION													1545
+#define UPPER_LIMIT_SERVO													1545
 
 /**
- * @def CENTER_UPPER_LOWER_SERVO_SATURATION
+ * @def CENTER_SERVO
  *
  * @brief This macro defines the value to write into the compare register to set the PWM duty cycle
  * 		  corresponding to the servo position at 0°
  */
-#define CENTER_UPPER_LOWER_SERVO_SATURATION												1125
+#define CENTER_SERVO												1125
 
 /**
- * @def LOWER_LIMIT_SERVO_SATURATION
+ * @def LOWER_LIMIT_SERVO
  *
  * @brief This macro defines the lower limit for the compare register value used in PWM generation
  * 		  for the control of the servos.
@@ -110,83 +102,17 @@
  * 		  value below corresponds to a duty cyle of 4,7 %.
  * 		  This value rotates the servo motor counter clockwise to its maximum range: -60°.
  */
-#define LOWER_LIMIT_SERVO_SATURATION													705
+#define LOWER_LIMIT_SERVO													705
 
-/*-------------------------------------------------------------------------------------------------------*/
-/*					  		 	     VARIABLES AND DATA STRUCTURES 				      					 */
-/*-------------------------------------------------------------------------------------------------------*/
 
-/**
- * @brief This data structure contains the initial angular values read from gyroscope, which are
- * 		  used to determine the origin of the drone's reference frame.
- */
-typedef struct {
-
-	int32_t zero_rot_x;
-	int32_t zero_rot_y;
-	int32_t zero_rot_z;
-
-} DPDF_axis_zero_rot_t;
+/* Hardware Calibration */
+#define CCR_PER_DEGREE      5.0f   /* Based on 75 CCR / 15° measurement */
 
 /**
- * @brief This data structure is used to store the instantaneous rotation values around the
- * 		  Cartesian axes.
+ * @def MAX_FLAP_ANGLE_DEG
+ *
+ * @brief This macro defines the ROM of servo motors in degrees for both directions. So total ROM is 120°.
  */
-typedef struct {
+#define MAX_FLAP_ANGLE_DEG  60.0f  /* Maximum safe physical angle for the flap */
 
-	int32_t rot_x;
-	int32_t rot_y;
-	int32_t rot_z;
-
-} DPDF_axis_rot_t;
-
-/**
- * @brief this struct contains the proportional, integral and derivative gains, as well as other 
- * parameters for a stable and robust PID. 
- */
-typedef struct {
-    // Tuning parameters
-    float prop_coeff;
-	float der_coeff;
-	float int_coeff;
-
-	float sampl_time;         // Sampling time in seconds (~0.033f)
-    float lpf_alpha;          // Coefficient for LPF (0.0 = max filter, 1.0 = no filter)
-    // Memory
-    float int_term;           // Integral accumulator
-    float prev_meas;          // Past measurement (for derivative)
-    float prev_d_term;        // Previous D coefficient (for low pass filter)
-
-    // Buffer for median filter
-    int16_t med_buf[3];
-    uint8_t med_idx;
-    bool initialized;         // Flag for first boot
-} pid_prmts_t;
-
-/**
- * @brief Pointer to the structure: DPDF_axis_zero_rot_t. It was created to improve code readability.
- */
-typedef DPDF_axis_zero_rot_t *DPDF_zero_axis_rotation;
-
-/**
- * @brief Pointer to the structure: DPDF_axis_rot_t. It was created to improve code readability.
- */
-typedef DPDF_axis_rot_t *DPDF_axis_rotation;
-
-/**
- * @brief Pointer to the structure: pid_prmts_t. It was created to improve code readability.
- */
-typedef pid_prmts_t *pid_pars;
-
-typedef struct {
-	// Parameters
-	float kp;
-	float ki;
-	float kd;
-	float sample_time;
-
-	// Controller state (memory)
-	float int_term;
-	float e_old;
-} pid_controller_t;
 
