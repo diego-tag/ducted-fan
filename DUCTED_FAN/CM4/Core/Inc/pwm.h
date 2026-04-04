@@ -22,7 +22,7 @@ uint16_t angle_to_pwm(float target_angle_deg, uint16_t center_servo, float ccr_p
  * @param ing_pitch							: variable representing the input to the pitch servo
  * 											  motor.
  */
-void execution_servo(uint16_t ing_roll, uint16_t ing_pitch);
+void servo_actuation(uint16_t ing_roll, uint16_t ing_pitch);
 
 /**
  * @brief This function sets the servos to their central position (0 degrees) and then stops the
@@ -60,5 +60,8 @@ void motors_secure_turn_off(uint16_t ccr_value_for_motor_act);
  *
  */
 void motor_actuation(uint16_t ing_motor);
+
+
+void start_all_pwm(void);
 
 #endif /* INC_PWM_H_ */

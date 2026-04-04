@@ -7,6 +7,14 @@ extern TIM_HandleTypeDef htim6; // Timer for button interrupt
 extern int current_number_of_toggles;
 
 
+void start_all_pwm(void) {
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); // Start PWM for TIM2-CH2: roll servo
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); // Start PWM for TIM2-CH2: pitch servo
+
+	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2); // Start PWM for TIM4-CH2: top motor
+	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3); // Start PWM for TIM4-CH3: bottom motor
+}
+
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 			SERVOS-RELATED FUNCTIONS			      					     */
 /*-------------------------------------------------------------------------------------------------------*/
@@ -25,7 +33,7 @@ uint16_t angle_to_pwm(float target_angle_deg, uint16_t center_servo, float ccr_p
     return (uint16_t)(target_ccr + 0.5f);
 }
 
-void execution_servo(uint16_t ingresso_roll, uint16_t ingresso_pitch) {
+void servo_actuation(uint16_t ingresso_roll, uint16_t ingresso_pitch) {
 
 	TIM2->CCR1 = ingresso_roll;
 	TIM2->CCR2 = ingresso_pitch;

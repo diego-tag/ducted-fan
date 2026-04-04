@@ -268,11 +268,7 @@ int main(void) {
 
 	/*---------------------------------- PWM INITIALIZATIONS-------------------------------- */
 
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); // Start PWM for TIM2-CH2: roll servo
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); // Start PWM for TIM2-CH2: pitch servo
-
-	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2); // Start PWM for TIM4-CH2: top motor
-	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3); // Start PWM for TIM4-CH3: bottom motor
+	start_all_pwm();
 
 
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Initialization completed!\n", strlen("Initialization completed!\n"), HAL_MAX_DELAY);
@@ -354,7 +350,7 @@ int main(void) {
 			uint16_t roll_pwm  = angle_to_pwm(req_roll_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
 			uint16_t pitch_pwm = angle_to_pwm(req_pitch_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
 
-			execution_servo(roll_pwm, pitch_pwm);
+			servo_actuation(roll_pwm, pitch_pwm);
 
 
 
