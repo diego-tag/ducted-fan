@@ -32,3 +32,6 @@ DUCTED_FAN/CM4/.settings/language.settings.xml
 DUCTED_FAN/CM4/.settings/stm32cubeide.project.prefs
 DUCTED_FAN/CM7/.settings/language.settings.xml
 DUCTED_FAN/CM7/.settings/stm32cubeide.project.prefs
+
+# VS Code settings
+.vscode/settings.json
