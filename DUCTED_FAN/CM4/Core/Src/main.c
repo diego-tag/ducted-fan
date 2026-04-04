@@ -239,9 +239,11 @@ int main(void) {
 	imu_set_reference(&imu_ref);          // capture "level" orientation
 	HAL_UART_Transmit(&huart3, (uint8_t*) "IMU (BNO055) initialized\n", strlen("IMU (BNO055) initialized\n"), HAL_MAX_DELAY);
 
+	/*-------------------------------------------------------------------------------------------------------*/
+	/*                                   PID INITIALIZATIONS                                                 */
+	/*-------------------------------------------------------------------------------------------------------*/
 
-	/*---------------------------- PID INITIALIZATIONS --------------------------------------
-	 *                    Servo (flap/IMU)         Motor (propeller/ToF)
+	/*                    Servo (flap/IMU)         Motor (propeller/ToF)
 						  ──────────────────       ──────────────────────
 		Median filter     No  (Gaussian noise)     Yes (impulse spikes)
 		Deriv mode        On error                 On measurement
@@ -266,7 +268,9 @@ int main(void) {
 
 
 
-	/*---------------------------------- PWM INITIALIZATIONS-------------------------------- */
+	/*-------------------------------------------------------------------------------------------------------*/
+	/*                                   PWM INITIALIZATIONS                                                 */
+	/*-------------------------------------------------------------------------------------------------------*/
 
 	start_all_pwm();
 
@@ -278,7 +282,7 @@ int main(void) {
 	/*-------------------------------------------------------------------------------------------------------*/
 
 	// Setup signal for ESC (duty cycle at 4.75%)
-	motor_actuation(CCR_VALUE_FOR_MOTOR_ACT);
+	set_pwm_motors(CCR_VALUE_FOR_MOTOR_ACT);
 
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Wait 5 seconds for ESC setup...\n", strlen("Wait 5 seconds for ESC setup...\n"), HAL_MAX_DELAY);
 
@@ -323,7 +327,7 @@ int main(void) {
 
 			uint16_t motor_pwm = (uint16_t)(pid_compute(&pid_motor,ref_altitude, alt_mm) + 0.5f);
 
-			motor_actuation(motor_pwm);
+			set_pwm_motors(motor_pwm);
 
 			sprintf(msg_VL53L1X, "%d.%02d,%d\n",(int)alt_mm,abs((int)(alt_mm   * 100) % 100),motor_pwm);
 			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X));
@@ -350,7 +354,7 @@ int main(void) {
 			uint16_t roll_pwm  = angle_to_pwm(req_roll_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
 			uint16_t pitch_pwm = angle_to_pwm(req_pitch_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
 
-			servo_actuation(roll_pwm, pitch_pwm);
+			set_pwm_servos(roll_pwm, pitch_pwm);
 
 
 
@@ -370,13 +374,15 @@ int main(void) {
     /* USER CODE BEGIN 3 */
 	}
 
-	/*-------------------------SHUTDOWN----------------------------------*/
+	/*-------------------------------------------------------------------------------------------------------*/
+	/*                                   SHUTDOWN                                                            */
+	/*-------------------------------------------------------------------------------------------------------*/
 
-	// Stop all critical actuators immediately
-	motors_secure_turn_off(CCR_VALUE_FOR_MOTOR_ACT);
-	servos_turn_off(CENTER_SERVO);
+	// Stop all actuators immediately
+	stop_pwm_motors(CCR_VALUE_FOR_MOTOR_ACT);
+	stop_pwm_servos(CENTER_SERVO);
 
-	HAL_UART_Transmit_DMA(&huart3, (uint8_t*) "User requested shutdown\n", strlen("User requested shutdown\n"));
+	HAL_UART_Transmit_DMA(&huart3, (uint8_t*) "Shutdown\n", strlen("Shutdown\n"));
 
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET); // Turn off LD1 (green led)
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET); // Turn on LD3 (red led)

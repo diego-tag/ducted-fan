@@ -33,13 +33,13 @@ uint16_t angle_to_pwm(float target_angle_deg, uint16_t center_servo, float ccr_p
     return (uint16_t)(target_ccr + 0.5f);
 }
 
-void servo_actuation(uint16_t ingresso_roll, uint16_t ingresso_pitch) {
+void set_pwm_servos(uint16_t ingresso_roll, uint16_t ingresso_pitch) {
 
 	TIM2->CCR1 = ingresso_roll;
 	TIM2->CCR2 = ingresso_pitch;
 }
 
-void servos_turn_off(uint16_t center_servo) {
+void stop_pwm_servos(uint16_t center_servo) {
 
 	TIM2->CCR1 = center_servo;
 	TIM2->CCR2 = center_servo;
@@ -70,14 +70,14 @@ void safe_startup(uint16_t number_of_toggles) {
 }
 
 
-void motor_actuation(uint16_t ing_motor) {
+void set_pwm_motors(uint16_t ing_motor) {
 
 	TIM4->CCR2 = ing_motor;
 	TIM4->CCR3 = ing_motor;
 
 }
 
-void motors_secure_turn_off(uint16_t ccr_value_for_motor_act) {
+void stop_pwm_motors(uint16_t ccr_value_for_motor_act) {
 
 	TIM4->CCR2 = ccr_value_for_motor_act;
 	TIM4->CCR3 = ccr_value_for_motor_act;
