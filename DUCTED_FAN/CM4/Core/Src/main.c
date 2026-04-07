@@ -282,7 +282,7 @@ int main(void) {
 	/*-------------------------------------------------------------------------------------------------------*/
 
 	// Setup signal for ESC (duty cycle at 4.75%)
-	set_pwm_motors(CCR_VALUE_FOR_MOTOR_ACT);
+	set_pwm_motors(LOWER_LIMIT_MOTOR);
 
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Wait 5 seconds for ESC setup...\n", strlen("Wait 5 seconds for ESC setup...\n"), HAL_MAX_DELAY);
 
@@ -312,7 +312,7 @@ int main(void) {
 
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (actuate_motors_control ) {
+		if (actuate_motors_control) {
 			actuate_motors_control = false;
 			/* ---- Read ToF ---- */
 			VL53L1_ClearInterruptAndStartMeasurement(Dev);
@@ -325,10 +325,13 @@ int main(void) {
 			/* ---- Compute tilt compensation ---- */
 			float alt_mm = tof_compensate_tilt(filt_tof, imu_now.roll_deg,imu_now.pitch_deg);
 
+			/* ---- Compute motor PID ----- */
 			uint16_t motor_pwm = (uint16_t)(pid_compute(&pid_motor,ref_altitude, alt_mm) + 0.5f);
 
-			set_pwm_motors(motor_pwm);
+			/* ---- Control ----- */
+			set_pwm_motors(800);
 
+			/* --- Send in serial (comment it if not necessary) ---- */
 			sprintf(msg_VL53L1X, "%d.%02d,%d\n",(int)alt_mm,abs((int)(alt_mm   * 100) % 100),motor_pwm);
 			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X));
 
@@ -346,7 +349,7 @@ int main(void) {
 			flap_axes_t flap;
 			axis_remap_imu_to_flaps(imu_now.roll_deg,imu_now.pitch_deg, &flap);
 
-			/* ---- Servo PID (IMU Degrees in -> Flap Degrees out) ---- */
+			/* ---- Compute servo PID (IMU Degrees in -> Flap Degrees out) ---- */
 			float req_roll_deg  = pid_compute(&pid_roll,  ref_roll_pitch, flap.flap_roll);
 			float req_pitch_deg = pid_compute(&pid_pitch, ref_roll_pitch, flap.flap_pitch);
 
@@ -354,10 +357,11 @@ int main(void) {
 			uint16_t roll_pwm  = angle_to_pwm(req_roll_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
 			uint16_t pitch_pwm = angle_to_pwm(req_pitch_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
 
+			/* ---- Control --- */
 			set_pwm_servos(roll_pwm, pitch_pwm);
 
 
-
+			/* --- Send in serial (comment it if not necessary) ---- */
 			snprintf(msg_bno,sizeof(msg_bno), "%d.%02d,%d.%02d,%d,%d\n",
 					(int)flap.flap_roll, abs((int)(flap.flap_roll * 100) % 100),
 					(int)flap.flap_pitch, abs((int)(flap.flap_pitch * 100) % 100),
@@ -379,8 +383,7 @@ int main(void) {
 	/*-------------------------------------------------------------------------------------------------------*/
 
 	// Stop all actuators immediately
-	stop_pwm_motors(CCR_VALUE_FOR_MOTOR_ACT);
-	stop_pwm_servos(CENTER_SERVO);
+	stop_all_pwm(LOWER_LIMIT_MOTOR, CENTER_SERVO);
 
 	HAL_UART_Transmit_DMA(&huart3, (uint8_t*) "Shutdown\n", strlen("Shutdown\n"));
 

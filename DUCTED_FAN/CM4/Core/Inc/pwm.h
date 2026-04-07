@@ -16,20 +16,13 @@ uint16_t angle_to_pwm(float target_angle_deg, uint16_t center_servo, float ccr_p
  * 		  function. The General Purpose timer TIM2 CH1 is assigned to the roll servo, whereas
  * 		  the general purpose timer TIM5 CH4 is assigned to the pitch servo.
  *
- * @param ing_roll 							: variable representing the input to the roll servo
+ * @param ccr_roll 							: variable representing the input to the roll servo
  * 											  motor.
  *
- * @param ing_pitch							: variable representing the input to the pitch servo
+ * @param ccr_pitch							: variable representing the input to the pitch servo
  * 											  motor.
  */
-void set_pwm_servos(uint16_t ing_roll, uint16_t ing_pitch);
-
-/**
- * @brief This function sets the servos to their central position (0 degrees) and then stops the
- * 		  generation of the PWM control signal.
- */
-void stop_pwm_servos(uint16_t center_servo);
-
+void set_pwm_servos(uint16_t ccr_roll, uint16_t ccr_pitch);
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 			MOTORS-RELATED FUNCTIONS			      					     */
 /*-------------------------------------------------------------------------------------------------------*/
@@ -43,25 +36,31 @@ void stop_pwm_servos(uint16_t center_servo);
 void safe_startup(uint16_t number_of_toggles);
 
 
-/**
- * @brief This function stops the motors, returning the to their armed state, and then turns off
- * 		  their PWM control signals.
- */
-void stop_pwm_motors(uint16_t ccr_value_for_motor_act);
-
 
 /**
  * @brief The following function implements the control command computed in the @ref pid_motors
  * 		  function. The General Purpose timer TIM4 CH3 is assigned to the top motor, whereas
  * 		  the general purpose timer TIM12 CH1 is assigned to the bottom motor.
  *
- * @param ing_motor 						: variable representing the input to the top and bottom
+ * @param ccr_motor 						: variable representing the input to the top and bottom
  * 											  motor.
  *
  */
-void set_pwm_motors(uint16_t ing_motor);
+void set_pwm_motors(uint16_t ccr_motor);
+/*-------------------------------------------------------------------------------------------------------*/
+/*					  		 			COMMON FUNCTIONS			      					     */
+/*-------------------------------------------------------------------------------------------------------*/
+
+/**
+ * @brief This function stops motors and servos, returning them to their neutral state, and then turns off
+ * 		  their PWM control signals.
+ */
+void stop_all_pwm(uint16_t lower_limit_motor, uint16_t center_servo);
 
 
+/**
+ * @brief This function starts motors and servos, by turning on their PWM control signals.
+ */
 void start_all_pwm(void);
 
 #endif /* INC_PWM_H_ */

@@ -48,24 +48,21 @@
  *
  * @brief This macro defines the upper limit for the compare register value used in PWM generation
  * 		  for the control of the motors.
- * 		  This limit is applied in the anti-windup filter of the motor PID controller. The value is
- * 		  calculated considering a prescaler of 99 and a period of 14999. The value below
- * 		  corresponds to a duty cycle of 12%
+ * 		  The value is calculated considering a prescaler of 99 and a period of 14999. Since
+ * 		  standard RC maximum throttle is ~2000 μsμs (2.0 ms), it corresponds to 10.0% of duty cycle.
  *
  */
-#define UPPER_LIMIT_MOTOR 900
+#define UPPER_LIMIT_MOTOR 1500
 
 /**
  * @def LOWER_LIMIT_MOTOR
  *
  * @brief This macro defines the lower limit for the compare register value used in PWM generation
  * 		  for the control of the motors.
- * 		  This limit is applied in the anti-windup filter of the motor PID controller. The value is
- * 		  calculated considering a prescaler of 99 and a period of 14999. The value below
- * 		  corresponds to a duty cycle of 6%.
- * 		  NOTE: the actual minimum value accepted by ESC is 758 which is the corresponds to 1000 µs (in the current configuration of the timer)
+ * 		  The value is calculated considering a prescaler of 99 and a period of 14999. Since
+ * 		  standard RC minimum throttle: ~1000 μsμs (1.0 ms), it corresponds to 5.0% of duty cycle.
  */
-#define LOWER_LIMIT_MOTOR 800
+#define LOWER_LIMIT_MOTOR 750
 
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 			SERVOS-RELATED MACROS 				      					     */
