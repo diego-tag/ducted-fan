@@ -274,17 +274,17 @@ int main(void) {
 
 	start_all_pwm();
 
-
-	HAL_UART_Transmit(&huart3, (uint8_t*) "Initialization completed!\n", strlen("Initialization completed!\n"), HAL_MAX_DELAY);
-
 	/*-------------------------------------------------------------------------------------------------------*/
-	/*					  		    	 ESC SETUP           				      			 				 */
+	/*					  		    	 ACTUATORS SETUP       				      			 				 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
-	// Setup signal for ESC (duty cycle at 4.75%)
+	HAL_TIM_Base_Start_IT(&htim7);  // start interrupt for servo control actuation
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Control servos' actuation started\n", strlen("Control servos' actuation started\n"), HAL_MAX_DELAY);
+
+	// Setup signal for ESC (throttle to the bottom)
 	set_pwm_motors(LOWER_LIMIT_MOTOR);
 
-	HAL_UART_Transmit(&huart3, (uint8_t*) "Wait 5 seconds for ESC setup...\n", strlen("Wait 5 seconds for ESC setup...\n"), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Wait 5 seconds for ESC setup (n-beeps and a long beep)...\n", strlen("Wait 5 seconds for ESC setup (n-beeps and a long beep)...\n"), HAL_MAX_DELAY);
 
 	// Delay for ESC setup
 	HAL_Delay(5000);
@@ -292,14 +292,14 @@ int main(void) {
 	HAL_UART_Transmit(&huart3, (uint8_t*) "ESC setup completed (ensure no more beeps are emitted)\n",
 			strlen("ESC setup completed (ensure no more beeps are emitted)\n"), HAL_MAX_DELAY);
 
-	HAL_TIM_Base_Start_IT(&htim7);  // start interrupt for servo control actuation
-
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_RESET); // turn off LD2 (yellow led)
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET); // turn on LD1 (green led)
-
 	/*-------------------------------------------------------------------------------------------------------*/
 	/*					  		    	 POST INITIALIZATION      				      			 		     */
 	/*-------------------------------------------------------------------------------------------------------*/
+
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Initialization completed!\n", strlen("Initialization completed!\n"), HAL_MAX_DELAY);
+
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_RESET); // turn off LD2 (yellow led)
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET); // turn on LD1 (green led)
 
 	// Start measurement LAST because first edge arrives ~25ms from now
 	VL53L1_StartMeasurement(Dev);
