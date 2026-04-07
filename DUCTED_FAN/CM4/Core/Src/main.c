@@ -152,7 +152,7 @@ int main(void) {
 	char msg_VL53L1X[STANDARD_MESSAGE_LENGTH];
 
 	const float ref_roll_pitch = 0.0f;
-	const uint16_t ref_altitude = 450;
+	const uint16_t ref_altitude = 150;
 
 	/*------------------------------ CONTROL-RELATED STRUCTURES ------------------------------*/
 
@@ -160,7 +160,7 @@ int main(void) {
 
 	pid_controller_t pid_roll, pid_pitch, pid_motor;
 	median_filter_t  tof_filter = {0};          /* Zero-init is safe */
-	imu_angles_t     imu_ref;
+	// imu_angles_t     imu_ref;
 	imu_angles_t     imu_now;
 
 	VL53L1_RangingMeasurementData_t rangingData;
@@ -236,7 +236,7 @@ int main(void) {
 
 	bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
 	//bno055_calibration();
-	imu_set_reference(&imu_ref);          // capture "level" orientation
+	// imu_set_reference(&imu_ref);          // capture "level" orientation
 	HAL_UART_Transmit(&huart3, (uint8_t*) "IMU (BNO055) initialized\n", strlen("IMU (BNO055) initialized\n"), HAL_MAX_DELAY);
 
 	/*-------------------------------------------------------------------------------------------------------*/
@@ -342,8 +342,8 @@ int main(void) {
 		if (actuate_servo_control) {
 			actuate_servo_control = false;
 
-			/* ---- Read IMU (relative to level) ---- */
-			imu_read_relative(&imu_ref, &imu_now);
+			/* ---- Read IMU ---- */
+			imu_read_absolute(&imu_now);
 
 			/* ---- Rotate into flap frame ---- */
 			flap_axes_t flap;

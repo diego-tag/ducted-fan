@@ -16,6 +16,9 @@ void imu_set_reference(imu_angles_t *ref);
 /** Read current orientation relative to stored reference. */
 void imu_read_relative(const imu_angles_t *ref, imu_angles_t *out);
 
+/** Read current orientation relative to ground reference. */
+void imu_read_absolute(imu_angles_t *out);
+
 
 typedef struct {
     float flap_roll;

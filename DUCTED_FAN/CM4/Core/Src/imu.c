@@ -11,6 +11,12 @@ static void imu_read_raw(imu_angles_t *out)
     out->yaw_deg   = euler.h;
 }
 
+void imu_read_absolute(imu_angles_t *out)
+{
+    imu_read_raw(out);
+}
+
+
 void imu_set_reference(imu_angles_t *ref)
 {
     imu_read_raw(ref);
