@@ -16,7 +16,15 @@
  ******************************************************************************
  */
 
-#include "Motors_PID_and_manager.h"
+#include "pwm.h"
+#include "DPDF_var_def.h"
+#include "pid.h"
+#include "tof.h"
+#include "imu.h"
+
+#include "bno055.h"
+#include "bno055_stm32_hal.h"
+#include "vl53l1_api.h"
 
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
@@ -63,9 +71,8 @@ DMA_HandleTypeDef hdma_usart3_tx;
 volatile bool run = 0;
 volatile bool actuate_servo_control = false;
 volatile bool actuate_motors_control = false;
-uint16_t counter_interrupt = 0;
-uint8_t buff[50];
-
+uint8_t rx_byte;
+volatile uint8_t current_number_of_toggles = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -84,7 +91,6 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-volatile uint8_t current_number_of_toggles = 0;
 
 /* USER CODE END 0 */
 
@@ -145,27 +151,24 @@ int main(void) {
 	char msg_bno[STANDARD_MESSAGE_LENGTH];
 	char msg_VL53L1X[STANDARD_MESSAGE_LENGTH];
 
-	uint32_t ref_roll_pitch = 0;
-	uint16_t ref_altitude = 450;
+	const float ref_roll_pitch = 0.0f;
+	const uint16_t ref_altitude = 150;
 
 	/*------------------------------ CONTROL-RELATED STRUCTURES ------------------------------*/
 
 	struct bno055_t myBNO;
 
-	DPDF_axis_zero_rot_t axis_zero_init;
-	DPDF_zero_axis_rotation axis_zero_rot = &axis_zero_init;
-
-	DPDF_axis_rot_t axis_rot;
-	DPDF_axis_rotation axis_rotation_ist = &axis_rot;
-
-	pid_prmts_t motor_pid_params;
-
-	pid_controller_t pid_roll;
-	pid_controller_t pid_pitch;
+	pid_controller_t pid_roll, pid_pitch, pid_motor;
+	median_filter_t  tof_filter = {0};          /* Zero-init is safe */
+	// imu_angles_t     imu_ref;
+	imu_angles_t     imu_now;
 
 	VL53L1_RangingMeasurementData_t rangingData;
 	VL53L1_Dev_t vl53l1_c;
 	VL53L1_DEV Dev = &vl53l1_c;
+
+	// Setup USART to listen for exactly 1 byte (used for start/stop from serial)
+	HAL_UART_Receive_IT(&huart3, &rx_byte, 1);
 
 	/*-------------------------------------------------------------------------------------------------------*/
 	/*					  		    			  SAFE STARTUP				      			 				 */
@@ -177,7 +180,7 @@ int main(void) {
 	}
 
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Waiting safe startup (press user button)...\n", strlen("Waiting safe startup (press user button)...\n"),
-			HAL_MAX_DELAY);
+	HAL_MAX_DELAY);
 
 	while (!run) {
 		__WFI();
@@ -186,7 +189,7 @@ int main(void) {
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Initialization starting in 5 seconds\n", strlen("Initialization starting in 8 seconds\n"),
 	HAL_MAX_DELAY);
 
-	safe_startup(&htim6);
+	safe_startup(NUMBER_OF_TOGGLES);
 
 	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_12, GPIO_PIN_SET); // Power the altitude sensor
 
@@ -206,7 +209,7 @@ int main(void) {
 		HAL_UART_Transmit(&huart3, (uint8_t*) "Altitude sensor (VL53L1X) initialized\n", strlen("Altitude sensor (VL53L1X) initialized\n"),
 		HAL_MAX_DELAY);
 	} else {
-		sprintf(msg_VL53L1X, "Altitude sensor (VL53L1X) initialization error: %d\n", status);
+		sprintf(msg_VL53L1X, "Altitude sensor (VL53L1X) error: %d\n", status);
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X), HAL_MAX_DELAY);
 		return 1;
 	}
@@ -218,35 +221,70 @@ int main(void) {
 	myBNO.delay_msec = delay_func;
 	myBNO.dev_addr = BNO055_I2C_ADDR1;
 	bno055_init(&myBNO);
+
+	// Enter config mode to remap axis
+	bno055_set_operation_mode(BNO055_OPERATION_MODE_CONFIG);
+	HAL_Delay(20);  //BNO055 requires ~19ms to enter CONFIG mode
+
+	// Axis mapping: unchanged (default = 0x24 → X=X, Y=Y, Z=Z)
+	bno055_set_axis_remap_value(BNO055_DEFAULT_AXIS);
+
+	// Y e Z inverted to compensate flip of 180° over Y
+	bno055_set_remap_x_sign(BNO055_REMAP_AXIS_NEGATIVE);
+	bno055_set_remap_y_sign(BNO055_REMAP_AXIS_POSITIVE);
+	bno055_set_remap_z_sign(BNO055_REMAP_AXIS_NEGATIVE);
+
 	bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
 	//bno055_calibration();
-	DPDF_BNO055_firmware_read_init(axis_zero_rot);
+	// imu_set_reference(&imu_ref);          // capture "level" orientation
 	HAL_UART_Transmit(&huart3, (uint8_t*) "IMU (BNO055) initialized\n", strlen("IMU (BNO055) initialized\n"), HAL_MAX_DELAY);
 
 	/*-------------------------------------------------------------------------------------------------------*/
-	/*					  		    	 ACTUATORS AND PID INITIALIZATIONS				      				 */
+	/*                                   PID INITIALIZATIONS                                                 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); // Start PWM for TIM1-CH2 (roll servo)
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2); // Start PWM for TIM2-CH2 (pitch servo)
+	/*                    Servo (flap/IMU)         Motor (propeller/ToF)
+						  ──────────────────       ──────────────────────
+		Median filter     No  (Gaussian noise)     Yes (impulse spikes)
+		Deriv mode        On error                 On measurement
+		LPF on D          α = 1.0 (off)            α = 0.3 (moderate)
+		Sensor filtering  Upstream (Kalman/CF)     Median at PID input
+	 */
 
-	pid_servo_init(&pid_roll, 2.0f, 0.0f, 0.0f, 0.01f);
-	pid_servo_init(&pid_pitch, 2.0f, 0.0f, 0.0f, 0.01f);
+	pid_init(&pid_roll,  4.0f, 0.0f, 0.0f, 0.01f,
+			-MAX_FLAP_ANGLE_DEG, MAX_FLAP_ANGLE_DEG, 0.0f,
+			 1.0f,    /* lpf_alpha — pass-through   */
+			 false);  /* derivative on error         */
 
-	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2); // Start PWM for TIM4-CH2: top motor
-	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3); // Start PWM for TIM4-CH3: bottom motor
+	pid_init(&pid_pitch, 4.0f, 0.0f, 0.0f, 0.01f,
+			-MAX_FLAP_ANGLE_DEG, MAX_FLAP_ANGLE_DEG, 0.0f,
+			 1.0f, false);
 
-	motors_pid_turner_and_turn_on(6, 0, 0, 0.033f, &motor_pid_params);
-	HAL_UART_Transmit(&huart3, (uint8_t*) "Initialization completed!\n", strlen("Initialization completed!\n"), HAL_MAX_DELAY);
+	/* Motor: moderate LPF, derivative on measurement, no offset */
+	pid_init(&pid_motor, 3.0f, 0.0f, 0.0f, 0.033f,
+			LOWER_LIMIT_MOTOR, UPPER_LIMIT_MOTOR, 0.0f,
+			 0.3f,   /* lpf_alpha — moderate filter */
+			 true);  /* derivative on measurement    */
+
+
 
 	/*-------------------------------------------------------------------------------------------------------*/
-	/*					  		    	 ESC SETUP           				      			 				 */
+	/*                                   PWM INITIALIZATIONS                                                 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
-	// Setup signal for ESC (duty cycle at 4.75%)
-	motor_actuation(712);
+	start_all_pwm();
 
-	HAL_UART_Transmit(&huart3, (uint8_t*) "Wait 5 seconds for ESC setup...\n", strlen("Wait 5 seconds for ESC setup...\n"), HAL_MAX_DELAY);
+	/*-------------------------------------------------------------------------------------------------------*/
+	/*					  		    	 ACTUATORS SETUP       				      			 				 */
+	/*-------------------------------------------------------------------------------------------------------*/
+
+	HAL_TIM_Base_Start_IT(&htim7);  // start interrupt for servo control actuation
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Control servos' actuation started\n", strlen("Control servos' actuation started\n"), HAL_MAX_DELAY);
+
+	// Setup signal for ESC (throttle to the bottom)
+	set_pwm_motors(LOWER_LIMIT_MOTOR);
+
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Wait 5 seconds for ESC setup (n-beeps and a long beep)...\n", strlen("Wait 5 seconds for ESC setup (n-beeps and a long beep)...\n"), HAL_MAX_DELAY);
 
 	// Delay for ESC setup
 	HAL_Delay(5000);
@@ -254,7 +292,11 @@ int main(void) {
 	HAL_UART_Transmit(&huart3, (uint8_t*) "ESC setup completed (ensure no more beeps are emitted)\n",
 			strlen("ESC setup completed (ensure no more beeps are emitted)\n"), HAL_MAX_DELAY);
 
-	HAL_TIM_Base_Start_IT(&htim7);  // start interrupt for servo control actuation
+	/*-------------------------------------------------------------------------------------------------------*/
+	/*					  		    	 POST INITIALIZATION      				      			 		     */
+	/*-------------------------------------------------------------------------------------------------------*/
+
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Initialization completed!\n", strlen("Initialization completed!\n"), HAL_MAX_DELAY);
 
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_RESET); // turn off LD2 (yellow led)
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET); // turn on LD1 (green led)
@@ -266,30 +308,32 @@ int main(void) {
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-	while (1) {
-
-		// Break out of main loop immediately if shutdown is flagged
-		if (!run) {
-			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) "User requested shutdown\n", strlen("User requested shutdown\n"));
-
-			shutdown();
-			break;
-		}
+	while (run) {
 
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
 
-		if (actuate_motors_control) {
+		if (false) {
 			actuate_motors_control = false;
-
+			/* ---- Read ToF ---- */
 			VL53L1_ClearInterruptAndStartMeasurement(Dev);
 
 			VL53L1_GetRangingMeasurementData(Dev, &rangingData);
 
-			uint16_t pwm_motors = pid_motors(&motor_pid_params, rangingData.RangeMilliMeter, ref_altitude);
+			/* ---- Compute median measurement---- */
+			float filt_tof  = (float)median_filter_compute(&tof_filter, rangingData.RangeMilliMeter);
 
-			motor_actuation(pwm_motors);
+			/* ---- Compute tilt compensation ---- */
+			float alt_mm = tof_compensate_tilt(filt_tof, imu_now.roll_deg,imu_now.pitch_deg);
 
-			sprintf(msg_VL53L1X, "%d,%d\n", rangingData.RangeMilliMeter, pwm_motors);
+			/* ---- Compute motor PID ----- */
+			uint16_t motor_pwm = (uint16_t)(pid_compute(&pid_motor,ref_altitude, alt_mm) + 0.5f);
+
+			/* ---- Control ----- */
+			// TODO: compensate spin in yaw axis due to bottom propeller thrust less than top one because former receive an already fast air
+			set_pwm_motors(800);
+
+			/* --- Send in serial (comment it if not necessary) ---- */
+			sprintf(msg_VL53L1X, "%d.%02d,%d\n",(int)alt_mm,abs((int)(alt_mm   * 100) % 100),motor_pwm);
 			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X));
 
 		}
@@ -299,25 +343,55 @@ int main(void) {
 		if (actuate_servo_control) {
 			actuate_servo_control = false;
 
-			DPDF_BNO055_firmware_read(axis_zero_rot, axis_rotation_ist);
+			/* ---- Read IMU ---- */
+			imu_read_absolute(&imu_now);
 
-			uint16_t pwm_roll = pid_servo_compute(&pid_roll, ref_roll_pitch, axis_rotation_ist->rot_x);
-			uint16_t pwm_pitch = pid_servo_compute(&pid_pitch, ref_roll_pitch, axis_rotation_ist->rot_y);
+			/* ---- Rotate into flap frame ---- */
+			flap_axes_t flap;
+			axis_remap_imu_to_flaps(imu_now.roll_deg,imu_now.pitch_deg, &flap);
 
-			execution_servo(pwm_roll, pwm_pitch);
+			/* ---- Compute servo PID (IMU Degrees in -> Flap Degrees out) ---- */
+			float req_roll_deg  = pid_compute(&pid_roll,  ref_roll_pitch, flap.flap_roll);
+			float req_pitch_deg = pid_compute(&pid_pitch, ref_roll_pitch, flap.flap_pitch);
 
-			sprintf(msg_bno, "%ld,%ld,%d,%d\n", axis_rotation_ist->rot_x, axis_rotation_ist->rot_y, pwm_roll, pwm_pitch);
+			/* ---- Actuator Mapping (Degrees -> CCR) ---- */
+			uint16_t roll_pwm  = angle_to_pwm(req_roll_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
+			uint16_t pitch_pwm = angle_to_pwm(req_pitch_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
+
+			/* ---- Control --- */
+			set_pwm_servos(roll_pwm, pitch_pwm);
+
+
+			/* --- Send in serial (comment it if not necessary) ---- */
+			snprintf(msg_bno,sizeof(msg_bno), "%d.%02d,%d.%02d,%d,%d\n",
+					(int)flap.flap_roll, abs((int)(flap.flap_roll * 100) % 100),
+					(int)flap.flap_pitch, abs((int)(flap.flap_pitch * 100) % 100),
+					roll_pwm,
+					pitch_pwm
+			);
 			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_bno, strlen(msg_bno));
+
 
 		}
 
-		/* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-		/* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
 	}
-	/* USER CODE END 3 */
-}
 
+	/*-------------------------------------------------------------------------------------------------------*/
+	/*                                   SHUTDOWN                                                            */
+	/*-------------------------------------------------------------------------------------------------------*/
+
+	// Stop all actuators immediately
+	stop_all_pwm(LOWER_LIMIT_MOTOR, CENTER_SERVO);
+
+	HAL_UART_Transmit_DMA(&huart3, (uint8_t*) "Shutdown\n", strlen("Shutdown\n"));
+
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET); // Turn off LD1 (green led)
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET); // Turn on LD3 (red led)
+  /* USER CODE END 3 */
+}
 /**
  * @brief I2C1 Initialization Function
  * @param None
@@ -706,6 +780,49 @@ static void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 4 */
 
+/*-------------------------------------------------------------------------------------------------------*/
+/*					  		INTERRUPT & CALLBACK FUNCTIONS				      					         */
+/*-------------------------------------------------------------------------------------------------------*/
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+
+	if (htim->Instance == TIM6) {
+		// Tim 6 emits at 2 Hz
+		HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1); // Toggle LD2 (yellow led)
+		current_number_of_toggles++;
+	}
+
+	if (htim->Instance == TIM7) {
+		actuate_servo_control = true;
+	}
+
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	// When user button is pressed (used for safe startup)
+	if (GPIO_Pin == GPIO_PIN_13) {
+		run = !run;
+	}
+
+	// When VL53L1X data is ready, trigger PID
+	if (GPIO_Pin == GPIO_PIN_12) {
+		actuate_motors_control = true;
+	}
+
+}
+
+// When RX pin reads something
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	// This is the usb cable
+	if (huart->Instance == USART3) {
+		// At every terminator, toggle run flag. This is useful to trigger start/stop from serial
+		if (rx_byte == '\n') {
+			run = !run;
+		}
+
+		HAL_UART_Receive_IT(&huart3, &rx_byte, 1);
+	}
+}
 /* USER CODE END 4 */
 
 /**
