@@ -200,9 +200,9 @@
 	caratteristiche fisiche e tecniche e le modalità di utilizzo. Infine sono stati riportati un
 	diagramma esplicativo dei collegamenti e una tabella riepilogativa delle connessioni.
 	\section{STM32 NUCLEO-H745ZI-Q. La scheda di controllo}
-	L'STM32 NUCLEO-H745ZI-Q è una scheda di sviluppo prodotta da STMicroelectronics, basata sul microcontrollore STM32H745ZI-TQ6, appartenente alla famiglia ad alte prestazioni STM32H7. Il dispositivo è stato progettato per facilitare lo sviluppo, il \textit{debug}, e la prototipazione di applicazioni \textit{embedded} complesse.
-	La NUCLEO-H745ZI-Q è stata utilizzata per sviluppo e \textit{testing} dei \textit{firmware} di gestione di tutte le componenti del \textit{DPDF}. Su di essa sono state caricate tutte le librerie software sviluppate con l'ausilio di STM32CubeIDE.
-	A seguire, una descrizione dettagliata delle \textit{features} del microcontrollore STM32H745ZI-TQ6.
+	La scheda \textit{STM32 NUCLEO-H745ZI-Q} è una piattaforma di sviluppo prodotta da STMicroelectronics, basata sul microcontrollore STM32H745ZI-TQ6, appartenente alla famiglia ad alte prestazioni STM32H7. Il dispositivo è stato progettato per facilitare lo sviluppo, il \textit{debug} e la prototipazione di applicazioni \textit{embedded} complesse.
+	La NUCLEO-H745ZI-Q è stata utilizzata per lo sviluppo e la fase di prova dei \textit{firmware} di gestione di tutte le componenti del \textit{DPDF}. Su di essa sono state caricate le librerie software sviluppate con l'ausilio di STM32CubeIDE.
+	Segue una descrizione dettagliata delle principali caratteristiche del microcontrollore STM32H745ZI-TQ6.
 	
 	\subsection{STM32H745ZI-TQ6. Architettura}
 	Il microcontrollore STM32H745ZI-TQ6 presenta un'architettura \textit{dual-core} a 32-bit composta da un processore ad alte prestazioni, il \textbf{Cortex-M7}, e da un processore il cui utilizzo è consigliato per applicazioni \textit{real-time} e \textit{low-power tasks}. L'architettura consente l'implementazione di applicazioni \textit{multithread}.
@@ -258,7 +258,7 @@
 	
 	\subsection{STM32H745ZI-TQ6. Convertitori}
 	\paragraph{\small{Convertitori Analogici-Digitali}}\mbox{}\\
-	L'STM32H745ZI-TQ6 integra tre convertitori analogici-digitali \textbf{SAR ADC} (\textit{successive approximation analog-to-digital converter}) a 16-bit: ADC1, ADC2 e ADC3.
+	Lo STM32H745ZI-TQ6 integra tre convertitori analogico-digitali \textbf{SAR ADC} (\textit{successive approximation analog-to-digital converter}) a 16 bit: ADC1, ADC2 e ADC3.
 	I primi due, l'ADC1 e l'ADC2, sono \textit{tightly coupled}, cioè strettamente accoppiati, consentendo una sincronizzazione precisa delle conversioni. Questo approccio permette di ottenere alte frequenze di campionamento, precisione temporale e riduzione del carico computazionale del core. L'ADC3 invece è istanziato separatamente.
 	La risoluzione può essere configurata a 16, 14, 12, 10 o 8 bit.
 	
@@ -267,10 +267,10 @@
 	
 	\subsection{STM32H745ZI-TQ6. Timer}
 	I \textit{timer} sono periferiche hardware fornite dal microcontrollore per svolgere attività correlate al tempo.
-	L'STM32H745ZI-TQ6 fornisce 15 \textit{timer} di diverso tipo e 5 \textit{low power timer}. Alcuni di questi possono essere utilizzati per la genesi di segnali PWM.
+	Lo STM32H745ZI-TQ6 fornisce 15 \textit{timer} di diverso tipo e 5 \textit{low power timer}. Alcuni di questi possono essere utilizzati per la generazione di segnali PWM.
 	
 	\subsection{STM32H745ZI-TQ6. Periferiche di comunicazione}
-	L'STM32H745ZI-TQ6 integra un insieme ampio e variegato di protocolli di comunicazione. Le periferiche possono essere raggruppate in tre categorie principali: comunicazione seriale, comunicazione veloce e interfacce multimediali speciali.
+	Lo STM32H745ZI-TQ6 integra un insieme ampio e variegato di protocolli di comunicazione. Le periferiche possono essere raggruppate in tre categorie principali: comunicazione seriale, comunicazione veloce e interfacce multimediali speciali.
 	Per quanto riguarda la comunicazione seriale, il microcontrollore supporta i protocolli: $I^{2}C$, USART/UART e SPI.
 	Nell'ambito della comunicazione veloce e avanzata il dispositivo supporta i protocolli: CAN (\textit{Controller Area Network}), USB OTG, Ethernet MAC, SD/SDIO/MMC.
 	L'integrazione delle interfacce multimediali consente la gestione di applicazioni audio, grafiche e visione artificiale: SAI (\textit{Serial Audio Interface}), DFSDM (\textit{Digital Filter for Sigma-Delta Modulators}) e DCMI (\textit{Digital Camera Interface}).
@@ -289,7 +289,7 @@
 	\end{itemize}
 	
 	\paragraph{ST-LINK/V3E}\mbox{}\\
-	L'ST-LINK/V3E è un'interfaccia hardware, gestita dal microcontrollore STM32F723, dedicata al collegamento tra elaboratore esterno e microcontrollore. Il modulo permette di caricare il compilato \textit{firmware} sul microcontrollore direttamente dalla porta USB Micro-B collegata al sistema di elaborazione.
+	Lo ST-LINK/V3E è un'interfaccia hardware, gestita dal microcontrollore STM32F723, dedicata al collegamento tra elaboratore esterno e microcontrollore. Il modulo permette di caricare il compilato \textit{firmware} sul microcontrollore direttamente dalla porta USB Micro-B collegata al sistema di elaborazione.
 	Il modulo permette, inoltre, di eseguire il \textit{debug} in tempo reale del codice caricato sull'\textit{MCU}.
 	L'ST-LINK/V3E fornisce anche interfacce ausiliarie utili ai fini dello sviluppo.
 	A seguire un breve elenco esplicativo di queste funzionalità aggiuntive:
@@ -689,7 +689,7 @@
 	dai motori controrotanti. L'intervento si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso.
 	Nel progetto sono stati integrati due servomotori del tipo sopra citato, uno per ogni \textit{flap}.
 	
-	\subsection{HS-82 MG Hitec. Caratteristiche fisiche}
+	\subsection{HS-82MG Hitec. Caratteristiche fisiche}
 	\begin{itemize}
 		\item Dimensioni: $29.8\times 12.0\times 29.6$ [mm].
 		\item Peso: 19.0 [g].
@@ -698,7 +698,7 @@
 	\begin{figure}[ht]
 		\centering
 		\includegraphics[width=0.4\textwidth]{figures/02_hardware/servo_hs_82mg_caratteristiche_fisiche.jpg}
-		\caption{HS-82 MG Hitec. Misure}
+		\caption{HS-82MG Hitec. Misure}
 		\label{fig:hs82-misure}
 	\end{figure}
 	
@@ -729,11 +729,11 @@
 	\begin{figure}[ht]
 		\centering
 		\includegraphics[width=0.6\textwidth]{figures/02_hardware/servo_hs_82mg_foto.jpg}
-		\caption{HS-82 MG}
+		\caption{HS-82MG}
 		\label{fig:hs82-foto}
 	\end{figure}
 	
-	\subsection{HS-82 MG Hitec. Caratteristiche tecniche e controllo}
+	\subsection{HS-82MG Hitec. Caratteristiche tecniche e controllo}
 	\label{HS82ControlloAlimentazione}
 	
 	\paragraph{Alimentazione}\mbox{}\\
@@ -751,20 +751,20 @@
 	\begin{figure}[ht]
 		\centering
 		\includegraphics[width=0.7\textwidth]{figures/02_hardware/servo_hs_82mg_collegamenti_elettrici.png}
-		\caption{HS-82 MG Hitec. Disposizione dei terminali}
+		\caption{HS-82MG Hitec. Disposizione dei terminali}
 		\label{fig:hs82-terminali}
 	\end{figure}
 	
-	\section{BNO-055 Bosch Sensortec. Unità di misura inerziale e magnetometro}
+	\section{BNO055 Bosch Sensortec. Unità di misura inerziale e magnetometro}
 	Al fine di controllare l'orientamento nello spazio del \textit{DPDF} mediante servomotori, si necessita dell'informazione di rotazione del sistema nello spazio di riferimento. Si richiede, dunque, un dispositivo
-	capace di ottenere tale informazione. Il \textbf{BNO-055} della casa \textbf{Bosch Sensortec}, con la sua accuratezza, è il miglior candidato per tale responsabilità.
-	Il \textbf{BNO-055} è un sensore di orientamento assoluto a 9 assi sviluppato da \textbf{Bosch Sensortec}.
+	capace di ottenere tale informazione. Il \textbf{BNO055} della casa \textbf{Bosch Sensortec}, con la sua accuratezza, è il miglior candidato per tale responsabilità.
+	Il \textbf{BNO055} è un sensore di orientamento assoluto a 9 assi sviluppato da \textbf{Bosch Sensortec}.
 	Il dispositivo è un \textit{System in Package}\textcolor{blue}{[A]} che integra un accelerometro triassiale a 14 bit, un giroscopio triassiale a 16 bit, un sensore geomagnetico triassiale e un
 	microcontrollore Cortex $M0^+$ a 32 bit incaricato nell'eseguire il \textit{software di sensor fusion} integrato.\\
 	Il \textit{software}, poc'anzi citato, combina i dati provenienti da accelerometro, giroscopio e magnetometro, fornendo: \textbf{Quaternioni, Angoli di Eulero come pitch, roll e yaw e Vettori di orientamento lineari e gravitazionali}.
-	Nel presente progetto, il \textit{chip} BNO-055 è stato acquistato con montaggio su \textit{scheda di breakout} incluso, dunque nel paragrafo sottostante sono state aggiunte sia le dimensioni/peso del modulo che le dimensioni/peso del chip.
+	Nel presente progetto, il \textit{chip} BNO055 è stato acquistato con montaggio su \textit{scheda di breakout} incluso, dunque nel paragrafo sottostante sono state aggiunte sia le dimensioni/peso del modulo che le dimensioni/peso del chip.
 	
-	\subsection{BNO-055 Bosch Sensortec. Caratteristiche fisiche}
+	\subsection{BNO055 Bosch Sensortec. Caratteristiche fisiche}
 	\begin{itemize}
 		\item dimensioni del modulo: $20\times24\times2$ mm.
 		\item dimensioni del chip: $3.8\times5.2\times1.1$ mm.
@@ -772,32 +772,32 @@
 		\item massa del chip: $\approx 150 mg$.
 	\end{itemize}
 	
-	\subsection{BNO-055 Bosch Sensortec. Infrastruttura di alimentazione, comunicazione ed integrazione del sensore}
+	\subsection{BNO055 Bosch Sensortec. Infrastruttura di alimentazione, comunicazione ed integrazione del sensore}
 	\paragraph{\small{Alimentazione}}
 	Il sensore ha due distinti ingressi di alimentazione: il \textbf{$V_{DD}$} e il \textbf{$V_{DDIO}$}.
 	Il $V_{DD}$ è il principale terminale di alimentazione dei sensori. Il valore di tensione iniettabile nell'ingresso in analisi appartiene al seguente intervallo: \textbf{[2.4$\div$3.6] [V]}.
 	Il \textbf{$V_{DDIO}$}, invece, è il distinto ingresso di alimentazione del \textit{$\mu C$} e delle interfacce digitali. In questo caso, il valore di tensione può assumere valori di questo intervallo: \textbf{[1.7$\div$3.6] [V]}.
 	Tuttavia, il dispositivo è montato su di una \textit{breakout board} che offre a disposizione solamente un terminale di alimentazione, chiamato $V_{IN}$, il quale fornisce, mediante un micro regolatore di tensione, l'alimentazione sia al $V_{DD}$ che al $V_{DDIO}$.
 	Il valore di tensione in ingresso al terminale $V_{IN}$ appartiene all'intervallo: \textbf{[2.4$\div$3.6] [V]}.
-	Il BNO-055, inoltre, supporta tre differenti modalità di alimentazione: \textit{Normal mode}, \textit{Low power mode} e \textit{Suspend mode}. Per lo sviluppo è stata scelta la \textbf{\textit{Normal mode}}.
+	Il BNO055, inoltre, supporta tre differenti modalità di alimentazione: \textit{Normal mode}, \textit{Low power mode} e \textit{Suspend mode}. Per lo sviluppo è stata scelta la \textbf{\textit{Normal mode}}.
 	
 	\paragraph{\small{Protocollo di comunicazione}}\mbox{}\\
-	Il \textit{BNO-055} offre la possibilità di utilizzare due distinti protocolli di comunicazione seriale, \textit{$I^{2}C$} e \textit{UART}. Nel presente progetto è stato utilizzato esclusivamente il protocollo \textit{$I^{2}C$}.
+	Il \textit{BNO055} offre la possibilità di utilizzare due distinti protocolli di comunicazione seriale, \textit{$I^{2}C$} e \textit{UART}. Nel presente progetto è stato utilizzato esclusivamente il protocollo \textit{$I^{2}C$}.
 	Come per il \textit{VL53L1X di STMicroelectronics}, precedentemente trattato, il sensore dispone della capacità di comunicare in \textit{Fast Mode}, scambiando byte a 400 [kHz] (oltre che in \textit{Standard Mode a 100 [kHz]}).
 	Anche in questo caso, sia la \textit{breakout board} che il sensore forniscono i terminali di \textbf{Serial Data (SDA)} e \textbf{Serial Clock (SCL)}.
 	\begin{figure}[ht!]
 		\centering
 		\includegraphics[width=0.4\textwidth]{figures/02_hardware/bno055_pinout_superiore.jpg}
-		\caption{\textcolor{black}{BNO-055 Bosch Sensortec. Configurazione dei pin e breakout board}}
+		\caption{\textcolor{black}{BNO055 Bosch Sensortec. Configurazione dei pin e breakout board}}
 		\label{fig:bno055-pinout}
 	\end{figure}
 	
 	
 	
 	\subsection{Principio di misura dell'accelerometro, giroscopio e magnetometro}
-	Prima di descrivere le \textit{features} dell'accelerometro, giroscopio e magnetometro installati nel \textit{BNO-055}, si ritiene necessario dedicare una sezione di approfondimento circa i principi di funzionamento dei sensori precedentemente citati.
+	Prima di descrivere le caratteristiche dell'accelerometro, del giroscopio e del magnetometro installati nel \textit{BNO055}, si ritiene necessario dedicare una sezione di approfondimento ai principi di funzionamento dei sensori appena citati.
 	\paragraph{Accelerometro}\mbox{}\\
-	L'accelerometro integrato nel BNO-055 Bosch Sensortec è di tipo capacitivo M.E.M.S, \textit{Micro-Electro-Mechanical System}. Il dispositivo consente la misura dell'accelerazione lungo i tre assi cartesiani.\\
+	L'accelerometro integrato nel BNO055 Bosch Sensortec è di tipo capacitivo M.E.M.S, \textit{Micro-Electro-Mechanical System}. Il dispositivo consente la misura dell'accelerazione lungo i tre assi cartesiani.\\
 	Il principio di funzionamento si basa sulla rilevazione delle variazioni di capacità tra microstrutture mobili e fisse realizzate su un substrato di silicio.\\
 	L'elemento sensibile di ciascun asse è costituito da una massa sospesa, \textit{proof mass}, vincolata da microtravi elastiche ad una cornice ancorata al substrato. In condizioni di quiete, la massa è in equilibrio e la capacità tra le piastre interdigitate\textcolor{blue}{[A]} rimangono simmetriche.\\
 	Quando il dispositivo è sottoposto ad un'accelerazione lungo uno degli assi sensibili, la massa inerziale si sposta in direzione opposta a quella dell'accelerazione, generando una variazione differenziale delle capacità tra le piastre.\\
@@ -836,11 +836,11 @@
 	Il vettore tridimensionale ottenuto viene ricostruito e poi confrontato con il valore atteso del campo geomagnetico.\\
 	Tramite la \textit{sensor fusion}, il magnetometro fornisce il riferimento assoluto dell'azimut, cioè la direzione del Nord magnetico nel sistema di riferimento solidale al sensore.
 	
-	\subsection{BNO-055 Bosch Sensortec. Accelerometro, giroscopio e magnetometro integrati}
+	\subsection{BNO055 Bosch Sensortec. Accelerometro, giroscopio e magnetometro integrati}
 	L'accelerometro, il giroscopio e il magnetometro sono tutti prodotti da Bosch Sensortec.
 	
 	\paragraph{Accelerometro}\mbox{}\\
-	L'accelerometro installato sul \textit{BNO-055} appartiene alla famiglia \textit{Bosch Sensortec}. La sua \textbf{risoluzione} è di \textbf{14 bit}.
+	L'accelerometro installato sul \textit{BNO055} appartiene alla famiglia \textit{Bosch Sensortec}. La sua \textbf{risoluzione} è di \textbf{14 bit}.
 	L'accelerometro, per adattarsi ad una vasta gamma di esigenze progettuali, mette a disposizione diversi intervalli di misura:
 	\begin{itemize}
 		\item $[\pm 2]$ [g]. Modalità utile nella rilevazione di piccolissime accelerazioni.
@@ -874,29 +874,29 @@
 	risiede nella presenza di accelerazioni non dovute alla gravità, di fatto, rapidi movimenti o vibrazioni producono rumore che interferiscono con la determinazione del vettore gravità.\\
 	Infine, il magnetometro è suscettibile alla presenza di elementi ferromagnetici o correnti elettriche, determinando, così, errori significativi nella misura.\\
 	La \textit{sensor fusion} nasce con l'obiettivo di superare tali limiti, combinando coerentemente le informazioni disponibili. Nei sistemi più evoluti, utilizzati nelle piattaforme di navigazione di veicoli
-	e velivoli, si impiegano filtri come \textit{EKF} (Filtro di Kalman esteso) o \textit{UKF} (Filtro di Kalman a Punti Sigma). La documentazione ufficiale del BNO-055 riporta che il microcontrollore presenta un
+	e velivoli, si impiegano filtri come \textit{EKF} (Filtro di Kalman esteso) o \textit{UKF} (Filtro di Kalman a Punti Sigma). La documentazione ufficiale del BNO055 riporta che il microcontrollore presenta un
 	algoritmo di \textit{sensor fusion} che utilizza il \textbf{Filtro di Kalman esteso}.\\
 	Nel presente progetto, con il fine di aumentare l'attendibilità, l'accuratezza e la stabilità della misura, la \textbf{\textit{sensor fusion} è stata sempre tenuta attiva}.\\
-	A seguire una rappresentazione schematica del \textit{System in package BNO-055 Bosch Sensortec}.
+	A seguire una rappresentazione schematica del \textit{System in package BNO055 Bosch Sensortec}.
 	\begin{figure}[ht!]
 		\centering
 		\includegraphics[width=0.4\textwidth]{figures/02_hardware/bno055_architettura_sistema.png}
-		\caption{\textcolor{black}{BNO-055 Bosch Sensortec. Architettura di sistema}}
+		\caption{\textcolor{black}{BNO055 Bosch Sensortec. Architettura di sistema}}
 		\label{fig:bno055-architettura}
 	\end{figure}
 	
-	\subsection{BNO-055 Bosch Sensortec. Modalità operative}
+	\subsection{BNO055 Bosch Sensortec. Modalità operative}
 	Il dispositivo di misura fornisce una grande varietà di segnali di \textit{output}, che possono essere scelti selezionando l'appropriata modalità operativa.\\
 	Le modalità operative vengono classificate in base all'attivazione o meno del \textit{software di sensor fusion}, nello specifico distinguiamo tra le \textit{Non-Fusion modes} e le \textit{Fusion modes}.
 	\paragraph{Fusion-modes}\mbox{}\\
 	Nel momento in cui viene impostata una delle seguenti modalità, l'algoritmo di fusione \textbf{esegue automaticamente, in \textit{background}, la calibrazione dei sensori}.
 	\begin{itemize}
-		\item \textbf{IMU (Inertial Measurement Unit)}. In questa modalità di fusione, l'orientamento relativo del \textit{BNO-055} nello spazio, è determinato utilizzando i dati estratti dall'accelerometro e dal giroscopio. La computazione è veloce, di fatto è suggerita nelle applicazioni ad alta velocità.
+		\item \textbf{IMU (Inertial Measurement Unit)}. In questa modalità di fusione, l'orientamento relativo del \textit{BNO055} nello spazio, è determinato utilizzando i dati estratti dall'accelerometro e dal giroscopio. La computazione è veloce, di fatto è suggerita nelle applicazioni ad alta velocità.
 		\item \textbf{M4G (Magnet for Gyroscope)}. Simile alla precedente modalità, tuttavia, il giroscopio non viene più utilizzato per la rilevazione della rotazione bensì la variazione dell'orientamento del magnetometro nel campo magnetico terrestre.
-		\item \textbf{COMPASS}. In questa modalità, il \textit{BNO-055} opera come una bussola elettronica, stimando l'orientamento sul piano orizzontale rispetto al nord magnetico. Rispetto alle modalità IMU e NDOF, che sfruttano il giroscopio per una risposta più pronta e stabile, questa modalità utilizza il magnetometro con consumi inferiori ma robustezza minore.
+		\item \textbf{COMPASS}. In questa modalità, il \textit{BNO055} opera come una bussola elettronica, stimando l'orientamento sul piano orizzontale rispetto al nord magnetico. Rispetto alle modalità IMU e NDOF, che sfruttano il giroscopio per una risposta più pronta e stabile, questa modalità utilizza il magnetometro con consumi inferiori ma robustezza minore.
 		\item \textbf{NDOF}. In questa modalità, la computazione dell'orientamento del dispositivo, è eseguita servendosi di tutti i dati provenienti dai sensori. La presente modalità è quella con il più alto consumo di corrente.
 	\end{itemize}
-	Nel presente progetto, la modalità \textbf{NDOF} è sempre stata scelta come modalità operativa del \textit{BNO-055}.
+	Nel presente progetto, la modalità \textbf{NDOF} è sempre stata scelta come modalità operativa del \textit{BNO055}.
 	A seguire, un'immagine riportata dalla documentazione ufficiale, specificante la frequenza con cui il sensore produce dati in uscita, nel mentre che la \textit{sensor fusion} è attiva.
 	\begin{figure}[ht!]
 		\centering
@@ -979,7 +979,7 @@
 			\label{fig:img2}
 		\end{minipage}
 	\end{figure}\\
-	L'immagine a sinistra, specifica la disposizione della piedinatura del modulo \textit{Pololu} (\textit{P.C: Pin  Configuration}), mentre, la figura di destra, rappresenta la suddivisione modulare del \textit{VL53L1X} (\textit{S.B.D: System Block Diagram}).
+	L'immagine a sinistra specifica la disposizione della piedinatura del modulo \textit{Pololu} (\textit{P.C.: Pin Configuration}), mentre la figura di destra rappresenta la suddivisione modulare del \textit{VL53L1X} (\textit{S.B.D.: System Block Diagram}).
 	\paragraph{\small{Emettitore}}
 	Il \textit{VL53L1X} monta un emettitore \textbf{laser ad infrarossi con lunghezza d'onda pari a 940 [nm] appartenente alla \textit{classe uno}}. Quest'ultimo fa riferimento alla classificazione di sicurezza stabilita dalla norma internazionale \textbf{IEC 60825-1}.
 	La classificazione ha il dovere di descrivere quanto un'emissione laser possa essere pericolosa per l'interazione umana (occhi, pelle ecc). La normativa organizza gli emettitori in \textit{classi}, dove
@@ -1077,13 +1077,13 @@
 		\caption{Collegamenti NUCLEO-H745ZI-Q e VL53L1X}
 	\end{table}
 
-	\paragraph{Collegamenti NUCLEO-H745ZI-Q e BNO-055}\mbox{}\\
-	Il sensore \textit{BNO-055} (Bosch Sensortec) è stato collegato direttamente alla \textit{NUCLEO-H745ZI-Q}.
+	\paragraph{Collegamenti NUCLEO-H745ZI-Q e BNO055}\mbox{}\\
+	Il sensore \textit{BNO055} (Bosch Sensortec) è stato collegato direttamente alla \textit{NUCLEO-H745ZI-Q}.
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{l l}
 			\toprule
-			\textbf{BNO-055} & \textbf{NUCLEO-H745ZI-Q} \\
+			\textbf{BNO055} & \textbf{NUCLEO-H745ZI-Q} \\
 			\midrule
 			Vin & 3.3V, CN8-7 \\
 			GND & GND, CN8-11 \\
@@ -1091,7 +1091,7 @@
 			SDA & SDA I2C1: PB7, CN10-16 \\
 			\bottomrule
 		\end{tabular}
-		\caption{Collegamenti NUCLEO-H745ZI-Q e BNO-055}
+		\caption{Collegamenti NUCLEO-H745ZI-Q e BNO055}
 	\end{table}
 
 	\paragraph{Collegamenti DF-Robot, servo e NUCLEO-H745ZI-Q}\mbox{}\\
@@ -1171,7 +1171,7 @@
 	Nelle sezioni successive vengono quindi descritti i diagrammi di flusso e l'organizzazione del firmware adottata nel progetto, mantenendo la terminologia operativa usata nel codice (i termini \textit{procedura} e \textit{funzione} sono considerati equivalenti in questa relazione).
 	
 	\section{Diagrammi di flusso}
-	Nella presente sezione sono stati riportati i diagrammi di flusso esplicativi del funzionamento del \textit{firmware}. Poiché i driver di gestione del \textit{VL53L1X} e \textit{BNO-055} sono esterni allo sviluppo, sono stati riportati anche i diagrammi di flusso di questi, in tal modo da specificare la procedura di estrazione dell'informazione.
+	Nella presente sezione sono stati riportati i diagrammi di flusso esplicativi del funzionamento del \textit{firmware}. Poiché i driver di gestione del \textit{VL53L1X} e \textit{BNO055} sono esterni allo sviluppo, sono stati riportati anche i diagrammi di flusso di questi, in tal modo da specificare la procedura di estrazione dell'informazione.
 	
 	\subsection{Diagramma di flusso del firmware}
 	\begin{figure}[H]
@@ -1215,7 +1215,7 @@
 	Le macro principali sono le seguenti:
 	\begin{itemize}
 		\item \texttt{NUMBER\_OF\_TOGGLES} fissa la durata del conto alla rovescia prima dell'avvio;
-		\item \texttt{CCR\_VALUE\_FOR\_MOTOR\_ACT}, \texttt{UPPER\_LIMIT\_MOTOR} e \texttt{LOWER\_LIMIT\_MOTOR} delimitano il range PWM utilizzabile dagli ESC;
+		\item \texttt{UPPER\_LIMIT\_MOTOR} e \texttt{LOWER\_LIMIT\_MOTOR} delimitano il range PWM utilizzabile dagli ESC;
 		\item \texttt{UPPER\_LIMIT\_SERVO}, \texttt{CENTER\_SERVO} e \texttt{LOWER\_LIMIT\_SERVO} definiscono la zona di lavoro meccanicamente sicura dei servomotori;
 		\item \texttt{CCR\_PER\_DEGREE} e \texttt{MAX\_FLAP\_ANGLE\_DEG} descrivono la conversione tra grandezza fisica richiesta al flap e valore effettivamente scrivibile nel registro timer.
 	\end{itemize}
@@ -1225,7 +1225,6 @@
 	Il firmware utilizza inoltre una struttura PID unica, inizializzata tramite \texttt{pid\_init()} e aggiornata tramite \texttt{pid\_compute()}. Questa scelta uniforma il comportamento interno dei tre regolatori: inizializzazione dello stato, gestione dell'integrale, calcolo della derivata e saturazione seguono la stessa logica, mentre cambiano i parametri che descrivono il problema fisico. In questo modo il codice non contiene tre implementazioni diverse dello stesso concetto, ma un solo strumento generale specializzato tramite configurazione.
 
 	\begin{lstlisting}[style=base,language=C,caption={Costanti principali usate dal firmware per definire i limiti hardware e di sicurezza}]
-		#define CCR_VALUE_FOR_MOTOR_ACT                712
 		#define UPPER_LIMIT_MOTOR                      1500
 		#define LOWER_LIMIT_MOTOR                       750
 		#define UPPER_LIMIT_SERVO                      1545
@@ -1429,10 +1428,10 @@
 		\item \textbf{Preparazione degli ESC}: i motori vengono portati inizialmente al valore minimo di comando, lasciando un intervallo di alcuni secondi per il corretto riconoscimento del segnale da parte degli ESC; il motivo non è solo rispettare la procedura di arming, ma anche impedire che il sistema interpreti transitori di avvio come richieste di spinta valide;
 		\item \textbf{Avvio della fase operativa}: \texttt{TIM7} abilita il ramo periodico dei servo, mentre il VL53L1X avvia il flusso di misure asincrone che alimenta il ramo di quota; in questo modo i due sottosistemi di controllo iniziano a lavorare secondo la propria dinamica naturale, senza forzare una sincronizzazione artificiale tra fenomeni fisici e sensori diversi;
 		\item \textbf{Controllo nel main loop}: il \texttt{while(run)} riceve gli eventi dalle flag condivise, elabora i dati dei sensori e aggiorna gli attuatori senza effettuare busy-waiting né concentrare i calcoli nelle ISR; così la reattività agli eventi viene mantenuta senza rinunciare alla leggibilità del codice e alla prevedibilità dei tempi di esecuzione;
-		\item \textbf{Shutdown sicuro}: quando \texttt{run} viene disattivata, il firmware riporta motori e servo in una condizione sicura tramite \texttt{stop\_all\_pwm()} e segnala visivamente la fine dell'esecuzione; anche l'arresto, quindi, è trattato come una transizione controllata e non come una semplice interruzione del flusso software.
+		\item \textbf{Shutdown sicuro}: quando \texttt{run} viene disattivata durante la fase operativa, il firmware esce dal ciclo principale, riporta motori e servo in una condizione sicura tramite \texttt{stop\_all\_pwm()} e segnala visivamente la fine dell'esecuzione; anche l'arresto, quindi, è trattato come una transizione controllata e non come una semplice interruzione del flusso software.
 	\end{enumerate}
 
-	All'interno di questo schema, la variabile booleana \texttt{run} svolge il ruolo di consenso globale all'esecuzione. La sua funzione è importante perché concentra in un unico stato logico la decisione se il sistema debba trovarsi in assetto operativo oppure in condizione sicura. In questo modo start e stop non dipendono da percorsi software separati e potenzialmente incoerenti, ma dalla stessa variabile di abilitazione. Nel firmware \texttt{run} viene modificata con semantica di \textit{toggle} sia dalla pressione dello \textit{user button}, sia dalla ricezione su seriale di un qualunque terminatore previsto come comando di arresto o riavvio dell'esecuzione. Questa scelta rende uniforme l'interfaccia uomo-macchina: cambia il canale con cui arriva il consenso, ma non cambia il significato interno dell'evento né il modo in cui il sistema reagisce.
+	All'interno di questo schema, la variabile booleana \texttt{run} svolge il ruolo di consenso globale all'esecuzione. La sua funzione è importante perché concentra in un unico stato logico la decisione se il sistema debba trovarsi in assetto operativo oppure in condizione sicura. In questo modo l'avvio della fase attiva e il suo arresto non dipendono da percorsi software separati e potenzialmente incoerenti, ma dalla stessa variabile di abilitazione. Nel firmware \texttt{run} viene modificata con semantica di \textit{toggle} sia dalla pressione dello \textit{user button}, sia dalla ricezione su seriale di un terminatore previsto come comando di consenso o di arresto. Questa scelta rende uniforme l'interfaccia uomo-macchina: cambia il canale con cui arriva il consenso, ma non cambia il significato interno dell'evento né il modo in cui il sistema reagisce. È però opportuno osservare che, una volta uscito dal \texttt{while(run)} ed eseguita la procedura di \textit{shutdown}, il firmware non rientra automaticamente nella sequenza completa di inizializzazione: il \textit{toggle} non va quindi interpretato come meccanismo generale di riavvio dell'intero ciclo applicativo, ma come abilitazione o disabilitazione del tratto operativo descritto dal firmware.
 
 	L'intero modello esecutivo è costruito per mantenere semplice il percorso dei dati: le callback identificano l'evento, il \texttt{main} decide se elaborarlo in base allo stato di \texttt{run}, e i moduli dedicati applicano il comando. Il vantaggio principale non è soltanto organizzativo; è anche metodologico, perché ogni decisione di controllo può essere ricondotta a una sequenza chiara di passi causali. Questo aspetto è particolarmente utile sia in fase di validazione sperimentale, quando occorre interpretare un comportamento osservato, sia in ottica di manutenzione futura, quando il firmware dovrà essere esteso senza alterarne l'equilibrio complessivo.
 
@@ -1455,7 +1454,7 @@
 		}
 	\end{lstlisting}
 
-	La seriale si inserisce nella stessa filosofia: non introduce una seconda macchina a stati, ma fornisce un ulteriore ingresso capace di modificare \texttt{run} con lo stesso significato logico del pulsante locale. Di conseguenza il firmware conserva un comportamento coerente indipendentemente da dove provenga il comando di start/stop. Questa soluzione permette di mantenere separati tre livelli distinti: acquisizione dell'evento, elaborazione della misura e attuazione del comando. Una separazione di questo tipo è particolarmente adatta a sistemi embedded con più sottosistemi concorrenti, perché limita le interdipendenze tra moduli e rende più semplice isolare eventuali problemi di sensore, controllo o attuazione.
+	La seriale si inserisce nella stessa filosofia: non introduce una seconda macchina a stati, ma fornisce un ulteriore ingresso capace di modificare \texttt{run} con lo stesso significato logico del pulsante locale. Di conseguenza il firmware conserva un comportamento coerente rispetto al consenso operativo indipendentemente da dove provenga l'evento. Questa soluzione permette di mantenere separati tre livelli distinti: acquisizione dell'evento, elaborazione della misura e attuazione del comando. Una separazione di questo tipo è particolarmente adatta a sistemi embedded con più sottosistemi concorrenti, perché limita le interdipendenze tra moduli e rende più semplice isolare eventuali problemi di sensore, controllo o attuazione.
 
 	
 	\chapter{Test e risultati}
