@@ -156,7 +156,7 @@
 	Entrambi i \textit{flap} sono collegati, a un'estremità, al servomotore che ne gestisce il movimento, mentre all'altra sono inseriti in un apposito modulo strutturale che, oltre a fissare ciascun sensore del sistema, lo mantiene parallelo al terreno. I \textit{flap} sono posizionati in modo tale da risultare perpendicolari tra loro.\\
 	Lungo la superficie esterna del cilindro sono state posizionate le componenti hardware necessarie al perseguimento degli scopi progettuali. La posizione di tali componenti è stata oggetto di studio al fine di ottenere un preciso bilanciamento del sistema. Gli elementi hardware utilizzati verranno approfonditi nel Capitolo 2.\\
 	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere un'ottima distribuzione dei pesi. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione permette di evitare l'allentamento del dado di fissaggio causato dal flusso d'aria incidente generato dai motori.\\
-	L'intera struttura cilindrica, i \textit{flap}, il supporto di sostegno dei motori e i piedi di appoggio sono stati realizzati tramite \textbf{stampa 3D}, utilizzando \textbf{PVC} come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
+	L'intera struttura cilindrica, i \textit{flap}, i piedi di appoggio e i supporti di sostegno di tutte le componenti hardware e dei motori sono stati realizzati tramite \textbf{stampa 3D}, utilizzando \textbf{PVC} come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
 	
 	\begin{figure}[!htbp]
 		\centering
@@ -199,7 +199,7 @@
 	diagramma esplicativo dei collegamenti e una tabella riepilogativa delle connessioni.
 	\section{STM32 NUCLEO-H745ZI-Q. La scheda di controllo}
 	L'STM32 NUCLEO-H745ZI-Q è una scheda di sviluppo prodotta da STMicroelectronics, basata sul microcontrollore STM32H745ZI-TQ6, appartenente alla famiglia ad alte prestazioni STM32H7. Il dispositivo è stato progettato per facilitare lo sviluppo, il \textit{debug}, e la prototipazione di applicazioni \textit{embedded} complesse.
-	La NUCLEO-H745ZI-Q è stata utilizzata per sviluppo e \textit{testing} dei \textit{firmware} di gestione di tutte le componenti del \textit{D.P.D.F}. Su di essa sono state caricate tutte le librerie software sviluppate con l'ausilio di STM32CubeIDE.
+	La NUCLEO-H745ZI-Q è stata utilizzata per sviluppo e \textit{testing} dei \textit{firmware} di gestione di tutte le componenti del \textit{DPDF}. Su di essa sono state caricate tutte le librerie software sviluppate con l'ausilio di STM32CubeIDE.
 	A seguire, una descrizione dettagliata delle \textit{features} del microcontrollore STM32H745ZI-TQ6.
 	
 	\subsection{STM32H745ZI-TQ6. Architettura}
@@ -349,7 +349,7 @@
 	specificato il polimero usato nel progetto delle \textit{TATTU LiPo}, con il fine di informazione, è stato deciso di riportare quello più comunemente utilizzato per la tipologia di batterie in esame, il
 	\textit{polivinilidenfluoruro esafluoropropilene} (PVDF-HFP).\\
 	Rispetto ad altri sistemi elettrochimici presenti sul mercato (come ad esempio: Li-ion, $LiFePO_4$, NiMH ecc.), le batterie LiPo presentano un'elevata densità di potenza, una bassa resistenza interna e una
-	notevole flessibilità nelle geometrie costruttive, oltre ad un contenuto peso. Tali attributi risultano vantaggiosi nell'ambito della progettazione di UAV, come il \textit{D.P.D.F}.
+	notevole flessibilità nelle geometrie costruttive, oltre ad un contenuto peso. Tali attributi risultano vantaggiosi nell'ambito della progettazione di UAV, come il \textit{DPDF}.
 	
 	\paragraph{\small{Tensione}}\mbox{}\\
 	La \textit{TATTU LiPo} possiede \textbf{4} celle da \textbf{3.7 [V]}. Le celle sono collegate in serie, perciò la tensione nominale è circa \textbf{14.8 [V]}.\\
@@ -592,7 +592,7 @@
 	La \textit{Start Mode} gestisce la modalità di accelerazione del motore da fermo. Sono disponibili tre diverse modalità di partenza, pensate per adattarsi a qualsiasi applicazione.\\
 	La \textit{Normal Start Mode} costituisce la modalità di accelerazione più reattiva. L'ESC applica una rampa di potenza relativamente breve: nel giro di $[0.3\div0.5]$ [s] il motore raggiunge i primi giri utili. L'appena descritta modalità è stata scartata a priori dal momento che, come conseguenza di un'accelerazione repentina, si ha forte stress meccanico sull'albero motore; inoltre l'improvvisa accelerazione delle eliche può generare forze indesiderate.\\
 	Nella \textit{Soft Start} la rampa di ingresso è più dolce: il motore, sotto il controllo dell'ESC, impiega $[1\div1.5]$ [s] per arrivare a regime. Infine, nella \textit{Very Soft Start} la potenza viene incrementata nell'arco di $[2\div3]$ [s].\\
-	Qualsiasi prova di volo del \textit{D.P.D.F} è stata eseguita nell'apposita gabbia di contenimento, in cui il sistema è stato sospeso mediante funi di sostegno; perciò, con il fine di evitare movimenti indesiderati, stress meccanico ed errori di misurazione, è stata impostata la \textit{Very Soft Start}.
+	Qualsiasi prova di volo del \textit{DPDF} è stata eseguita nell'apposita gabbia di contenimento, in cui il sistema è stato sospeso mediante funi di sostegno; perciò, con il fine di evitare movimenti indesiderati, stress meccanico ed errori di misurazione, è stata impostata la \textit{Very Soft Start}.
 	
 	\paragraph{\small{Timing Mode}}\mbox{}\\
 	L'ESC, con il fine di genesi di rotazione, genera campi magnetici rotanti commutando le tre fasi in sequenza. Le commutazioni devono avvenire in sincronia con la posizione del rotore. Il \textit{Timing} è l'anticipo angolare con cui l'ESC commuta le fasi rispetto alla posizione stimata del rotore.\\
@@ -641,7 +641,7 @@
 	
 	\section{Eliche}
 	Al fine di ottenere una corretta realizzazione progettuale, si rende necessario un minuzioso studio delle eliche da utilizzare.
-	Le eliche e i motori costituiscono un perfetto connubio: se si dovessero scegliere eliche non adeguate, potrebbe non verificarsi la generazione della portanza necessaria al sollevamento del \textit{D.P.D.F}.\\
+	Le eliche e i motori costituiscono un perfetto connubio: se si dovessero scegliere eliche non adeguate, potrebbe non verificarsi la generazione della portanza necessaria al sollevamento del \textit{DPDF}.\\
 	I parametri fondamentali per selezionare un'elica sono il \textbf{diametro} e il \textbf{passo}.\\
 	Con il primo si indica il diametro della circonferenza che l'elica descrive durante la rotazione. Con il secondo, invece, si fa riferimento alla distanza teorica che l'elica percorrerebbe lungo il proprio asse in una singola rotazione completa, assumendo un fluido perfettamente solido e assenza di slittamento.
 	Per chiarire il concetto, si può pensare a una vite che compie un giro completo mentre viene inserita nel legno.
@@ -681,7 +681,7 @@
 	
 	\section{Hitec HS-82MG Gear micro servo}
 	\label{HitecHS82MG}
-	Il disegno strutturale rende il \textit{D.P.D.F} suscettibile a rotazioni indesiderate sul piano definito dagli assi X ed Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinandone una completa perdita di controllo del mezzo.\\
+	Il disegno strutturale rende il \textit{DPDF} suscettibile a rotazioni indesiderate sul piano definito dagli assi X ed Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinandone una completa perdita di controllo del mezzo.\\
 	Al fine di limitare tali perturbazioni, sono stati integrati due \textit{flap}, uno relativo al controllo lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.\\
 	I \textit{flap} operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{rollio} e \textit{beccheggio}. Sono posizionati sulla parte terminale del condotto ed interagiscono con il getto generato
 	dai motori controrotanti. L'intervento si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso.
@@ -754,7 +754,7 @@
 	\end{figure}
 	
 	\section{BNO-055 Bosch Sensortec. Unità di misura inerziale e magnetometro}
-	Al fine di controllare l'orientamento nello spazio del \textit{D.P.D.F} mediante servomotori, si necessita dell'informazione di rotazione del sistema nello spazio di riferimento. Si richiede, dunque, un dispositivo
+	Al fine di controllare l'orientamento nello spazio del \textit{DPDF} mediante servomotori, si necessita dell'informazione di rotazione del sistema nello spazio di riferimento. Si richiede, dunque, un dispositivo
 	capace di ottenere tale informazione. Il \textbf{BNO-055} della casa \textbf{Bosch Sensortec}, con la sua accuratezza, è il miglior candidato per tale responsabilità.
 	Il \textbf{BNO-055} è un sensore di orientamento assoluto a 9 assi sviluppato da \textbf{Bosch Sensortec}.
 	Il dispositivo è un \textit{System in Package}\textcolor{blue}{[A]} che integra un accelerometro triassiale a 14 bit, un giroscopio triassiale a 16 bit, un sensore geomagnetico triassiale e un
@@ -915,7 +915,7 @@
 	\end{itemize}
 	
 	\section{VL53L1X ST. Sensore Time-of-Flight per la misurazione a lunga distanza}
-	Al fine di ottenere il comportamento desiderato del \textbf{D.P.D.F}, è necessario conoscere la distanza da terra mentre quest'ultimo è in volo.
+	Al fine di ottenere il comportamento desiderato del \textbf{DPDF}, è necessario conoscere la distanza da terra mentre quest'ultimo è in volo.
 	Bisogna, dunque, includere un sensore apposito.\\
 	Il \textbf{VL53L1X di STMicroelectronics} è pienamente coerente con i requisiti precedentemente espressi. Tuttavia, non si è optato per l'integrazione
 	diretta del sensore della casa STMicroelectronics, si è preferito acquistare il modulo \textbf{IRIS11A0J9776} prodotto da \textbf{Pololu}. La \textit{breakout board} di Pololu, contenente
@@ -1001,7 +1001,7 @@
 	\paragraph{\small{Region-of-interest (R.O.I)}}\mbox{}\\
 	Con \textit{Region-Of-Interest} si fa riferimento ad un'opzione offerta dal \textit{VL53L1X} che permette di restringere il \textit{Field of View} utilizzato nella misura.
 	La funzione è utile nel caso in cui si voglia migliorare la precisione di misura su oggetti piccoli.\\
-	Nel presente progetto, il sensore è responsabile della misura dell'altitudine del \textit{D.P.D.F}, per
+	Nel presente progetto, il sensore è responsabile della misura dell'altitudine del \textit{DPDF}, per
 	cui la tecnologia \textit{(R.O.I)} non è mai stata utilizzata, lasciando il \textit{FoV} a 27\degree.
 	
 	\paragraph{\small{Prestazioni di misura, Timing Budget e modalità operative di misura}}\mbox{}\\
@@ -1164,14 +1164,14 @@
 	Per la configurazione delle periferiche del microcontrollore \textit{STM32H745ZI-TQ6} è stato impiegato \textit{STM32CubeMX} (versione \textbf{6.12.1}).
 	
 	Per i sensori \textit{BNO055} (Bosch Sensortec) e \textit{VL53L1X} (STMicroelectronics) sono stati integrati i driver ufficiali dei produttori, nativamente \textit{platform-agnostic}, e adattati al contesto HAL tramite un sottile livello di interfaccia per comunicazione, interrupt e gestione dei pin.
-	In coerenza con la natura di questa attività, che è una \textbf{relazione di progetto} e non una tesi, è importante evidenziare che una parte del sub-firmware di base (in particolare l'infrastruttura iniziale e i moduli driver) era già stata sviluppata dal gruppo precedente: il lavoro attuale si è concentrato su analisi, integrazione, validazione e documentazione tecnica del codice nel contesto del progetto DPDF.
+	Una parte del sub-firmware di base, in particolare l'infrastruttura iniziale e alcuni moduli driver, era già stata sviluppata in precedenza. Il lavoro svolto si è quindi concentrato sulla modifica, miglioramento, integrazione e validazione del codice nel contesto del progetto DPDF.
 	
 	Nelle sezioni successive vengono quindi descritti i diagrammi di flusso e l'organizzazione del firmware adottata nel progetto, mantenendo la terminologia operativa usata nel codice (i termini \textit{procedura} e \textit{funzione} sono considerati equivalenti in questa relazione).
 	
 	\section{Diagrammi di flusso}
 	Nella presente sezione sono stati riportati i diagrammi di flusso esplicativi del funzionamento del \textit{firmware}. Poiché i driver di gestione del \textit{VL53L1X} e \textit{BNO-055} sono esterni allo sviluppo, sono stati riportati anche i diagrammi di flusso di questi, in tal modo da specificare la procedura di estrazione dell'informazione.
 	
-	\subsection{Diagramma di flusso del fimware}
+	\subsection{Diagramma di flusso del firmware}
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.55\textwidth,keepaspectratio]{figures/03_software/diagramma_di_flusso_generale.png}
@@ -1325,10 +1325,11 @@
 		\caption{Esempio di grafico}
 		\label{fig:grafico}
 	\end{figure}
-	\section{Test1}
-	Per ogni test riportate: cosa state testando, in che condizioni si è svolto il test, riferimenti a video/file di log che consegnate insieme a relazione e codice, grafici dei risultati, commento dei risultati.
+	\section{Test VL53L1X e motori}
 	
-	\section{Test2}
+	\section{Test BNO055 e servomotori}
+	
+	\section{Test di volo e taratura dei PID}
 	
 	\newpage
 	\addcontentsline{toc}{chapter}{Conclusioni e sviluppi futuri}
