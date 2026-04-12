@@ -157,7 +157,7 @@
 	Lungo la superficie esterna del cilindro sono state posizionate le componenti hardware necessarie al perseguimento degli scopi progettuali. La posizione di tali componenti è stata oggetto di studio al fine di ottenere un preciso bilanciamento del sistema. Gli elementi hardware utilizzati verranno approfonditi nel Capitolo 2.\\
 	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere un'ottima distribuzione dei pesi. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione permette di evitare l'allentamento del dado di fissaggio causato dal flusso d'aria incidente generato dai motori.\\
 	L'intera struttura cilindrica, i \textit{flap}, i piedi di appoggio e i supporti di sostegno di tutte le componenti hardware e dei motori sono stati realizzati tramite \textbf{stampa 3D}, utilizzando \textbf{PVC} come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
-	
+
 	\begin{figure}[!htbp]
 		\centering
 		\begin{subfigure}[t]{0.9\textwidth}
@@ -185,9 +185,11 @@
 	\end{figure}
 	
 	\section{Controllo del Double Propeller Ducted-Fan}
-	L'attuale obiettivo di controllo prevede l'ottenimento dell'\textbf{hovering} del \textit{DPDF}.
-	Con il termine \textit{hovering} si fa riferimento alla condizione di volo stazionario, in cui l'UAV rimane fermo nello spazio rispetto a un riferimento inerziale, mantenendo posizione e \textbf{quota} costanti nel tempo.
-	Per soddisfare l'obiettivo di \textit{hovering}, il firmware implementa la teoria dei regolatori PID: un regolatore è relativo al controllo di quota, mediante la regolazione della portanza dei motori, e due regolatori sono coinvolti nel controllo della posizione mediante la regolazione del comparto \textit{flap-servo}.
+	L'obiettivo di controllo del progetto è l'ottenimento dell'\textbf{hovering} del \textit{DPDF}. Con il termine \textit{hovering} si intende una condizione di volo stazionario in cui il velivolo mantiene quota e assetto prossimi ai valori desiderati, senza deriva apprezzabile nel breve intervallo temporale di osservazione.
+
+	Dal punto di vista progettuale, questo obiettivo non viene affrontato come un unico problema monolitico, ma come la composizione di due sottoproblemi fisicamente distinti. Il primo è il controllo della \textbf{quota}, cioè dell'equilibrio tra peso e spinta verticale generata dai due propulsori. Il secondo è il controllo dell'\textbf{assetto}, cioè della soppressione delle rotazioni indesiderate attorno agli assi di \textit{roll} e \textit{pitch}, ottenuta deviando il getto d'aria tramite il comparto \textit{flap-servo}. Questa scomposizione è conveniente perché i due fenomeni sono osservati con sensori diversi, agiscono su attuatori diversi e presentano dinamiche caratteristiche differenti.
+
+	Per questa ragione il firmware adotta un'architettura a tre regolatori PID: un anello dedicato alla quota, che modifica la portanza totale intervenendo in modo simmetrico sui due motori, e due anelli dedicati all'assetto, che generano l'angolo richiesto ai flap per contrastare gli errori di \textit{roll} e \textit{pitch}. La scelta dei PID non deriva da una preferenza generica per una soluzione nota, ma dal fatto che essi permettono di costruire un legame diretto e interpretabile tra errore misurato e azione correttiva, rendendo il comportamento del sistema abbastanza trasparente in fase di analisi sperimentale e di taratura.
 	
 	\newpage
 	\chapter{Hardware}
@@ -1045,17 +1047,17 @@
 	\end{figure}
 	
 	\section{Schema dei collegamenti}
-	
+
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/02_hardware/schema_collegamenti_ducted_fan.png}
 		\caption{Schema dei collegamenti}
 		\label{fig:schema}
 	\end{figure}
-	
+
 	\subsection{Tabelle dei collegamenti}
 	Di seguito sono riportati i collegamenti elettrici tra i principali componenti del sistema e la scheda di controllo.
-	
+
 	\paragraph{Collegamenti NUCLEO-H745ZI-Q e VL53L1X}\mbox{}\\
 	Il sensore \textit{VL53L1X} (STMicroelectronics) è stato collegato direttamente alla \textit{NUCLEO-H745ZI-Q}.
 	\begin{table}[H]
@@ -1074,7 +1076,7 @@
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e VL53L1X}
 	\end{table}
-	
+
 	\paragraph{Collegamenti NUCLEO-H745ZI-Q e BNO-055}\mbox{}\\
 	Il sensore \textit{BNO-055} (Bosch Sensortec) è stato collegato direttamente alla \textit{NUCLEO-H745ZI-Q}.
 	\begin{table}[H]
@@ -1091,10 +1093,10 @@
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e BNO-055}
 	\end{table}
-	
+
 	\paragraph{Collegamenti DF-Robot, servo e NUCLEO-H745ZI-Q}\mbox{}\\
 	Per garantire il corretto funzionamento del comparto servomotori è necessario un riferimento di massa comune. Nel progetto è stata utilizzata una \textit{breadboard} esterna per distribuire la massa proveniente dalla NUCLEO-H745ZI-Q (GND, CN7-8). L'alimentazione dei servomotori è stata prelevata direttamente dall'uscita dei convertitori di tensione collegati in serie.
-	
+
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{l l l l}
@@ -1108,7 +1110,7 @@
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e Roll-servo}
 	\end{table}
-	
+
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{l l l l}
@@ -1122,10 +1124,10 @@
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e Pitch-servo}
 	\end{table}
-	
+
 	\paragraph{Collegamenti Power Distribution Module, ESC e NUCLEO-H745ZI-Q}\mbox{}\\
 	Per il comparto motori, gli ESC sono collegati al \textit{Power Distribution Module}, a sua volta connesso al comparto batterie-PSM e ai motori tramite i rispettivi connettori trifase. Il terminale di massa degli ESC deve condividere la massa della NUCLEO-H745ZI-Q, mentre il terminale \textit{Signal} deve essere connesso al pin PWM della scheda.
-	
+
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{l l l}
@@ -1140,7 +1142,7 @@
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e Top-motor-ESC}
 	\end{table}
-	
+
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{l l l}
@@ -1155,9 +1157,9 @@
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e Bottom-motor-ESC}
 	\end{table}
-	
+
 	\textit{Nota}: il dispositivo che riceve il segnale PWM deve condividere lo stesso riferimento di massa del dispositivo che genera tale segnale.
-	
+
 	\chapter{Software}
 	Il firmware di controllo del \textit{Double Propeller Ducted-Fan (DPDF)} è stato sviluppato con l'obiettivo di ottenere una condizione di \textit{hovering} sufficientemente stabile del velivolo.
 	L'implementazione è stata realizzata in linguaggio C all'interno di \textit{STM32CubeIDE} (versione \textbf{1.16.1}), utilizzando i flussi di configurazione hardware, generazione codice basata su HAL (\textit{Hardware Abstraction Layer}), compilazione e debug integrati nell'ambiente.
@@ -1179,7 +1181,7 @@
 		\label{fig:diagramma-firmware-generale}
 	\end{figure}
 	
-	
+
 	\subsection{Diagramma di flusso del VL53L1X per misurazione di quota}
 	Il presente diagramma di flusso, ripreso dal \textit{datasheet} relativo al driver di gestione del \textit{VL53L1X} [15], è illustrativo della sequenza di invocazione di funzione da operare per estrarre l'informazione di misura di quota dal sensore. Successivamente alla funzione \textit{StartMeasurement()}, il diagramma offre tre alternative circa la modalità con cui verificare la presenza di una nuova misura. Nel caso in esame, viene adottata la \textbf{Interrupt mode}, applicata nel \textit{loop} di controllo del comparto motori.
 	
@@ -1191,24 +1193,37 @@
 	\end{figure}
 	
 	\section{Gestione singoli componenti}
-	Il firmware è organizzato secondo una struttura modulare in cui ciascun file incapsula una responsabilità ben definita. Il file \texttt{main.c} svolge il ruolo di supervisore dell'intero sistema: inizializza le periferiche, gestisce la sequenza di avvio sicuro, configura i controllori e coordina il ciclo principale evento-driven. Le funzionalità specialistiche sono invece delegate a moduli separati: \texttt{pwm.c} contiene le primitive di attuazione per motori e servomotori, \texttt{pid.c} implementa il controllore PID generico e il filtro mediano usato sulla misura di quota, \texttt{tof.c} esegue la compensazione geometrica della misura del sensore ToF rispetto all'inclinazione del velivolo, mentre \texttt{imu.c} raccoglie le funzioni di lettura e riorientamento delle misure provenienti dal BNO055.
-	
-	Questa suddivisione non ha una sola finalità organizzativa, ma risponde direttamente a un'esigenza di affidabilità: le operazioni time-critical vengono mantenute semplici e localizzate, mentre la logica di controllo vera e propria resta concentrata nel ciclo principale. In questo modo le callback di interrupt non svolgono elaborazioni numeriche onerose, ma si limitano a notificare la disponibilità di un evento tramite le flag condivise \texttt{actuate\_motors\_control} e \texttt{actuate\_servo\_control}. La scelta riduce il tempo di permanenza in ISR, limita il jitter introdotto dalle interrupt e rende il comportamento del firmware più leggibile e deterministico.
-	
+	Il firmware è organizzato in modo modulare perché, in un sistema di controllo reale, la chiarezza dell'architettura ha un impatto diretto sulla robustezza. Il file \texttt{main.c} svolge il ruolo di supervisore: inizializza le periferiche, imposta i riferimenti, configura i controllori e coordina il ciclo principale. I moduli specialistici separano invece le responsabilità fisiche: \texttt{pwm.c} traduce i comandi in segnali per motori e servo, \texttt{pid.c} implementa il nucleo numerico dei regolatori e il filtro mediano, \texttt{tof.c} corregge la misura di quota rispetto all'inclinazione del velivolo, mentre \texttt{imu.c} raccoglie lettura e riorientamento delle misure di assetto.
+
+	Questa suddivisione non è utile soltanto per ``tenere ordinato'' il codice. Il motivo principale è che i blocchi time-critical possono restare semplici, mentre la logica numerica viene mantenuta nel ciclo principale. Le callback di interrupt non eseguono perciò elaborazioni di controllo, ma si limitano a notificare la presenza di un evento tramite le flag \texttt{actuate\_motors\_control} e \texttt{actuate\_servo\_control}. Così si riduce il tempo passato in ISR, si limita il jitter e si rende il percorso misura-elaborazione-comando più leggibile e verificabile.
+
+	\subsection{Architettura del controllo}
+	L'architettura prevista è costruita come un sistema a due rami principali, ciascuno dedicato a una grandezza fisica ben definita. Il primo ramo controlla la quota, cioè la distanza verticale dal piano di riferimento. Il secondo controlla l'assetto, cioè la vicinanza degli angoli di \textit{roll} e \textit{pitch} al valore nullo. Separare i due rami è una scelta naturale perché la quota dipende in modo predominante dalla spinta totale, mentre l'assetto dipende soprattutto dai momenti aerodinamici generati dai flap.
+
+	Dal punto di vista concettuale, il controllo opera secondo la seguente catena causale: il sensore misura una grandezza fisica, la misura viene trasformata nella coordinata utile al problema, il regolatore confronta il valore misurato con il riferimento e genera un comando che abbia lo stesso significato fisico dell'attuatore. Nel ramo motori, l'uscita del controllore è un livello di comando PWM comune ai due ESC; nel ramo flap, l'uscita del controllore è invece un angolo richiesto, successivamente convertito in PWM per i servo. Questo passaggio intermedio è importante perché evita di confondere il livello di controllo con il livello di attuazione.
+
+	La scomposizione adottata può essere riassunta come segue:
+	\begin{itemize}
+		\item \textbf{quota}: riferimento verticale $z_{ref}$, misura proveniente dal VL53L1X, comando comune ai due motori;
+		\item \textbf{assetto}: riferimenti $\phi_{ref}=0$ e $\theta_{ref}=0$, misura proveniente dal BNO055, comando angolare ai flap di \textit{roll} e \textit{pitch}.
+	\end{itemize}
+	La presenza di due motori controrotanti e di due flap ortogonali rende infatti possibile associare in maniera sufficientemente pulita ciascun attuatore alla grandezza dominante che deve correggere.
+
 	\subsection{Definizione delle costanti e delle strutture condivise}
-	Il file \texttt{DPDF\_var\_def.h} raccoglie le costanti numeriche che definiscono i limiti operativi del sistema. Centralizzare questi valori in un unico header evita la dispersione di ``numeri magici'' nel codice e consente di distinguere con chiarezza ciò che dipende dalla logica di controllo da ciò che dipende dall'hardware reale, come l'escursione dei servo, i limiti accettabili per gli ESC e i parametri di temporizzazione della procedura di avvio.
-	
+	Il file \texttt{DPDF\_var\_def.h} raccoglie i parametri numerici che descrivono il comportamento ammissibile del sistema. Centralizzare questi valori non serve soltanto a evitare la dispersione di costanti nel codice, ma soprattutto a rendere esplicito il confine tra legge di controllo e limiti imposti dall'hardware reale. In un problema di controllo embedded, infatti, il regolatore ideale e l'attuatore fisico non coincidono: il primo potrebbe richiedere qualunque valore, mentre il secondo può operare solo entro un intervallo ristretto e sicuro.
+
 	Le macro principali sono le seguenti:
 	\begin{itemize}
-		\item \texttt{NUMBER\_OF\_TOGGLES} stabilisce la durata del conto alla rovescia visivo prima dell'avvio;
-		\item \texttt{CCR\_VALUE\_FOR\_MOTOR\_ACT}, \texttt{UPPER\_LIMIT\_MOTOR} e \texttt{LOWER\_LIMIT\_MOTOR} definiscono il range PWM utilizzabile per gli ESC;
-		\item \texttt{UPPER\_LIMIT\_SERVO}, \texttt{CENTER\_SERVO} e \texttt{LOWER\_LIMIT\_SERVO} delimitano il campo di lavoro sicuro dei servomotori;
-		\item \texttt{CCR\_PER\_DEGREE} e \texttt{MAX\_FLAP\_ANGLE\_DEG} fissano la conversione tra angolo richiesto al flap e valore da scrivere nei registri CCR.
+		\item \texttt{NUMBER\_OF\_TOGGLES} fissa la durata del conto alla rovescia prima dell'avvio;
+		\item \texttt{CCR\_VALUE\_FOR\_MOTOR\_ACT}, \texttt{UPPER\_LIMIT\_MOTOR} e \texttt{LOWER\_LIMIT\_MOTOR} delimitano il range PWM utilizzabile dagli ESC;
+		\item \texttt{UPPER\_LIMIT\_SERVO}, \texttt{CENTER\_SERVO} e \texttt{LOWER\_LIMIT\_SERVO} definiscono la zona di lavoro meccanicamente sicura dei servomotori;
+		\item \texttt{CCR\_PER\_DEGREE} e \texttt{MAX\_FLAP\_ANGLE\_DEG} descrivono la conversione tra grandezza fisica richiesta al flap e valore effettivamente scrivibile nel registro timer.
 	\end{itemize}
-	La scelta di esprimere i vincoli hardware in termini di limiti espliciti ha un impatto diretto sulla sicurezza del controllo. I PID non producono comandi ``astratti'', ma valori che devono rimanere compatibili con i dispositivi fisici realmente montati sul DPDF. Inserire i limiti a livello di configurazione permette quindi di rendere il comportamento del firmware prevedibile e di evitare richieste non attuabili, che sui servo si tradurrebbero in fine corsa meccanici e sugli ESC in comandi fuori specifica.
-	
-	Il firmware utilizza inoltre una struttura PID unica, inizializzata tramite la funzione \texttt{pid\_init()} e aggiornata tramite \texttt{pid\_compute()}. La stessa implementazione viene impiegata sia per il controllo dei flap sia per il controllo della quota, cambiando soltanto i guadagni, il tempo di campionamento, i limiti di saturazione e alcune opzioni interne, come il calcolo della derivata sulla misura o sull'errore. Questa scelta riduce la duplicazione del codice e garantisce che tutte le catene di controllo seguano le stesse regole di inizializzazione, saturazione e aggiornamento dello stato interno.
-	
+
+	Il significato di queste costanti è quindi progettuale prima ancora che implementativo. La saturazione dei motori impedisce di uscire dal range accettato dagli ESC; quella dei servo evita il raggiungimento di fine corsa inutili o dannosi. Dichiarare questi limiti in modo esplicito rende il controllore più interpretabile, perché ogni uscita numerica può essere letta come ``comando valido e realizzabile'', non come semplice risultato di una formula.
+
+	Il firmware utilizza inoltre una struttura PID unica, inizializzata tramite \texttt{pid\_init()} e aggiornata tramite \texttt{pid\_compute()}. Questa scelta uniforma il comportamento interno dei tre regolatori: inizializzazione dello stato, gestione dell'integrale, calcolo della derivata e saturazione seguono la stessa logica, mentre cambiano i parametri che descrivono il problema fisico. In questo modo il codice non contiene tre implementazioni diverse dello stesso concetto, ma un solo strumento generale specializzato tramite configurazione.
+
 	\begin{lstlisting}[style=base,language=C,caption={Costanti principali usate dal firmware per definire i limiti hardware e di sicurezza}]
 		#define CCR_VALUE_FOR_MOTOR_ACT                712
 		#define UPPER_LIMIT_MOTOR                      1500
@@ -1219,101 +1234,229 @@
 		#define CCR_PER_DEGREE                          5.0f
 		#define MAX_FLAP_ANGLE_DEG                     60.0f
 	\end{lstlisting}
-	
+
+	\subsection{Teoria del regolatore PID}
+	Il regolatore PID nasce dall'idea di trasformare l'errore di controllo in un comando che tenga conto non soltanto della sua ampiezza istantanea, ma anche della sua storia e della sua tendenza futura. Indicando con $r(t)$ il riferimento, con $y(t)$ la variabile misurata e con
+	\begin{equation}
+		e(t)=r(t)-y(t)
+	\end{equation}
+	l'errore di controllo, la forma continua classica del PID è
+	\begin{equation}
+		u(t)=K_p e(t) + K_i \int_0^t e(\tau)\,d\tau + K_d\frac{de(t)}{dt}.
+	\end{equation}
+	Questa scrittura è utile perché separa tre effetti fisicamente diversi. Il termine proporzionale reagisce subito all'errore presente e determina la prontezza della risposta. Il termine integrale accumula l'errore nel tempo e serve a rimuovere gli scostamenti persistenti, cioè quelle condizioni in cui il sistema resta vicino al riferimento ma non vi converge esattamente. Il termine derivativo, infine, reagisce alla rapidità con cui l'errore cambia e introduce un effetto di anticipazione che tende a smorzare la dinamica.
+
+	Dal punto di vista ingegneristico, il PID non è interessante perché somma tre termini, ma perché consente di assegnare un significato fisico distinto a ciascuna componente dell'azione di controllo. In un sistema come il DPDF questo è particolarmente utile: una parte del comando deve reagire rapidamente agli scostamenti, una parte può compensare errori sistematici e una parte, se necessaria, può limitare l'insorgenza di oscillazioni.
+
+	Una forma equivalente, spesso utile nella taratura, si ottiene introducendo il tempo integrale $T_i$ e il tempo derivativo $T_d$:
+	\begin{equation}
+		u(t)=K_p\left[e(t)+\frac{1}{T_i}\int_0^t e(\tau)\,d\tau + T_d\frac{de(t)}{dt}\right].
+	\end{equation}
+	Questa parametrizzazione mette in evidenza che il guadagno proporzionale fissa la scala complessiva dell'azione di controllo, mentre integrale e derivata modellano il modo in cui il regolatore reagisce alla persistenza e alla variazione dell'errore.
+
+	\subsection{PID discreto adottato nel firmware}
+	Il firmware non implementa un PID continuo ideale, ma una sua approssimazione numerica causale, compatibile con il periodo di campionamento, con il rumore dei sensori e con i limiti fisici degli attuatori. In altre parole, il passaggio al discreto non è una semplice riscrittura formale: è il modo con cui la legge di controllo viene resa eseguibile da un microcontrollore che riceve misure a istanti separati e aggiorna il comando solo quando dispone di nuovi dati.
+
+	Indicando con $k$ l'indice temporale e con $T_s$ il periodo di campionamento, si definisce innanzitutto
+	\begin{equation}
+		e[k]=r[k]-y[k].
+	\end{equation}
+	La forma concettuale implementata nel firmware è
+	\begin{equation}
+		u[k]=u_0 + P[k] + I[k] + D[k],
+	\end{equation}
+	dove $u_0$ è un eventuale offset, mentre i tre contributi sono calcolati come
+	\begin{align}
+		P[k] &= K_p e[k], \\
+		I[k] &= I[k-1] + K_i T_s e[k], \\
+		D_e[k] &= \frac{K_d}{T_s}\bigl(e[k]-e[k-1]\bigr).
+	\end{align}
+	La seconda equazione è la discretizzazione in avanti dell'integrale e mostra con chiarezza il motivo per cui il termine integrale può diventare dominante: se l'errore persiste, il suo contributo si accumula passo dopo passo. È proprio questa capacità di memoria che rende l'integrale utile contro gli errori statici, ma anche potenzialmente pericoloso se non viene limitato.
+
+	Nel firmware il termine derivativo può essere calcolato anche sulla misura, scelta particolarmente utile quando il riferimento può cambiare nel corso delle prove e non si vuole che un suo gradino produca un picco artificiale di comando. In tal caso la forma adottata è
+	\begin{equation}
+		D_y[k]= -\frac{K_d}{T_s}\bigl(y[k]-y[k-1]\bigr).
+	\end{equation}
+	Il segno meno compare perché, se la misura cresce a parità di riferimento, l'errore diminuisce. Dal punto di vista fisico, derivare la misura significa far reagire il regolatore al moto osservato del sistema più che al cambiamento imposto dall'esterno al riferimento.
+
+	Il comando grezzo viene quindi scritto come
+	\begin{equation}
+		u_{raw}[k]=u_0 + K_p e[k] + I[k] + D[k].
+	\end{equation}
+	Questa è la quantità che il PID vorrebbe applicare in assenza di vincoli. In un sistema reale, tuttavia, il comando non può essere arbitrario: motori e servomotori lavorano entro intervalli ben precisi. Per questa ragione si introduce la saturazione logica del controllore
+	\begin{equation}
+		u_{pid}[k]=\mathrm{clamp}\bigl(u_{raw}[k],u_{min},u_{max}\bigr),
+	\end{equation}
+	che ha il compito di rendere l'uscita del regolatore compatibile con il dominio di lavoro previsto. A questa si sovrappone poi una seconda limitazione, di natura strettamente hardware, applicata nella fase di attuazione: per i motori il PWM deve restare nel range accettato dagli ESC, mentre per i servo il comando deve rispettare sia il campo angolare sicuro sia la corrispondente finestra di conteggi timer. Distinguere questi due livelli è utile perché il primo appartiene alla legge di controllo, mentre il secondo appartiene all'interfaccia fisica con l'attuatore.
+
+	\subsection{Scelta dei tempi di campionamento}
+	I due rami di controllo non sono campionati alla stessa frequenza perché non osservano la stessa dinamica né usano la stessa sorgente di misura. Il ramo servo lavora con periodo nominale di \texttt{10 ms}, generato da \texttt{TIM7}, perché il controllo di assetto deve reagire con maggiore rapidità alle variazioni angolari. Il ramo motori lavora invece con periodo nominale di circa \texttt{33 ms}, associato alla disponibilità di nuove misure del VL53L1X, perché la dinamica della quota è più lenta e la misura ToF ha tempi caratteristici differenti.
+
+	Questa scelta evita due errori opposti. Campionare troppo lentamente l'assetto renderebbe il sistema poco reattivo; campionare inutilmente troppo in fretta la quota significherebbe invece reagire più al rumore del sensore che alla dinamica reale del velivolo. I tempi di campionamento non sono quindi numeri arbitrari, ma il compromesso tra reattività, qualità della misura e costo numerico dell'elaborazione.
+
+	\subsection{Derivata filtrata e anti-windup}
+	La derivata è teoricamente utile per aumentare lo smorzamento, ma numericamente ha un difetto noto: amplifica il rumore ad alta frequenza. Poiché una differenza finita tra due campioni consecutivi enfatizza proprio le variazioni rapide, il termine derivativo viene spesso filtrato. Nel firmware questo avviene tramite un filtro passa-basso del primo ordine applicato alla derivata discreta:
+	\begin{equation}
+		D_f[k]=\alpha D[k] + (1-\alpha)D_f[k-1], \qquad 0<\alpha\leq 1.
+	\end{equation}
+	Se $\alpha=1$, il filtro è trasparente e il termine derivativo non viene smorzato; per valori più piccoli, il contributo diventa più regolare ma anche meno rapido. Il parametro $\alpha$ controlla quindi un compromesso tra sensibilità e robustezza.
+
+	Un secondo problema tipico riguarda il termine integrale. Se l'attuatore raggiunge un limite fisico ma l'errore resta presente, l'integrale continuerebbe ad accumularsi pur senza poter produrre ulteriore effetto reale. Questo fenomeno prende il nome di \textit{windup}. Nel firmware viene evitato con una logica di \textit{anti-windup} per \textit{clamping}: l'integrale viene aggiornato solo quando il suo accumulo aiuta il rientro dalla saturazione. Il senso di questa scelta è semplice: quando il sistema è già al massimo o al minimo consentito, il regolatore deve prepararsi al rientro, non irrigidirsi ulteriormente. Anche qui il motivo è pratico: l'integrale non deve descrivere ciò che il PID vorrebbe fare in astratto, ma ciò che l'attuatore può ancora efficacemente correggere.
+
+	\begin{lstlisting}[style=base,language=C,caption={Struttura concettuale del PID discreto con saturazione e anti-windup}]
+		float error  = setpoint - measurement;
+		float p_term = kp * error;
+		float new_int = int_term + ki * Ts * error;
+		float output = offset + p_term + new_int + d_term;
+
+		output = clamp(output, out_min, out_max);
+	\end{lstlisting}
+
 	\subsection{Gestione quota: VL53L1X + PID motori}
-	Il ramo di controllo della quota è costruito attorno al sensore ToF \textit{VL53L1X}, usato come sorgente primaria della distanza dal piano di riferimento. La scelta di misurare direttamente la quota tramite un sensore a tempo di volo consente di chiudere l'anello su una grandezza fisicamente osservabile e immediatamente interpretabile, evitando di dedurla indirettamente da stime inerziali più sensibili a deriva e integrazione dell'errore.
-	
+	Il ramo di controllo della quota è costruito attorno al sensore ToF \textit{VL53L1X}, usato come sorgente primaria della distanza dal piano di riferimento. La ragione di questa scelta è che la quota è una grandezza geometrica, non inerziale: misurarla direttamente è preferibile a ricostruirla indirettamente integrando accelerazioni, operazione che introdurrebbe deriva e accumulo d'errore. In altre parole, il sensore ToF fornisce al controllore una misura vicina alla quantità che si vuole realmente regolare.
+
 	Dal punto di vista \texttt{.ioc}, i blocchi principali coinvolti sono:
 	\begin{itemize}
-		\item periferiche \textbf{I2C} per la comunicazione sensori (nel progetto risultano inizializzate \texttt{I2C1} e \texttt{I2C2});
+		\item periferiche \textbf{I2C} per la comunicazione con i sensori;
 		\item \textbf{TIM4 CH2-CH3} in PWM a 50 Hz per i due ESC;
-		\item \textbf{EXTI su pin data-ready del VL53L1X} per attivare il loop motori a nuova misura disponibile.
+		\item \textbf{EXTI} sul pin \textit{data-ready} del VL53L1X per attivare il ramo motori solo quando è disponibile una nuova misura.
 	\end{itemize}
-	
-	Il dato fornito dal VL53L1X non viene utilizzato in modo diretto, ma attraversa una piccola catena di pre-elaborazione pensata per migliorare la robustezza del controllo. In primo luogo, la misura grezza viene filtrata mediante un filtro mediano a tre campioni. Questa scelta è particolarmente adatta al sensore ToF perché consente di attenuare spike impulsivi o misure isolate anomale senza introdurre il ritardo tipico di filtri medi più estesi. In secondo luogo, la distanza viene compensata rispetto all'inclinazione corrente del drone. Se il corpo del velivolo è inclinato, infatti, la misura lungo l'asse del sensore non coincide più con la quota verticale reale; per questo motivo il firmware applica una correzione geometrica proporzionale a \(\cos(roll)\cos(pitch)\), in modo da ricondurre il dato a una stima della componente verticale.
-	
-	Solo dopo queste due elaborazioni la quota stimata viene fornita al PID dei motori. Il controllore è inizializzato con un tempo di campionamento di \texttt{33 ms}, guadagno proporzionale pari a \texttt{3.0}, limiti di uscita compresi tra \texttt{LOWER\_LIMIT\_MOTOR} e \texttt{UPPER\_LIMIT\_MOTOR}, derivata calcolata sulla misura e termine derivativo filtrato con coefficiente \texttt{0.3}. Anche quando il guadagno derivativo è nullo, mantenere questa struttura rende il blocco di controllo già predisposto a successive fasi di taratura senza doverne modificare l'architettura. I due motori ricevono sempre lo stesso comando PWM, scritto in \texttt{TIM4->CCR2} e \texttt{TIM4->CCR3}, perché la regolazione della quota deve modificare la portanza totale senza introdurre volutamente momenti torcenti attorno all'asse verticale.
-	
-	Dal punto di vista esecutivo, il controllo della quota è attivato in modo asincrono dalla disponibilità di una nuova misura: quando il pin di \textit{data-ready} del VL53L1X genera l'interrupt, la callback non esegue alcun calcolo ma imposta solamente la flag \texttt{actuate\_motors\_control}. Nel ciclo principale il firmware può quindi processare l'evento con ordine ben definito: conferma e riarmo della misura del sensore, lettura del dato, filtraggio, compensazione dell'inclinazione, calcolo del comando e aggiornamento dell'attuazione. Questa separazione rende il tempo di risposta sufficientemente rapido senza compromettere la leggibilità del codice.
-	
+
+	\paragraph{Filtro mediano della misura}\mbox{}\\
+	La misura grezza del ToF non viene inviata direttamente al PID. Prima di tutto viene filtrata con un filtro mediano a tre campioni:
+	\begin{equation}
+		\tilde d[k] = \mathrm{median}\bigl(d[k], d[k-1], d[k-2]\bigr).
+	\end{equation}
+	Questa scelta è particolarmente adatta al VL53L1X perché il disturbo più critico non è un rumore distribuito uniformemente attorno al valore medio, ma la presenza di campioni anomali isolati dovuti a riflessioni spurie, superfici poco ideali o condizioni geometriche sfavorevoli. Una media mobile attenuerebbe sì il rumore, ma lascerebbe comunque entrare l'outlier nel valore filtrato. La mediana, invece, scarta naturalmente il campione estremo se gli altri due restano coerenti.
+
+	Il motivo per cui si usa una finestra così corta è altrettanto importante: l'obiettivo non è lisciare fortemente la misura, ma rifiutare spike occasionali con il minimo ritardo possibile. Nel controllo di quota, infatti, introdurre ritardo significa degradare la reattività del ramo motori.
+
+	\paragraph{Compensazione del tilt}\mbox{}\\
+	Dopo il filtraggio, la misura viene compensata rispetto all'inclinazione del velivolo. Quando il DPDF è inclinato, il sensore ToF non misura più la quota verticale ma la distanza lungo il proprio asse ottico, solidale al corpo del drone. Se si indica con $d_{tof}[k]$ la distanza misurata, con $\phi[k]$ l'angolo di roll e con $\theta[k]$ l'angolo di pitch, la quota utile per il controllo può essere approssimata come proiezione verticale:
+	\begin{equation}
+		z[k] \approx d_{tof}[k]\cos\phi[k]\cos\theta[k].
+	\end{equation}
+	La formula esprime un'idea geometrica semplice: la quota è la componente verticale della distanza misurata. Il termine di yaw non compare perché una rotazione attorno all'asse verticale non modifica tale proiezione. Questa relazione assume che l'asse ottico del sensore sia solidale al corpo del velivolo e che eventuali offset geometrici secondari tra sensore e punto di interesse possano essere trascurati nel regime operativo considerato. In questo contesto, la correzione è già sufficiente per evitare l'errore concettuale più importante, cioè interpretare come variazione di quota un semplice cambiamento di assetto.
+
+	Dal punto di vista fisico, la compensazione del tilt non migliora il sensore, ma trasforma la sua misura nella coordinata realmente rilevante per il problema di controllo. È quindi un passaggio di modellazione geometrica prima ancora che di filtraggio numerico.
+
+	Una volta ottenuta la quota compensata, il PID motori confronta tale misura con il riferimento verticale e genera un comando PWM comune ai due ESC. Il senso fisico di questa scelta è che la quota dipende dalla \textit{portanza totale}; per aumentarla o ridurla, i due motori devono quindi essere comandati in modo simmetrico. Nell'architettura prevista non esiste dunque un valore fisso di attuazione nel ramo motori: il comando inviato ai propulsori è l'uscita del regolatore di quota, saturata entro i limiti ammessi dall'hardware.
+
+	Nel ramo motori la derivata è calcolata sulla misura e non sull'errore, ed è inoltre filtrata con un passa-basso del primo ordine. La motivazione è duplice. Da un lato si evita che una variazione del riferimento produca un picco artificiale nel termine derivativo; dall'altro si limita l'amplificazione del rumore alta frequenza, che altrimenti verrebbe trasformato in oscillazioni di comando. Questo rende il ramo quota più regolare e più vicino al comportamento fisicamente desiderato.
+
+	Dal punto di vista esecutivo, il controllo della quota è attivato in modo asincrono: quando il VL53L1X segnala la disponibilità di una nuova misura, la callback imposta la flag \texttt{actuate\_motors\_control}; il ciclo principale esegue quindi nell'ordine riarmo della misura, lettura del dato, filtraggio, compensazione dell'inclinazione, calcolo PID e aggiornamento dei due canali PWM. La logica evento-driven è vantaggiosa perché sincronizza il controllore con la disponibilità reale dell'informazione, evitando di elaborare dati vecchi o di introdurre polling superfluo.
+
 	\begin{lstlisting}[style=base,language=C,caption={Catena di elaborazione adottata nel controllo di quota}]
 		float filt_tof = (float)median_filter_compute(&tof_filter,
-		rangingData.RangeMilliMeter);
-		
+		        rangingData.RangeMilliMeter);
+
 		float alt_mm = tof_compensate_tilt(filt_tof,
-		imu_now.roll_deg, imu_now.pitch_deg);
-		
+		        imu_now.roll_deg, imu_now.pitch_deg);
+
 		uint16_t motor_pwm = (uint16_t)(pid_compute(&pid_motor,
-		ref_altitude, alt_mm) + 0.5f);
+		        ref_altitude, alt_mm) + 0.5f);
+
+		set_pwm_motors(motor_pwm);
 	\end{lstlisting}
-	
-	
+
 	\subsection{Gestione assetto: BNO055 + PID servomotori}
-	Il controllo di assetto impiega il sensore inerziale \textit{BNO055} in modalità \texttt{NDOF}, cioè nella configurazione in cui il dispositivo fornisce direttamente gli angoli di Eulero risultanti dalla fusione dei sensori interni. Questa modalità è adatta al DPDF perché riduce la complessità del firmware: il microcontrollore non deve implementare un osservatore d'assetto dedicato e può lavorare direttamente su grandezze già espresse in gradi, più immediate sia per la progettazione del controllore sia per il debug sperimentale.
-	
+	Il controllo di assetto utilizza il sensore inerziale \textit{BNO055} in modalità \texttt{NDOF}, nella quale il dispositivo fornisce direttamente gli angoli di Eulero stimati dalla propria fusione sensoriale interna. Questa scelta è vantaggiosa perché sposta la complessità della stima d'assetto sul sensore stesso e permette al microcontrollore di ragionare subito in termini di angoli fisici. In una relazione di controllo, questo è importante perché rende immediato il passaggio tra fenomeno osservato, errore e comando correttivo.
+
 	Dal punto di vista \texttt{.ioc}, i blocchi principali sono:
 	\begin{itemize}
-		\item periferica \textbf{I2C} per lettura IMU;
-		\item \textbf{TIM2 CH1-CH2} in PWM a 50 Hz per roll-servo e pitch-servo;
-		\item \textbf{TIM7} come base tempi periodica per attivare il loop servo.
+		\item periferica \textbf{I2C} per la comunicazione con la IMU;
+		\item \textbf{TIM2 CH1-CH2} in PWM a 50 Hz per i servo di \textit{roll} e \textit{pitch};
+		\item \textbf{TIM7} come base tempi periodica per attivare il ramo di assetto.
 	\end{itemize}
-	
-	L'informazione restituita dal BNO055 non viene però usata in maniera immediata per pilotare i flap. La geometria meccanica del sistema introduce infatti un disallineamento fisso tra il riferimento della IMU e il riferimento dei due flap di controllo. Per evitare che il PID lavori su assi non coerenti con gli attuatori, il firmware applica una trasformazione lineare che ruota roll e pitch nel sistema di riferimento dei flap. In altri termini, il controllo non corregge l'assetto nel riferimento del sensore, ma nel riferimento realmente osservato dagli attuatori aerodinamici. Questo passaggio è fondamentale perché rende la relazione tra errore d'assetto e azione correttiva molto più diretta e quindi più facilmente regolabile.
-	
-	I due controllori PID dei flap sono inizializzati con guadagno proporzionale pari a \texttt{4.0}, termini integrale e derivativo nulli, tempo di campionamento di \texttt{10 ms} e saturazione in uscita nell'intervallo \([-60^{\circ}, +60^{\circ}]\). La variabile di uscita del PID non è quindi ancora un valore PWM, ma un angolo richiesto per il flap. Questa scelta è concettualmente vantaggiosa perché mantiene separati il livello di controllo e il livello di attuazione: il controllore decide l'azione correttiva in grandezze fisiche, mentre il modulo PWM si occupa in un secondo momento di tradurre tale richiesta nel corrispondente valore di compare register.
-	
-	La conversione tra angolo desiderato e PWM è eseguita dalla funzione \texttt{angle\_to\_pwm()}, che usa il valore centrale del servo e il coefficiente \texttt{CCR\_PER\_DEGREE} per trasformare i gradi in conteggi timer, applicando poi un ulteriore \textit{clamp} ai limiti meccanicamente sicuri. In questo modo il firmware evita che una richiesta correttiva troppo grande si trasformi in uno sforzo inutile o potenzialmente dannoso per i servo.
-	
-	Anche il controllo di assetto è gestito secondo una logica event-driven. Il timer \texttt{TIM7} genera la base tempi periodica del ramo servo; la relativa callback imposta la flag \texttt{actuate\_servo\_control} e il ciclo principale, quando la rileva, esegue nell'ordine lettura IMU, remap degli assi, calcolo dei due PID, conversione in PWM e aggiornamento dei registri \texttt{TIM2->CCR1} e \texttt{TIM2->CCR2}. Il vantaggio di questa impostazione è duplice: il campionamento resta regolare e al tempo stesso il codice di controllo rimane fuori dal contesto di interrupt.
-	
+
+	\paragraph{Disallineamento tra riferimento IMU e riferimento flap}\mbox{}\\
+	Il render meccanico del primo capitolo mostra che i flap non sono allineati con gli assi nativi della IMU. Questo significa che la coppia di grandezze $(\phi,\theta)$ fornita dal sensore non coincide direttamente con le coordinate in cui gli attuatori aerodinamici producono i momenti correttivi. Per descrivere correttamente il problema si introduce quindi una trasformazione di coordinate piana.
+
+	Se si indica con $\beta$ l'angolo di disallineamento fisso tra il riferimento IMU e il riferimento dei flap, la relazione tra i due sistemi può essere scritta in forma matriciale come
+	\begin{equation}
+		\begin{bmatrix}
+		\phi_f \\
+		\theta_f
+		\end{bmatrix}
+		=
+		\begin{bmatrix}
+		\cos\beta & \sin\beta \\
+		-\sin\beta & \cos\beta
+		\end{bmatrix}
+		\begin{bmatrix}
+		\phi \\
+		\theta
+		\end{bmatrix}.
+	\end{equation}
+	La matrice di rotazione è la traduzione matematica di una scelta geometrica osservabile nel render: il sensore misura in un riferimento, mentre i flap generano il momento correttivo in un altro. Poiché il disallineamento è fisso, il firmware non ricalcola trigonometria a ogni ciclo, ma usa coefficienti costanti già valutati una volta per tutte. Il vantaggio non è soltanto computazionale; è soprattutto concettuale, perché rende esplicito il passaggio da geometria meccanica a legge di controllo implementata.
+
+	Questo passaggio ha un significato fisico molto forte: il PID deve vedere il sistema nel riferimento in cui agisce. Solo così un errore positivo su un asse genera una deflessione del flap che produce il momento aerodinamico atteso. Se il remap venisse omesso, il controllore sarebbe costretto a correggere un errore espresso in coordinate non coerenti con gli attuatori, rendendo molto meno intuitiva sia la taratura sia l'interpretazione dei risultati.
+
+	I due controllori dei flap sono configurati con riferimento nullo, perché in condizioni di hovering l'assetto desiderato corrisponde a un velivolo approssimativamente orizzontale. Nella configurazione attuale il comportamento è prevalentemente proporzionale, con tempo di campionamento pari a \texttt{10 ms} e saturazione in uscita nell'intervallo \([-60^{\circ}, +60^{\circ}]\). Questa scelta è sensata perché il ramo servo agisce su una dinamica relativamente rapida e già osservata da una misura elaborata a monte; partire da una legge proporzionale ben dimensionata permette di ottenere una relazione chiara tra errore angolare e correzione del flap, lasciando integrale e derivata come estensioni future e non come prerequisiti per la comprensione del ramo di assetto.
+
+	L'uscita del PID non è espressa direttamente in PWM, ma in angolo desiderato del flap. Tale scelta separa il livello funzionale dal livello hardware: il controllore decide quanto deve ruotare il flap; solo in seguito il modulo PWM traduce questa richiesta nel corrispondente valore di compare register. In questo modo il progetto resta leggibile in termini fisici e la taratura del controllo non viene confusa con la calibrazione dell'attuatore.
+
+	La conversione angolo--PWM è eseguita dalla funzione \texttt{angle\_to\_pwm()}, che usa il valore centrale del servo e il coefficiente \texttt{CCR\_PER\_DEGREE} per trasformare i gradi in conteggi timer, applicando poi un ulteriore \textit{clamp} ai limiti meccanicamente sicuri. Il doppio livello di saturazione, prima sull'angolo e poi sul PWM, è utile perché impedisce che una richiesta numericamente lecita dal punto di vista del controllore diventi un comando non opportuno dal punto di vista del meccanismo reale.
+
+	Anche il controllo di assetto è gestito secondo una logica event-driven. Il timer \texttt{TIM7} genera la base tempi periodica del ramo servo; la relativa callback imposta la flag \texttt{actuate\_servo\_control} e il ciclo principale, quando la rileva, esegue lettura IMU, remap degli assi, calcolo dei due PID, conversione in PWM e aggiornamento dei registri \texttt{TIM2->CCR1} e \texttt{TIM2->CCR2}. Così il campionamento resta regolare, ma l'elaborazione numerica rimane fuori dal contesto di interrupt, dove sarebbe più difficile da controllare e manutenere.
+
 	\begin{lstlisting}[style=base,language=C,caption={Conversione della misura IMU nel riferimento dei flap e generazione del comando servo}]
 		axis_remap_imu_to_flaps(imu_now.roll_deg, imu_now.pitch_deg, &flap);
-		
+
 		float req_roll_deg = pid_compute(&pid_roll, 0.0f, flap.flap_roll);
 		float req_pitch_deg = pid_compute(&pid_pitch, 0.0f, flap.flap_pitch);
-		
+
 		uint16_t roll_pwm = angle_to_pwm(req_roll_deg, CENTER_SERVO,
-		CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
+		        CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
 	\end{lstlisting}
+
+	\subsection{Saturazioni, sicurezza e robustezza}
+	Nel DPDF la sicurezza non è un blocco aggiuntivo rispetto al controllo, ma una sua parte costitutiva. La procedura di \textit{safe startup}, l'arming iniziale degli ESC, i limiti di saturazione e il ritorno a una condizione sicura in fase di arresto rispondono tutti alla stessa esigenza: fare in modo che il sistema non passi mai bruscamente da uno stato non controllato a uno stato energeticamente attivo. In presenza di attuatori aerodinamici e propulsivi, questa gradualità non è soltanto una buona pratica software, ma una condizione per ridurre il rischio operativo.
+
+	Anche la scelta di mantenere le ISR leggere rientra in questa logica. Separare acquisizione dell'evento, elaborazione numerica e attuazione del comando riduce le interdipendenze tra moduli e rende più semplice isolare eventuali problemi. Un firmware di controllo robusto non è quello che esegue più operazioni possibile dentro l'interrupt, ma quello in cui ogni passaggio ha un ruolo chiaro, tempi prevedibili e responsabilità ben delimitate.
+
+	\subsection{Taratura dei PID (TODO)}
 	
-	
+
 	\section{Funzionamento complessivo}
-	L'esecuzione del firmware segue una sequenza precisa che combina fasi iniziali strettamente ordinate e una successiva gestione concorrente degli eventi. Questa organizzazione è preferibile rispetto a una struttura interamente lineare perché separa nettamente le operazioni che devono avvenire una sola volta all'avvio dalle operazioni che devono invece ripetersi con frequenze diverse durante il funzionamento.
-	
-	La sequenza operativa può essere riassunta come segue:
+	L'esecuzione del firmware segue una sequenza precisa che combina una fase di avvio rigorosamente ordinata e una successiva gestione concorrente degli eventi. Questa scelta architetturale non nasce da un'esigenza formale, ma dal fatto che nel sistema convivono operazioni con natura molto diversa: alcune devono essere eseguite una sola volta, in un ordine ben definito, per portare l'hardware in una condizione affidabile; altre, invece, devono ripetersi durante il funzionamento con temporalità differenti, reagendo agli eventi senza bloccare inutilmente la CPU. Separare questi due livelli rende più semplice capire il comportamento del firmware e, soprattutto, riduce il rischio che una fase critica di inizializzazione interferisca con la logica di controllo a regime.
+
+	In quest'ottica, la sequenza operativa può essere riassunta come segue:
 	\begin{enumerate}
-		\item \textbf{Safe startup}: il sistema attende un consenso esplicito all'avvio e utilizza \texttt{TIM6} per generare il conto alla rovescia visivo tramite LED, sfruttando \texttt{\_\_WFI()} nelle attese così da non occupare inutilmente la CPU;
-		\item \textbf{Attivazione e inizializzazione sensori}: vengono alimentati i dispositivi esterni, eseguito il reset hardware del VL53L1X tramite \texttt{XSHUT} e configurato il BNO055 in modalità \texttt{NDOF} con il corretto remap degli assi;
-		\item \textbf{Configurazione del controllo}: sono inizializzati i tre PID, il filtro mediano del sensore ToF e i canali PWM necessari per attuatori e motori;
-		\item \textbf{Preparazione degli ESC}: i motori vengono portati inizialmente al valore minimo di comando, lasciando un intervallo di alcuni secondi per il corretto riconoscimento del segnale da parte degli ESC;
-		\item \textbf{Avvio della fase operativa}: \texttt{TIM7} abilita il ramo periodico dei servo, mentre il VL53L1X avvia il flusso di misure asincrone che alimenta il ramo di quota;
-		\item \textbf{Controllo nel main loop}: il \texttt{while(run)} riceve gli eventi dalle flag condivise, elabora i dati dei sensori e aggiorna gli attuatori senza effettuare busy-waiting o calcoli nelle ISR;
-		\item \textbf{Shutdown sicuro}: quando \texttt{run} viene disattivata, il firmware riporta motori e servo in una condizione sicura tramite \texttt{stop\_all\_pwm()} e segnala visivamente la fine dell'esecuzione.
+		\item \textbf{Safe startup}: il sistema attende un consenso esplicito all'avvio e utilizza \texttt{TIM6} per generare il conto alla rovescia visivo tramite LED; durante questa attesa l'uso di \texttt{\_\_WFI()} evita busy-waiting e lascia il microcontrollore in una condizione più ordinata e prevedibile, coerente con l'idea di attivare il sistema solo quando è realmente pronto;
+		\item \textbf{Attivazione e inizializzazione sensori}: vengono alimentati i dispositivi esterni, viene eseguito il reset hardware del VL53L1X tramite \texttt{XSHUT} e il BNO055 viene configurato in modalità \texttt{NDOF} con il corretto remap degli assi; l'ordine è importante perché il controllo ha senso solo se le misure sono disponibili e già espresse nel riferimento coerente con gli attuatori;
+		\item \textbf{Configurazione del controllo}: sono inizializzati i tre PID, il filtro mediano del sensore ToF e i canali PWM necessari per attuatori e motori; questa fase precede volutamente ogni comando fisico, così da evitare che un attuatore venga abilitato quando la catena misura--controllo non è ancora completamente definita;
+		\item \textbf{Preparazione degli ESC}: i motori vengono portati inizialmente al valore minimo di comando, lasciando un intervallo di alcuni secondi per il corretto riconoscimento del segnale da parte degli ESC; il motivo non è solo rispettare la procedura di arming, ma anche impedire che il sistema interpreti transitori di avvio come richieste di spinta valide;
+		\item \textbf{Avvio della fase operativa}: \texttt{TIM7} abilita il ramo periodico dei servo, mentre il VL53L1X avvia il flusso di misure asincrone che alimenta il ramo di quota; in questo modo i due sottosistemi di controllo iniziano a lavorare secondo la propria dinamica naturale, senza forzare una sincronizzazione artificiale tra fenomeni fisici e sensori diversi;
+		\item \textbf{Controllo nel main loop}: il \texttt{while(run)} riceve gli eventi dalle flag condivise, elabora i dati dei sensori e aggiorna gli attuatori senza effettuare busy-waiting né concentrare i calcoli nelle ISR; così la reattività agli eventi viene mantenuta senza rinunciare alla leggibilità del codice e alla prevedibilità dei tempi di esecuzione;
+		\item \textbf{Shutdown sicuro}: quando \texttt{run} viene disattivata, il firmware riporta motori e servo in una condizione sicura tramite \texttt{stop\_all\_pwm()} e segnala visivamente la fine dell'esecuzione; anche l'arresto, quindi, è trattato come una transizione controllata e non come una semplice interruzione del flusso software.
 	\end{enumerate}
-	
-	L'intero modello esecutivo è costruito per mantenere semplice il percorso dei dati: le callback identificano l'evento, il \texttt{main} esegue l'elaborazione e i moduli dedicati applicano il comando. In questo modo ogni decisione di controllo può essere ricondotta a una sequenza chiara di passi causali, caratteristica importante sia in fase di validazione sperimentale sia in un'ottica di manutenzione futura del firmware.
-	
-	Per evidenziare questa scelta progettuale, il seguente frammento mostra come le interrupt si limitino a segnalare gli eventi al ciclo principale.
-	
+
+	All'interno di questo schema, la variabile booleana \texttt{run} svolge il ruolo di consenso globale all'esecuzione. La sua funzione è importante perché concentra in un unico stato logico la decisione se il sistema debba trovarsi in assetto operativo oppure in condizione sicura. In questo modo start e stop non dipendono da percorsi software separati e potenzialmente incoerenti, ma dalla stessa variabile di abilitazione. Nel firmware \texttt{run} viene modificata con semantica di \textit{toggle} sia dalla pressione dello \textit{user button}, sia dalla ricezione su seriale di un qualunque terminatore previsto come comando di arresto o riavvio dell'esecuzione. Questa scelta rende uniforme l'interfaccia uomo-macchina: cambia il canale con cui arriva il consenso, ma non cambia il significato interno dell'evento né il modo in cui il sistema reagisce.
+
+	L'intero modello esecutivo è costruito per mantenere semplice il percorso dei dati: le callback identificano l'evento, il \texttt{main} decide se elaborarlo in base allo stato di \texttt{run}, e i moduli dedicati applicano il comando. Il vantaggio principale non è soltanto organizzativo; è anche metodologico, perché ogni decisione di controllo può essere ricondotta a una sequenza chiara di passi causali. Questo aspetto è particolarmente utile sia in fase di validazione sperimentale, quando occorre interpretare un comportamento osservato, sia in ottica di manutenzione futura, quando il firmware dovrà essere esteso senza alterarne l'equilibrio complessivo.
+
+	Per evidenziare questa scelta progettuale, il seguente frammento mostra come le interrupt si limitino a segnalare gli eventi al ciclo principale e come il \texttt{user button} possa agire sul consenso globale di esecuzione.
+
 	\begin{lstlisting}[style=base,language=C,caption={Callback leggere: le ISR notificano l'evento, il controllo viene eseguito nel main loop}]
 		void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-			if (htim->Instance == TIM6) {
-				HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1);
-				current_number_of_toggles++;
-			}
-			if (htim->Instance == TIM7) {
-				actuate_servo_control = true;
-			}
+		    if (htim->Instance == TIM6) {
+		        HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1);
+		        current_number_of_toggles++;
+		    }
+		    if (htim->Instance == TIM7) {
+		        actuate_servo_control = true;
+		    }
 		}
-		
+
 		void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-			if (GPIO_Pin == GPIO_PIN_13) run = !run;
-			if (GPIO_Pin == GPIO_PIN_12) actuate_motors_control = true;
+		    if (GPIO_Pin == GPIO_PIN_13) run = !run;
+		    if (GPIO_Pin == GPIO_PIN_12) actuate_motors_control = true;
 		}
 	\end{lstlisting}
-	
-	Questa soluzione permette di mantenere separati tre livelli distinti: acquisizione dell'evento, elaborazione della misura e attuazione del comando. Una separazione di questo tipo è particolarmente adatta a sistemi embedded con più sottosistemi concorrenti, perché limita le interdipendenze tra moduli e rende più semplice isolare eventuali problemi di sensore, controllo o attuazione.
-	
+
+	La seriale si inserisce nella stessa filosofia: non introduce una seconda macchina a stati, ma fornisce un ulteriore ingresso capace di modificare \texttt{run} con lo stesso significato logico del pulsante locale. Di conseguenza il firmware conserva un comportamento coerente indipendentemente da dove provenga il comando di start/stop. Questa soluzione permette di mantenere separati tre livelli distinti: acquisizione dell'evento, elaborazione della misura e attuazione del comando. Una separazione di questo tipo è particolarmente adatta a sistemi embedded con più sottosistemi concorrenti, perché limita le interdipendenze tra moduli e rende più semplice isolare eventuali problemi di sensore, controllo o attuazione.
+
 	
 	\chapter{Test e risultati}
 	Dedicate un capitolo a tutti i test effettuati con relativi risultati, includete sia i test finali relativi al funzionamento complessivo, sia i test delle singole parti (se significativi). \\
