@@ -116,16 +116,21 @@
 	
 	\pagestyle{plain}
 	
-	\section*{Introduzione}
-	Spiegazione dettagliata del task assegnato al gruppo (cosa avete fatto e su quale sistema).
-	Se per lo svolgimento del task è stato necessario interagire con altri gruppi che hanno lavorato sullo stesso sistema, presentare anche brevemente i task svolti dagli altri gruppi e spiegare la loro interconnessione.
-	Se si è invece optato per far confluire il lavoro di più gruppi in un'unica relazione, va spiegato qual era il task iniziale dei singoli gruppi e poi come è avvenuta l'integrazione.
-	In sintesi, l'introduzione deve permettere al lettore di capire subito su cosa avete lavorato.
-	Al termine dell'introduzione inserite anche una breve descrizione per capitoli del contenuto della restante parte della relazione (es. nel Capitolo \ref{Hardware} viene descritto...).
+\section*{Introduzione}
 	
-	Nel seguito la struttura in capitoli di massima per ogni relazione, da adattare qualora necessario.
-	\textcolor{red}{NOTA: La relazione va pensata e scritta nell'ottica di dare a chi verrà dopo di voi un documento utile per capire a che punto è arrivata l'attività svolta dal vostro gruppo e per metterli in condizione di portare avanti il vostro lavoro. Di conseguenza dovete essere chiari e diretti, riportando solo le informazioni necessarie e evidenziando in modo critico cosa effettivamente funziona correttamente e cosa va migliorato}
-	
+Il presente documento illustra le attività di sviluppo, ottimizzazione e controllo svolte sul \textit{Double Propeller Ducted-Fan (DPDF)}, proseguendo e ampliando il lavoro impostato in una precedente tesi triennale. Il punto di partenza dell'attività non ha tuttavia coinciso con un sistema pronto all'uso: a causa di un pregresso cedimento strutturale, si è resa necessaria una complessa fase iniziale di ripristino fisico. L'intera struttura meccanica è stata ridisegnata e ristampata in 3D, mentre le componenti hardware e l'elettronica di bordo sono state interamente riassemblate, ricablate e testate da zero.
+
+L'obiettivo a lungo termine del progetto consiste nel raggiungimento di una condizione di \textit{hovering} stabile. All'interno di questo scenario, il \textit{task} assegnato al nostro gruppo prevede lo sviluppo dell'infrastruttura logica di controllo e l'avvio della fase di taratura sperimentale dei regolatori PID (già parzialmente abbozzati nel codice originale) sui rami di quota e assetto.
+
+Durante i primi approcci sperimentali è infatti emerso come, prima ancora di poter ricercare i guadagni ottimali del PID, il sistema necessitasse di fondamenta software ben più solide per poter operare in sicurezza. Di conseguenza, gran parte del nostro contributo si è concentrata su un profondo \textit{refactoring} e irrobustimento del \textit{firmware} ereditato. Per rendere il percorso \textit{misura--controllo--attuazione} affidabile e trasparente, abbiamo introdotto e implementato numerosi accorgimenti: un filtro mediano per la reiezione dei disturbi del sensore ToF, la compensazione geometrica del \textit{tilt}, il \textit{remap} matriciale delle misure inerziali, una gestione \textit{event-driven} dei loop di controllo e logiche sicure di saturazione e \textit{anti-windup}.
+
+Nel seguito, la trattazione è organizzata secondo la seguente struttura:
+\begin{itemize}
+    \item Nel \textbf{Capitolo 1} viene introdotta l'architettura meccanica del \textit{DPDF} e viene descritto concettualmente l'obiettivo di controllo dell'\textit{hovering}.
+    \item Nel \textbf{Capitolo 2} vengono richiamate le principali componenti hardware impiegate e i relativi collegamenti elettrici. Al fine di fornire un documento autoconsistente, le specifiche tecniche riportate sintetizzano la documentazione prodotta nel lavoro originario, limitandosi alle informazioni con un impatto diretto sullo sviluppo del \textit{firmware}.
+    \item Nel \textbf{Capitolo 3} viene descritta nel dettaglio l'architettura software implementata. Costituisce il cuore del lavoro svolto, illustrando i diagrammi di flusso, la teoria dei regolatori PID discreti e tutte le logiche di filtraggio e sicurezza introdotte.
+    \item Nel \textbf{Capitolo 4} vengono infine documentati i test sperimentali. Sono riportati i criteri utilizzati per la taratura dei PID, i risultati dei test di volo e una discussione critica sulle prestazioni ottenute.
+\end{itemize}
 	\newpage
 	\chapter{Sistema}
 	Nel presente capitolo viene descritta la struttura meccanica del \textit{Double Propeller Ducted-Fan (DPDF)} e viene introdotto l'obiettivo di controllo adottato nel progetto.
@@ -210,7 +215,7 @@
 	
 	\subsection{STM32H745ZI-TQ6. Architettura}
 	Il microcontrollore STM32H745ZI-TQ6 presenta un'architettura \textit{dual-core} a 32-bit composta da un processore ad alte prestazioni, il \textbf{Cortex-M7}, e da un processore il cui utilizzo è consigliato per applicazioni \textit{real-time} e \textit{low-power tasks}. L'architettura consente l'implementazione di applicazioni \textit{multithread}.
-	In questo progetto di tesi, l'esecuzione delle librerie \textit{software} di gestione dei dispositivi interessati è affidata al \textbf{Cortex-M4}.
+	In questo progetto, l'esecuzione delle librerie \textit{software} di gestione dei dispositivi interessati è affidata al \textbf{Cortex-M4}.
 	La selezione e la configurazione delle periferiche dello \textit{STM32H745ZI-TQ6} necessarie al raggiungimento degli obiettivi progettuali verranno approfondite nel capitolo dedicato al \textit{firmware}.
 	A seguire un elenco delle caratteristiche concernenti all'architettura \textit{dual-core}:
 	\begin{itemize}
@@ -227,64 +232,49 @@
 	
 	\subsection{STM32H745ZI-TQ6. Memoria}
 	Il microcontrollore possiede una struttura di memoria complessa e stratificata.
-	Le memorie interne principali sono la memoria \textit{Flash} e la \textit{SRAM}. Inoltre, il \textit{core M7} monta una \textit{cache L1} e una piccola \textit{backup SRAM} alimentabile a batteria.
 	
 	\paragraph{\small{Flash}}\mbox{}\\
-	La Flash interna da \textbf{2 MByte} è l'area di memoria su cui risiede il \textit{firmware}. La memoria in questione è organizzata in \textit{dual-bank}, che permette la programmazione/cancellazione di una banca dati mentre si esegue sull'altra.
+	La Flash interna da \textbf{2 MByte} ospita il \textit{firmware} ed è organizzata in \textit{dual-bank}, caratteristica utile per le operazioni di programmazione e aggiornamento.
 	
 	\paragraph{\small{SRAM}}\mbox{}\\
-	Il dispositivo dispone di circa \textbf{1 MByte} di memoria dati volatile o SRAM, distribuita in più banchi con caratteristiche e destinazioni d'uso differenziate. In particolare:
+	Il dispositivo dispone di circa \textbf{1 MByte} di SRAM, suddivisa in più banchi. Questa organizzazione consente di separare dati, buffer e risorse condivise tra i due \textit{core}, mantenendo elevate prestazioni di accesso.
 	\begin{itemize}
-		\item La SRAM1 e la SRAM2, rispettivamente da 320 KByte e 384 KByte, costituiscono i blocchi principali ad alta velocità, accessibili da entrambi i \textit{core}. Rappresentano l'area privilegiata per l'allocazione dei dati che richiedono tempi di accesso ridotti e condivisibilità tra i due processori.
-		\item Il blocco di SRAM3, da 128 KByte, è tipicamente dedicato al \textbf{Cortex-M4}, favorendo così una separazione logica delle risorse riducendo anche i conflitti di accesso.
-		\item SRAM4, SRAM5 e SRAM6, in ordine, 128 KByte, 64 KByte e 64 KByte completano la struttura, fornendo ulteriori spazi di memoria che possono essere destinati a funzioni specifiche o a buffer ad alte prestazioni, secondo esigenze applicative.
+		\item SRAM1 e SRAM2 costituiscono i blocchi principali ad alta velocità, accessibili da entrambi i \textit{core}.
+		\item SRAM3 è tipicamente associata al \textit{Cortex-M4}, favorendo una separazione più ordinata delle risorse.
+		\item Gli ulteriori banchi completano la struttura e possono essere impiegati per buffer e funzioni specifiche.
 	\end{itemize}
 	
 	\paragraph{\small{Cache L1}}\mbox{}\\
-	Il \textbf{Cortex-M7}, a supporto dell'efficienza complessiva, integra una \textit{cache L1} per istruzioni e dati, riducendo la latenza di accesso alla memoria non volatile e minimizzando i colli di bottiglia dovuti alla differenza tra la velocità del processore e quella della \textit{Flash}. In tal modo le prestazioni globali del sistema risultano incrementate.
-	
-	\paragraph{\small{Flexible Memory Controller e Dual-mode Quad-SPI}}\mbox{}\\
-	Il \textit{Flexible Memory Controller} è un'unità hardware che consente l'interfacciamento diretto con memorie parallele esterne al dispositivo. Il \textit{FMC} supporta: SRAM, PSRAM, SDRAM, NOR Flash e NAND Flash. L'integrazione del \textit{FMC} comporta un incremento nell'efficienza delle comunicazioni. Una volta configurato il \textit{controller}, la memoria esterna entra a far parte dello spazio di indirizzi del microcontrollore mascherando la complessità del protocollo.
-	Il \textit{Dual Mode Quad-SPI} è un'altra interfaccia dedicata alle \textit{Flash} seriali esterne ad alta velocità. La soluzione poco fa citata permette di espandere la memoria dedicata al \textit{firmware} oppure di archiviare dati.
-	
-	\paragraph{\small{Memory Protection Unit}}\mbox{}\\
-	La \textit{Memory Protection Unit} è una componente hardware integrata in ciascun \textit{core} del microcontrollore. La mansione del circuito integrato in questione è quella di controllare e regolare l'accesso alla memoria.
+	Il \textit{Cortex-M7} integra una \textit{cache L1} per istruzioni e dati, utile a ridurre la latenza di accesso alla memoria e a migliorare le prestazioni complessive del sistema.
 	
 	\paragraph{Unità di elaborazione}\mbox{}\\
 	L'architettura dell'STM32H745ZI-TQ6 integra anche unità di elaborazione dedicate ai calcoli numerici e al processamento dei segnali.
 	
 	\paragraph{\small{Floating Point Unit}}\mbox{}\\
-	La \textit{FPU} è un'unità hardware integrata nei due \textit{core} di elaborazione che consente l'esecuzione diretta di operazioni in virgola mobile. La presenza di questo circuito integrato riduce drasticamente la latenza di calcolo in applicazioni che richiedono elaborazioni numeriche complesse.
-	Nel caso del \textit{\textbf{Cortex-M7}} la FPU supporta sia la \textit{single precision} che la \textit{double precision}, mentre il \textit{\textbf{Cortex-M4}} solo una FPU a precisione singola.
+	Entrambi i \textit{core} integrano una \textit{FPU}, utile per accelerare i calcoli in virgola mobile. In particolare, il \textit{Cortex-M7} supporta sia la \textit{single precision} sia la \textit{double precision}, mentre il \textit{Cortex-M4} supporta la sola precisione singola.
 	
 	\paragraph{\small{Digital Signal Processing}}\mbox{}\\
-	Il \textit{Digital Signal Processing} è un supporto hardware per istruzioni dedicate all'elaborazione numerica di segnali digitali.
+	Il supporto hardware alle istruzioni di \textit{Digital Signal Processing} risulta utile nelle elaborazioni numeriche e nei filtraggi impiegati dal \textit{firmware}.
 	
 	\subsection{STM32H745ZI-TQ6. Convertitori}
 	\paragraph{\small{Convertitori Analogici-Digitali}}\mbox{}\\
-	Lo STM32H745ZI-TQ6 integra tre convertitori analogico-digitali \textbf{SAR ADC} (\textit{successive approximation analog-to-digital converter}) a 16 bit: ADC1, ADC2 e ADC3.
-	I primi due, l'ADC1 e l'ADC2, sono \textit{tightly coupled}, cioè strettamente accoppiati, consentendo una sincronizzazione precisa delle conversioni. Questo approccio permette di ottenere alte frequenze di campionamento, precisione temporale e riduzione del carico computazionale del core. L'ADC3 invece è istanziato separatamente.
-	La risoluzione può essere configurata a 16, 14, 12, 10 o 8 bit.
+	Lo STM32H745ZI-TQ6 integra tre \textbf{SAR ADC} a 16 bit: ADC1, ADC2 e ADC3. I primi due possono operare in modo accoppiato per conversioni sincronizzate, mentre la risoluzione è configurabile da 8 a 16 bit.
 	
 	\paragraph{\small{Convertitori Digitali-Analogici}}\mbox{}\\
-	Il microcontrollore possiede 2 \textbf{DAC} indipendenti la cui risoluzione è a 12 bit.
+	Il microcontrollore dispone di due \textbf{DAC} indipendenti a 12 bit.
 	
 	\subsection{STM32H745ZI-TQ6. Timer}
-	I \textit{timer} sono periferiche hardware fornite dal microcontrollore per svolgere attività correlate al tempo.
-	Lo STM32H745ZI-TQ6 fornisce 15 \textit{timer} di diverso tipo e 5 \textit{low power timer}. Alcuni di questi possono essere utilizzati per la generazione di segnali PWM.
+	Lo STM32H745ZI-TQ6 mette a disposizione 15 \textit{timer} e 5 \textit{low power timer}, utilizzabili per temporizzazioni, gestione di eventi periodici e generazione di segnali PWM, tutti aspetti centrali nel controllo del sistema.
 	
 	\subsection{STM32H745ZI-TQ6. Periferiche di comunicazione}
-	Lo STM32H745ZI-TQ6 integra un insieme ampio e variegato di protocolli di comunicazione. Le periferiche possono essere raggruppate in tre categorie principali: comunicazione seriale, comunicazione veloce e interfacce multimediali speciali.
-	Per quanto riguarda la comunicazione seriale, il microcontrollore supporta i protocolli: $I^{2}C$, USART/UART e SPI.
-	Nell'ambito della comunicazione veloce e avanzata il dispositivo supporta i protocolli: CAN (\textit{Controller Area Network}), USB OTG, Ethernet MAC, SD/SDIO/MMC.
-	L'integrazione delle interfacce multimediali consente la gestione di applicazioni audio, grafiche e visione artificiale: SAI (\textit{Serial Audio Interface}), DFSDM (\textit{Digital Filter for Sigma-Delta Modulators}) e DCMI (\textit{Digital Camera Interface}).
+	Il microcontrollore integra numerose periferiche di comunicazione. Ai fini del progetto risultano soprattutto rilevanti i protocolli seriali $I^{2}C$, USART/UART e SPI, impiegati per il collegamento con sensori, attuatori e strumenti di sviluppo. Sono inoltre disponibili interfacce più avanzate, come CAN, USB OTG ed Ethernet, non utilizzate direttamente nel lavoro svolto.
 	
 	\subsection{STM32H745ZI-TQ6. Eventi asincroni}
-	Il microcontrollore offre la possibilità di gestire con efficacia ogni genere di \textit{interrupt} (evento asincrono) grazie all'integrazione di un'unità di elaborazione dedicata: il NVIC (\textit{Nested Vector Interrupt Controller}).
+	La gestione degli eventi asincroni è affidata al \textit{NVIC} (\textit{Nested Vector Interrupt Controller}), che consente di trattare in modo efficiente interrupt e priorità, aspetto importante nell'architettura \textit{event-driven} del \textit{firmware}.
 	
 	
 	\subsection{NUCLEO-H745ZI-Q. Caratteristiche della scheda}
-	La NUCLEO-H745ZI-Q è la scheda di sviluppo (\textit{development board}) che proietta all'esterno tutte le funzionalità del microcontrollore poco fa descritto.
+	La NUCLEO-H745ZI-Q è la \textit{development board} utilizzata nel progetto e rende disponibili tutte le principali funzionalità del microcontrollore.
 	
 	\paragraph{Caratteristiche fisiche}
 	\begin{itemize}
@@ -293,27 +283,20 @@
 	\end{itemize}
 	
 	\paragraph{ST-LINK/V3E}\mbox{}\\
-	Lo ST-LINK/V3E è un'interfaccia hardware, gestita dal microcontrollore STM32F723, dedicata al collegamento tra elaboratore esterno e microcontrollore. Il modulo permette di caricare il compilato \textit{firmware} sul microcontrollore direttamente dalla porta USB Micro-B collegata al sistema di elaborazione.
-	Il modulo permette, inoltre, di eseguire il \textit{debug} in tempo reale del codice caricato sull'\textit{MCU}.
-	L'ST-LINK/V3E fornisce anche interfacce ausiliarie utili ai fini dello sviluppo.
-	A seguire un breve elenco esplicativo di queste funzionalità aggiuntive:
+	Lo ST-LINK/V3E consente di programmare e fare \textit{debug} del \textit{firmware} tramite USB, fornendo anche interfacce ausiliarie utili durante lo sviluppo:
 	\begin{itemize}
-		\item VCP (\textit{Virtual COM Port}): lo ST-LINK integra un’interfaccia di comunicazione
-		che emula una porta seriale virtuale (da cui il nome Virtual COM Port, VCP),
-		tramite connessione USB. In tal maniera, l’elaboratore riconosce lo ST-LINK
-		come una porta COM standard.
-		\item MSC (\textit{Mass Storage Class}): la scheda di sviluppo appare al sistema di elaborazione come una memoria esterna.
+		\item \textbf{VCP} (\textit{Virtual COM Port}), che emula una porta seriale su USB.
+		\item \textbf{MSC} (\textit{Mass Storage Class}), che espone la scheda come memoria esterna.
 	\end{itemize}
 	
 	\paragraph{Alimentazione}\mbox{}\\
-	La scheda di sviluppo offre diversi approcci per l'alimentazione:
+	La scheda può essere alimentata in modi diversi:
 	\begin{itemize}
 		\item Alimentazione via USB Micro-B ST-LINK a 5V.
 		\item Alimentazione via Jack esterno da 7-12V.
 		\item Alimentazione tramite \textit{pin Vin} esterno a 3.3V.
 	\end{itemize}
-	Nonostante la presenza di diversi approcci di alimentazione e i differenti voltaggi, la tensione di alimentazione del microcontrollore è 3.3V, ottenuta attraverso regolatori interni.
-	Sulla scheda di sviluppo sono presenti dei \textit{jumper}, ovvero dei piccoli interruttori meccanici che permettono di riconfigurare l'\textit{hardware} della scheda evitando di intaccare il \textit{firmware}. Si suggerisce di prestare attenzione alla configurazione dei \textit{jumper} qualora si volesse alimentare la scheda da ingressi diversi dal \textbf{COM1} o \textbf{MICRO-B ST-LINK}.
+	In ogni caso, il microcontrollore opera a 3.3V tramite regolatori interni. La presenza dei \textit{jumper} consente di riconfigurare l'alimentazione della scheda, ma richiede attenzione quando si usano sorgenti diverse dalla porta ST-LINK.
 	
 	\begin{figure}[H]
 		\centering
@@ -335,11 +318,9 @@
 	
 	
 	\section{TATTU LiPo. Batteria ricaricabile}
-	Motori, Servomotori e E.S.C richiedono specifici livelli di tensione per il loro funzionamento, tensioni che non possono essere fornite dalla NUCLEO H745ZI-Q.
+	Motori, Servomotori e E.S.C. richiedono specifici livelli di tensione per il loro funzionamento, tensioni che non possono essere fornite dalla NUCLEO H745ZI-Q.
 	Si rende, quindi, necessario l'inserimento nel progetto di batterie ricaricabili.\\
-	La selezione delle batterie disponibili sul mercato è stata condotta a seguito di un'analisi approfondita delle caratteristiche elettriche di motori, servomotori ed E.S.C,
-	unitamente ad uno studio dettagliato delle esigenze di autonomia necessarie per le prove di volo, rapportando il tutto al \textit{budget} disponibile.\\
-	Le \textbf{TATTU LiPo} possiedono le prestazioni richieste dal progetto.
+	In base alle prestazioni richieste dal progetto, si è optato per le \textbf{TATTU LiPo}.
 	
 	\subsection{TATTU LiPo. Caratteristiche fisiche}
 	\begin{itemize}
@@ -349,42 +330,24 @@
 	\end{itemize}
 	
 	\subsection{TATTU LiPo. Caratteristiche tecniche e considerazioni operative}
-	\paragraph{\small{LiPo}}\mbox{}\\
-	La sigla \textit{LiPo} sta ad indicare la tecnologia elettrochimica utilizzata nella costruzione della batteria. \textit{LiPo} nasce da \textit{Lithium-Polymer}, ovvero polimero di litio.
-	La particolare nominazione deriva dal componente chimico utilizzato come elettrolita, che, nel caso in esame, non è liquido, ma un polimero gelificato. Malgrado nelle fonti ufficiali non venga
-	specificato il polimero usato nel progetto delle \textit{TATTU LiPo}, con il fine di informazione, è stato deciso di riportare quello più comunemente utilizzato per la tipologia di batterie in esame, il
-	\textit{polivinilidenfluoruro esafluoropropilene} (PVDF-HFP).\\
-	Rispetto ad altri sistemi elettrochimici presenti sul mercato (come ad esempio: Li-ion, $LiFePO_4$, NiMH ecc.), le batterie LiPo presentano un'elevata densità di potenza, una bassa resistenza interna e una
-	notevole flessibilità nelle geometrie costruttive, oltre ad un contenuto peso. Tali attributi risultano vantaggiosi nell'ambito della progettazione di UAV, come il \textit{DPDF}.
 	
 	\paragraph{\small{Tensione}}\mbox{}\\
-	La \textit{TATTU LiPo} possiede \textbf{4} celle da \textbf{3.7 [V]}. Le celle sono collegate in serie, perciò la tensione nominale è circa \textbf{14.8 [V]}.\\
-	A carica completa, ogni cella può raggiungere i \textbf{4.2 [V]}, emettendo un'uscita di \textbf{16.8 [V]}.
-	Il mantenimento della tensione delle celle nell'intorno dei 3.7 [V] contribuisce a preservare la stabilità chimica interna delle batterie,
-	riducendo l'erosione delle celle e prolungandone la vita utile. Si consiglia di non mantenere le celle a 4.2 [V] per periodi prolungati di tempo, evitandone così il danneggiamento.\\
-	Nella fase iniziale e di sviluppo \textit{firmware}, le batterie sono state tenute in bilanciamento alla tensione nominale di 14.8 [V], mentre,
-	nella fase finale, in cui i \textit{test} di volo sono stati protagonisti, al fine di ottenere un aumento dell'autonomia delle batterie e della prestazione dei motori, queste venivano caricate, mantenendo il bilanciamento tra celle, fino a 4.2 [V] per cella.
-	Infine, è necessario adottare un'ulteriore accortezza per evitare danni. È consigliabile non far scendere la tensione della batteria al di sotto dei \textbf{12 [V]}, mantenendo così il valore di tensione di ogni cella sopra i \textbf{3 [V]}.
+	La \textit{TATTU LiPo} adottata è composta da \textbf{4} celle da \textbf{3.7 [V]} collegate in serie; ne deriva una tensione nominale di circa \textbf{14.8 [V]}. A piena carica ogni cella può raggiungere \textbf{4.2 [V]}, per una tensione complessiva pari a \textbf{16.8 [V]}.
+	Il mantenimento della tensione delle celle in prossimità del valore nominale contribuisce a preservarne la vita utile; per questo motivo è opportuno evitare sia permanenze prolungate a piena carica, sia scariche eccessive. Durante lo sviluppo \textit{firmware} le batterie sono state mantenute in bilanciamento attorno a \textbf{14.8 [V]}, mentre nei test finali di volo venivano caricate fino a \textbf{4.2 [V]} per cella per massimizzare autonomia e prestazioni. In ogni caso, è consigliabile non scendere sotto i \textbf{12 [V]} complessivi, così da mantenere ciascuna cella sopra i \textbf{3 [V]}.
 	
 	\paragraph{\small{Capacità}}\mbox{}\\
-	La \textit{capacità} di una batteria, misurata in [mAh], \textit{milliAmpere-ora}, definisce la quantità di carica elettrica che la batteria può immagazzinare e fornire nel tempo.
-	Nel caso in esame, la capacità è di \textbf{1300 [mAh]}, vale a dire che la batteria può fornire \textbf{1.3 [A]} per un'ora. In generale si può utilizzare la seguente formula approssimata per il calcolo del tempo di funzionamento:
+	La \textit{capacità}, espressa in [mAh], rappresenta la quantità di carica che la batteria può immagazzinare e fornire nel tempo. Nel caso in esame la capacità nominale è pari a \textbf{1300 [mAh]}, cioè la batteria può erogare idealmente \textbf{1.3 [A]} per un'ora. In prima approssimazione, il tempo di funzionamento può essere stimato tramite:
 	\begin{equation}
 		t_h = \frac{C\,\,[mAh]}{A\,\,[mA]}
 	\end{equation}
-	dove $t_h$ rappresenta il tempo di funzionamento in ore, $C$ la capacità della batteria espressa in milliAmpere-ora e $A$ la corrente assorbita espressa in milliAmpere.
-	Con il fine di aumentare l'autonomia di volo, si è optato per l'accoppiamento in parallelo di \textbf{due} \textit{TATTU LiPo}, così da ottenere una capacità totale di \textbf{2600 [mAh]}.
-	L'accoppiamento in sicurezza è stato effettuato utilizzando il \textit{\textbf{PowerSafe Twin della MNR-electronics}}, il quale verrà approfondito nella successiva sezione.
+	dove $t_h$ è il tempo di funzionamento in ore, $C$ è la capacità della batteria e $A$ è la corrente assorbita. Per aumentare l'autonomia, nel progetto sono state collegate in parallelo \textbf{due} \textit{TATTU LiPo}, ottenendo una capacità totale di \textbf{2600 [mAh]}. Il collegamento è stato realizzato tramite il \textit{\textbf{PowerSafe Twin della MNR-electronics}}, approfondito nella sezione successiva.
 	
 	\paragraph{\small{Capacità di scarica}}\mbox{}\\
-	Con il termine \textit{capacità di scarica} ci si riferisce alla quantità di corrente massima che la batteria può fornire, in sicurezza e in maniera continuativa, senza danneggiarsi.
-	La \textit{TATTU LiPo} possiede una capacità di scarica pari a \textbf{75C}, vale a dire che può erogare:
+	La \textit{capacità di scarica} indica la massima corrente che la batteria può fornire in modo continuativo senza danneggiarsi. La \textit{TATTU LiPo} in uso ha un valore pari a \textbf{75C}; quindi la corrente massima teorica erogabile è:
 	\begin{equation}
 		A_{max} = C_s\cdot C \implies A_{max} = 75\,\,[C]\cdot 1.3\,\,[A]= 97.5\,\,[A]
 	\end{equation}
-	senza surriscaldarsi o danneggiarsi.\\
-	Nella precedente formula, $A_{max}$ si riferisce alla corrente massima erogabile dalla batteria in sicurezza, espressa in [A], \textit{Ampère}. $C_s$ e $C$, invece, si riferiscono rispettivamente alla capacità
-	di scarica e alla capacità di erogazione di corrente in un'ora, espressa sempre in [A].
+	dove $A_{max}$ è la corrente massima espressa in [A], mentre $C_s$ e $C$ indicano rispettivamente il valore di scarica e la capacità nominale della batteria.
 	
 	\begin{figure}[ht]
 		\centering
@@ -483,16 +446,9 @@
 	
 	\section{Turnigy AereoDrive SK3-3536 1400KV}
 	\label{MotoriBrushless}
-	Il Turnigy AereoDrive SK3 3536 1400kv è un motore \textit{Brushless} alimentato a corrente continua e pilotato a trifase con correnti alternate.\\
-	Il rotore contiene magneti permanenti disposti con polarità alternata lungo la sua circonferenza. Lo statore invece ospita tre avvolgimenti elettrici (fasi) disposti generalmente a 120 gradi elettrici l'uno rispetto all'altro, connessi ai tre terminali d'uscita che si identificano come A, B e C.\\
-	Il rotore, essendo formato da magneti permanenti, non necessita di alimentazione: è lo statore a generare il campo magnetico rotante che induce il moto.\\
-	Il cambio di polarità degli avvolgimenti deve essere gestito da un sistema elettronico esterno, \textit{l'Electronic Speed Controller (ESC)}, che nella successiva sezione verrà approfondito.\\
-	I tre conduttori che fuoriescono dal motore rappresentano i terminali delle tre fasi dello statore. Ciascun filo è collegato a uno degli avvolgimenti e nessuno di essi costituisce un riferimento comune.
-	Per far ruotare il motore è necessario che tali fasi vengano alimentate secondo una precisa sequenza temporale, generando un campo magnetico rotante.
-	Se si dovessero scambiare due dei tre cavi, l'ordine di commutazione si invertirebbe con conseguente variazione del senso di rotazione.\\
-	Nel progetto sono stati impiegati due motori del tipo precedentemente citato, disposti in configurazione \textbf{controrotante}, con il fine di compensare le rotazioni indesiderate di \textbf{yaw}.
-	Tale scelta consente di bilanciare le coppie di reazione generate dalle eliche, riducendo il momento torcente sul velivolo. Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo
-	attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste.
+	Il Turnigy AereoDrive SK3 3536 1400KV è un motore \textit{brushless} trifase a magneti permanenti, il cui funzionamento richiede un \textit{Electronic Speed Controller} (ESC) per la corretta commutazione delle fasi.
+	La sequenza di alimentazione imposta dall'ESC genera il campo magnetico rotante che mette in moto il rotore; invertendo due delle tre fasi è possibile invertire anche il senso di rotazione del motore.\\
+	Nel progetto sono stati impiegati due motori di questo tipo in configurazione \textbf{controrotante}, così da compensare le coppie di reazione delle eliche e limitare le rotazioni indesiderate di \textbf{yaw}. Tale scelta è stata inoltre necessaria per garantire la spinta richiesta al sollevamento del sistema.
 	
 	\subsection{Turnigy AereoDrive SK3-3536 1400 KV. Caratteristiche fisiche e tecniche}
 	\begin{itemize}
@@ -526,15 +482,9 @@
 	\end{figure}
 	
 	\section{Turnigy Plush 40A. \textit{Electronic Speed Controller}}
-	Il Turnigy Plush 40A è un controllore elettronico di velocità per motori \textit{brushless} a corrente continua (BLDC) \cite{DCdriver}.\\
-	Trasforma la tensione continua in ingresso in tensioni alternate sfasate di 120 gradi elettrici.\\
-	L'applicazione della corretta sequenza di correnti alle fasi dello statore richiede la conoscenza della posizione angolare in ogni istante di tempo. Il Turnigy Plush 40A stima tale informazione in maniera indiretta, misurando la forza controelettromotrice indotta dal rotore, evitando così l'uso di sensori di posizione; il dispositivo in interesse può dunque essere definito \textit{sensorless}.
-	L'ESC in questione può essere concettualmente suddiviso in due sezioni principali: la sezione di potenza e la sezione di controllo.
-	La \textbf{sezione di potenza} è responsabile della conversione \textit{continua-trifase}. Tale conversione è mediata da un ponte trifase a sei MOSFET, suddiviso a sua volta in tre mezzi ponti, ciascuno associato ad una fase del motore.
-	Ogni mezzo ponte è composto da un transistor di alto lato e da un transistor di basso lato, collegati rispettivamente al potenziale positivo della batteria e a massa. L'opportuna commutazione di apertura e chiusura dei sei MOSFET comporta la generazione di un segnale di tensione alternato per ogni fase.\\
-	La \textbf{sezione di controllo} ha come protagonista un microcontrollore che si occupa della generazione di segnali di pilotaggio e della stima della posizione del rotore. Il microcontrollore riceve in ingresso il comando di velocità di rotazione del motore sotto forma di segnale PWM.
-	Sulla base di tale comando, il microcontrollore determina il \textit{duty cycle} del PWM e calcola la sequenza di commutazione dei sei MOSFET, con conseguente generazione del campo magnetico rotante dello statore.\\
-	Il \textit{Double Propeller Ducted Fan} monta due Turnigy Plush 40A, uno per ogni motore.
+	Il Turnigy Plush 40A è un controllore elettronico di velocità per motori \textit{brushless} BLDC \cite{DCdriver}. Il suo compito è convertire la tensione continua di alimentazione nelle tre fasi necessarie al pilotaggio del motore.
+	Il dispositivo è di tipo \textit{sensorless}: la posizione del rotore viene stimata indirettamente attraverso la forza controelettromotrice, senza impiegare sensori dedicati. Il comando di velocità viene invece ricevuto dal microcontrollore sotto forma di segnale PWM, sulla base del quale l'ESC genera la corretta sequenza di commutazione delle fasi.\\
+	Nel \textit{Double Propeller Ducted Fan} sono impiegati due Turnigy Plush 40A, uno per ciascun motore.
 	
 	\subsection{Turnigy Plush 40A. Caratteristiche fisiche}
 	\begin{itemize}
@@ -625,28 +575,21 @@
 	Per il \textit{Turnigy Plush 40A} la documentazione ufficiale non fornisce un valore certo; alcune fonti non ufficiali indicano una risoluzione compresa tra 8 e 12 bit. A causa di questa incertezza, lo sviluppo del controllore è stato impostato in modo da non dipendere esplicitamente dalla risoluzione dell'ESC.
 	
 	\section{Eliche}
-	Al fine di ottenere una corretta realizzazione progettuale, si rende necessario un minuzioso studio delle eliche da utilizzare.
-	Le eliche e i motori costituiscono un perfetto connubio: se si dovessero scegliere eliche non adeguate, potrebbe non verificarsi la generazione della portanza necessaria al sollevamento del \textit{DPDF}.\\
-	I parametri fondamentali per selezionare un'elica sono il \textbf{diametro} e il \textbf{passo}.\\
-	Con il primo si indica il diametro della circonferenza che l'elica descrive durante la rotazione. Con il secondo, invece, si fa riferimento alla distanza teorica che l'elica percorrerebbe lungo il proprio asse in una singola rotazione completa, assumendo un fluido perfettamente solido e assenza di slittamento.
-	Per chiarire il concetto, si può pensare a una vite che compie un giro completo mentre viene inserita nel legno.
-	
-	Il \textbf{diametro} di un'elica ne influenza:
+	La scelta dell'elica deve garantire lo sviluppo della portanza necessaria al sollevamento del \textit{DPDF}, la quale dipende principalmente da due parametri, il \textbf{diametro} e il \textbf{passo}: il primo rappresenta il diametro della circonferenza descritta in rotazione, il secondo l'avanzamento teorico in un giro completo, in modo analogo a una vite.
+
+	Il \textbf{diametro} influenza principalmente:
 	\begin{itemize}
-		\item \textbf{Spinta}. Un aumento del diametro comporta un aumento della spinta a parità di RPM.
-		\item \textbf{Efficienza}. Un aumento del diametro suggerisce un, seppur leggero, aumento dell'efficienza aerodinamica, dal momento che viene mosso un volume d'aria maggiore con una minore velocità del getto.
-		\item \textbf{Coppia del motore richiesta}. A parità di regime di rotazione, eliche con diametro maggiore oppongono una coppia più elevata da parte del motore per essere mantenute in rotazione. Questo effetto non è in contrasto con il miglioramento dell'efficienza sopra descritto, poiché riguarda lo sforzo necessario a sostenere un determinato RPM, non la potenza richiesta per generare la medesima spinta.
-		\item \textbf{Reattività}. Più è alto il valore del diametro e più è alta l'inerzia rotazionale, diminuendo la reattività del sistema.
+		\item \textbf{Spinta ed efficienza}: a parità di RPM, un diametro maggiore genera più spinta e tende a migliorare l'efficienza.
+		\item \textbf{Coppia richiesta}: aumenta la coppia necessaria per mantenere l'elica in rotazione.
+		\item \textbf{Reattività}: una maggiore inerzia rotazionale rende il sistema meno pronto nelle variazioni di regime.
 	\end{itemize}
-	Un elevato diametro è consigliato per sistemi che hanno l'obiettivo di stabilità.
-	Per quanto riguarda il \textbf{passo}, il parametro influisce su:
+	Per questo motivo, diametri più elevati sono in genere preferibili in sistemi orientati alla stabilità. Il \textbf{passo}, invece, influisce su:
 	\begin{itemize}
-		\item \textbf{Velocità in volo orizzontale}. Un aumento del passo costituisce un aumento della velocità espressa orizzontalmente.
-		\item \textbf{Spinta}. La spinta espressa dall'elica aumenta se se ne aumenta il passo; tuttavia, il diametro dell'elica ha un'influenza maggiore.
-		\item \textbf{Coppia del motore richiesta}. Un maggior passo richiede una maggior coppia indotta dai motori, con conseguente aumento dello stress meccanico.
-		\item \textbf{Bassa efficienza di hovering}. Un aumento del passo comporta un aumento della velocità dell'aria mossa dall'elica, con conseguente diminuzione della stabilità.
+		\item \textbf{Velocità}: un passo maggiore favorisce la velocità in volo traslato.
+		\item \textbf{Carico sul motore}: aumentano coppia richiesta e sollecitazioni meccaniche.
+		\item \textbf{Hovering}: un passo elevato tende a penalizzare l'efficienza e la stabilità in sospensione.
 	\end{itemize}
-	Al contrario, un elevato passo è tipico dei sistemi focalizzati sulla velocità orizzontale e verticale.
+	Un passo elevato è quindi tipico dei sistemi maggiormente orientati alla velocità.
 	
 	\subsection{APC 9x4.5. Caratteristiche fisiche}
 	I dati riportati in \cite{Relazione1} indicano le seguenti caratteristiche fisiche:
@@ -659,7 +602,7 @@
 	
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.55\textwidth]{figures/02_hardware/elica_apc_9x4_5.png}
+		\includegraphics[width=0.48\textwidth]{figures/02_hardware/elica_apc_9x4_5.png}
 		\caption{Elica APC 9x4.5}
 		\label{fig:apc-9x45}
 	\end{figure}
@@ -756,7 +699,7 @@
 	\end{itemize}
 	
 	\subsection{BNO055 Bosch Sensortec. Infrastruttura di alimentazione, comunicazione ed integrazione del sensore}
-	\paragraph{\small{Alimentazione}}
+	\paragraph{\small{Alimentazione}}\mbox{}\\
 	Il \textit{BNO055} dispone dei terminali \textbf{$V_{DD}$} e \textbf{$V_{DDIO}$}, dedicati rispettivamente all'alimentazione del sensore e delle interfacce digitali. I relativi intervalli di alimentazione sono \textbf{[2.4$\div$3.6] [V]} per $V_{DD}$ e \textbf{[1.7$\div$3.6] [V]} per $V_{DDIO}$. Nel modulo utilizzato, questi ingressi sono gestiti internamente dalla \textit{breakout board} tramite il terminale unico $V_{IN}$, alimentabile nell'intervallo \textbf{[2.4$\div$3.6] [V]}. Tra le modalità di alimentazione disponibili, nel progetto è stata scelta la \textbf{\textit{Normal mode}}.
 	
 	\paragraph{\small{Protocollo di comunicazione}}\mbox{}\\
@@ -951,11 +894,12 @@
 
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/02_hardware/schema_collegamenti_ducted_fan.png}
+		\includegraphics[height=0.82\textheight,keepaspectratio]{figures/02_hardware/schema_collegamenti_ducted_fan.png}
 		\caption{Schema dei collegamenti}
 		\label{fig:schema}
 	\end{figure}
 
+	\clearpage
 	\subsection{Tabelle dei collegamenti}
 	Di seguito sono riportati i collegamenti elettrici tra i principali componenti del sistema e la scheda di controllo.
 
@@ -1064,11 +1008,9 @@
 	\chapter{Software}
 	Il firmware di controllo del \textit{Double Propeller Ducted-Fan (DPDF)} è stato sviluppato con l'obiettivo di ottenere una condizione di \textit{hovering} sufficientemente stabile del velivolo.
 	L'implementazione è stata realizzata in linguaggio C all'interno di \textit{STM32CubeIDE} (versione \textbf{1.16.1}), utilizzando i flussi di configurazione hardware, generazione codice basata su HAL (\textit{Hardware Abstraction Layer}), compilazione e debug integrati nell'ambiente.
-	Per la configurazione delle periferiche del microcontrollore \textit{STM32H745ZI-TQ6} è stato impiegato \textit{STM32CubeMX} (versione \textbf{6.12.1}).
-	
+	Per la configurazione delle periferiche del microcontrollore \textit{STM32H745ZI-TQ6} è stato impiegato \textit{STM32CubeMX} (versione \textbf{6.12.1}).\\
 	Per i sensori \textit{BNO055} (Bosch Sensortec) e \textit{VL53L1X} (STMicroelectronics) sono stati integrati i driver ufficiali dei produttori, nativamente \textit{platform-agnostic}, e adattati al contesto HAL tramite un sottile livello di interfaccia per comunicazione, interrupt e gestione dei pin.
-	Una parte del sub-firmware di base, in particolare l'infrastruttura iniziale e alcuni moduli driver, era già stata sviluppata in precedenza. Il lavoro svolto si è quindi concentrato sulla modifica, miglioramento, integrazione e validazione del codice nel contesto del progetto DPDF.
-	
+	Una parte del sub-firmware di base, in particolare l'infrastruttura iniziale e alcuni moduli driver, era già stata sviluppata in precedenza. Il lavoro svolto si è quindi concentrato sulla modifica, miglioramento, integrazione e validazione del codice nel contesto del progetto DPDF.\\
 	Nelle sezioni successive vengono quindi descritti i diagrammi di flusso e l'organizzazione del firmware adottata nel progetto, mantenendo la terminologia operativa usata nel codice (i termini \textit{procedura} e \textit{funzione} sono considerati equivalenti in questa relazione).
 	
 	\section{Diagrammi di flusso}
