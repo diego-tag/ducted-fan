@@ -3,7 +3,7 @@ import serial
 def main():
     try:
         # Configure serial port
-        port_name = '/dev/ttyACM0' # For Windows use COM ports (listed in device manager)
+        port_name = 'COM9' # For Windows use COM ports (listed in device manager)
         baud_rate = 115200         # Ensure this value matches trasmitter baud rate
 
         ser = serial.Serial(port_name, baud_rate, timeout=1)
