@@ -152,16 +152,22 @@ int main(void) {
 	char msg_VL53L1X[STANDARD_MESSAGE_LENGTH];
 
 	const float ref_roll_pitch = 0.0f;
-	const uint16_t ref_altitude = 150;
+	const uint16_t ref_altitude = 100;
+	const float ref_yaw = 0.0f;
+
+	// Positive = makes bottom motor spin faster by default
+	// negative = makes bottom motor spin slower by default
+	float yaw_trim = 200.0f;
 
 	/*------------------------------ CONTROL-RELATED STRUCTURES ------------------------------*/
 
 	struct bno055_t myBNO;
 
-	pid_controller_t pid_roll, pid_pitch, pid_motor;
+	pid_controller_t pid_roll, pid_pitch, pid_motor, pid_yaw;
 	median_filter_t  tof_filter = {0};          /* Zero-init is safe */
-	// imu_angles_t     imu_ref;
+	imu_angles_t     imu_ref;
 	imu_angles_t     imu_now;
+	uint16_t motor_pwm = LOWER_LIMIT_MOTOR;
 
 	VL53L1_RangingMeasurementData_t rangingData;
 	VL53L1_Dev_t vl53l1_c;
@@ -236,7 +242,7 @@ int main(void) {
 
 	bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
 	//bno055_calibration();
-	// imu_set_reference(&imu_ref);          // capture "level" orientation
+	imu_set_reference(&imu_ref);          // capture "level" orientation
 	HAL_UART_Transmit(&huart3, (uint8_t*) "IMU (BNO055) initialized\n", strlen("IMU (BNO055) initialized\n"), HAL_MAX_DELAY);
 
 	/*-------------------------------------------------------------------------------------------------------*/
@@ -251,22 +257,58 @@ int main(void) {
 		Sensor filtering  Upstream (Kalman/CF)     Median at PID input
 	 */
 
-	pid_init(&pid_roll,  4.0f, 0.0f, 0.0f, 0.01f,
-			-MAX_FLAP_ANGLE_DEG, MAX_FLAP_ANGLE_DEG, 0.0f,
+	char tmp[STANDARD_MESSAGE_LENGTH];
+
+	pid_init(&pid_roll,  10.0f, 0.0f, 0.5f, 0.01f,
+			-2*MAX_FLAP_ANGLE_DEG, 2*MAX_FLAP_ANGLE_DEG, 0.0f,
 			 1.0f,    /* lpf_alpha — pass-through   */
 			 false);  /* derivative on error         */
 
-	pid_init(&pid_pitch, 4.0f, 0.0f, 0.0f, 0.01f,
+	pid_init(&pid_pitch, 10.0f, 0.0f, 0.5f, 0.01f,
 			-MAX_FLAP_ANGLE_DEG, MAX_FLAP_ANGLE_DEG, 0.0f,
-			 1.0f, false);
+			 1.0f,   /* lpf_alpha — pass-through   */
+			 false); /* derivative on error        */
+
+	snprintf(tmp, sizeof tmp, "PID servos: %d.%02d,%d.%02d,%d.%02d\n",
+			(int)pid_roll.kp,abs((int)(pid_roll.kp * 100) % 100),
+			(int)pid_roll.ki,abs((int)(pid_roll.ki * 100) % 100),
+			(int)pid_roll.kd,abs((int)(pid_roll.kd * 100) % 100)
+	);
+	HAL_UART_Transmit(&huart3, (uint8_t*) tmp, strlen(tmp), HAL_MAX_DELAY);
+
+	/*
+	 * Tuning P: Inizia da un valore basso (es. 1.0 o 2.0). L'obiettivo è avere una reazione pronta ma non oscillante quando "disturbi" il drone (es. spingendolo leggermente verso il basso). Aumenta Kp finché non vedi delle leggere oscillazioni, poi riducilo di un 30-40%.
+	 * Tuning D: Se hai oscillazioni veloci, aumenta Kd per smorzarle. Il tuo codice ha già un filtro passa-basso sul derivativo (lpf_alpha), il che è ottimo per ridurre il rumore. Un piccolo Kd (es. 0.1, 0.5) è spesso sufficiente.
+	 * Tuning I: Solo alla fine, se noti che il drone si stabilizza costantemente un po' sopra o un po' sotto il setpoint (errore a regime stazionario), introduci un Ki molto piccolo (es. 0.05, 0.1). Il suo compito è solo quello di eliminare quel piccolo errore residuo nel tempo.
+	 */
 
 	/* Motor: moderate LPF, derivative on measurement, no offset */
-	pid_init(&pid_motor, 3.0f, 0.0f, 0.0f, 0.033f,
-			LOWER_LIMIT_MOTOR, UPPER_LIMIT_MOTOR, 0.0f,
+	pid_init(&pid_motor, 6.0f, 0.0f, 0.0f, 0.033f,
+			LOWER_LIMIT_MOTOR, UPPER_LIMIT_MOTOR, 1300.0f,
 			 0.3f,   /* lpf_alpha — moderate filter */
 			 true);  /* derivative on measurement    */
 
+	snprintf(tmp, sizeof tmp, "PID motors: %d.%02d,%d.%02d,%d.%02d\n",
+			(int)pid_motor.kp,abs((int)(pid_motor.kp * 100) % 100),
+			(int)pid_motor.ki,abs((int)(pid_motor.ki * 100) % 100),
+			(int)pid_motor.kd,abs((int)(pid_motor.kd * 100) % 100)
+	);
+	HAL_UART_Transmit(&huart3, (uint8_t*) tmp, strlen(tmp), HAL_MAX_DELAY);
 
+	float max_yaw_correction = ((float)UPPER_LIMIT_MOTOR - (float)LOWER_LIMIT_MOTOR) / 2.0f - yaw_trim;
+
+	/* Yaw: moderate LPF, derivative on error, no offset */
+	pid_init(&pid_yaw, 3.0f, 0.1f, 0.1f, 0.01f,
+			-max_yaw_correction, max_yaw_correction, 0.0f,
+			 0.3f,   /* lpf_alpha — moderate filter */
+			 false);  /* derivative on error    */
+
+	snprintf(tmp, sizeof tmp, "PID yaw: %d.%02d,%d.%02d,%d.%02d\n",
+			(int)pid_yaw.kp,abs((int)(pid_yaw.kp * 100) % 100),
+			(int)pid_yaw.ki,abs((int)(pid_yaw.ki * 100) % 100),
+			(int)pid_yaw.kd,abs((int)(pid_yaw.kd * 100) % 100)
+	);
+	HAL_UART_Transmit(&huart3, (uint8_t*) tmp, strlen(tmp), HAL_MAX_DELAY);
 
 	/*-------------------------------------------------------------------------------------------------------*/
 	/*                                   PWM INITIALIZATIONS                                                 */
@@ -282,7 +324,7 @@ int main(void) {
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Control servos' actuation started\n", strlen("Control servos' actuation started\n"), HAL_MAX_DELAY);
 
 	// Setup signal for ESC (throttle to the bottom)
-	set_pwm_motors(LOWER_LIMIT_MOTOR);
+	set_pwm_motors(LOWER_LIMIT_MOTOR, LOWER_LIMIT_MOTOR);
 
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Wait 5 seconds for ESC setup (n-beeps and a long beep)...\n", strlen("Wait 5 seconds for ESC setup (n-beeps and a long beep)...\n"), HAL_MAX_DELAY);
 
@@ -311,7 +353,6 @@ int main(void) {
 	while (run) {
 
 		/*--------------------------------------------- MOTOR ACTUATION AND CONTROL ---------------------------------------------*/
-
 		if (actuate_motors_control) {
 			actuate_motors_control = false;
 			/* ---- Read ToF ---- */
@@ -326,14 +367,11 @@ int main(void) {
 			float alt_mm = tof_compensate_tilt(filt_tof, imu_now.roll_deg,imu_now.pitch_deg);
 
 			/* ---- Compute motor PID ----- */
-			uint16_t motor_pwm = (uint16_t)(pid_compute(&pid_motor,ref_altitude, alt_mm) + 0.5f);
-
-			/* ---- Control ----- */
-			set_pwm_motors(800);
+			motor_pwm = (uint16_t)(pid_compute(&pid_motor,ref_altitude, alt_mm));
 
 			/* --- Send in serial (comment it if not necessary) ---- */
-			sprintf(msg_VL53L1X, "%d.%02d,%d\n",(int)alt_mm,abs((int)(alt_mm   * 100) % 100),motor_pwm);
-			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X));
+			//sprintf(msg_VL53L1X, "%d.%02d,%d\n",(int)alt_mm,abs((int)(alt_mm   * 100) % 100),motor_pwm);
+			//HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X));
 
 		}
 
@@ -343,7 +381,7 @@ int main(void) {
 			actuate_servo_control = false;
 
 			/* ---- Read IMU ---- */
-			imu_read_absolute(&imu_now);
+			imu_read_relative(&imu_ref, &imu_now);
 
 			/* ---- Rotate into flap frame ---- */
 			flap_axes_t flap;
@@ -357,19 +395,55 @@ int main(void) {
 			uint16_t roll_pwm  = angle_to_pwm(req_roll_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
 			uint16_t pitch_pwm = angle_to_pwm(req_pitch_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
 
-			/* ---- Control --- */
+			/* ---- Compute mixer (differential throttle per yaw) --- */
+
+			// Compute the yaw PID
+			float yaw_correction = pid_compute(&pid_yaw, ref_yaw, imu_now.yaw_deg);
+
+			// Symmetric Trim: Split evenly so altitude PID controls average thrust
+			float top_f  = (float)motor_pwm - yaw_correction - (yaw_trim / 2.0f);
+			float bottom_f = (float)motor_pwm + yaw_correction + (yaw_trim / 2.0f);
+
+			// Altitude-Priority Clamping:
+			// If we hit a limit, clamp it. DO NOT shift the other motor.
+			// We sacrifice yaw authority to preserve altitude (prevent sinking).
+			if (bottom_f > (float)UPPER_LIMIT_MOTOR) {
+				bottom_f = (float)UPPER_LIMIT_MOTOR;
+			}
+			if (top_f < (float)LOWER_LIMIT_MOTOR) {
+				top_f = (float)LOWER_LIMIT_MOTOR;
+			}
+			if (top_f > (float)UPPER_LIMIT_MOTOR) {
+				top_f = (float)UPPER_LIMIT_MOTOR;
+			}
+			if (bottom_f < (float)LOWER_LIMIT_MOTOR) {
+				bottom_f = (float)LOWER_LIMIT_MOTOR;
+			}
+
+			// Final safety cast
+			int16_t top_pwm    = (int16_t)top_f;
+			int16_t bottom_pwm = (int16_t)bottom_f;
+
+			/* --- Control --- */
+			set_pwm_motors(top_pwm, bottom_pwm);
 			set_pwm_servos(roll_pwm, pitch_pwm);
 
 
-			/* --- Send in serial (comment it if not necessary) ---- */
-			snprintf(msg_bno,sizeof(msg_bno), "%d.%02d,%d.%02d,%d,%d\n",
+			/* --- Send in serial (comment it if not necessary) ----
+			snprintf(msg_bno,sizeof(msg_bno), "%d.%02d,%d.%02d,%d,%d,%d.%02d,%d,%d\n",
 					(int)flap.flap_roll, abs((int)(flap.flap_roll * 100) % 100),
 					(int)flap.flap_pitch, abs((int)(flap.flap_pitch * 100) % 100),
 					roll_pwm,
 					pitch_pwm
 			);
-			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_bno, strlen(msg_bno));
+			*/
 
+			snprintf(msg_bno,sizeof(msg_bno),"%d.%02d,%d,%d\n",
+					(int)imu_now.yaw_deg, abs((int)(imu_now.yaw_deg*100) %100),
+					top_pwm,
+					bottom_pwm
+			);
+			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_bno, strlen(msg_bno));
 
 		}
 

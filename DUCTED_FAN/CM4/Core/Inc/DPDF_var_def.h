@@ -103,13 +103,13 @@
 
 
 /* Hardware Calibration */
-#define CCR_PER_DEGREE      5.0f   /* Based on 75 CCR / 15° measurement */
+#define CCR_PER_DEGREE      10.0f   /* Based on 150 CCR / 15° measurement */
 
 /**
  * @def MAX_FLAP_ANGLE_DEG
  *
  * @brief This macro defines the ROM of servo motors in degrees for both directions. So total ROM is 120°.
  */
-#define MAX_FLAP_ANGLE_DEG  60.0f  /* Maximum safe physical angle for the flap */
+#define MAX_FLAP_ANGLE_DEG  30.0f  /* Maximum safe physical angle for the flap */
 
 

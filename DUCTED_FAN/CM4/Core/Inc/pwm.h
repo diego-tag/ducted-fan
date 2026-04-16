@@ -46,7 +46,7 @@ void safe_startup(uint16_t number_of_toggles);
  * 											  motor.
  *
  */
-void set_pwm_motors(uint16_t ccr_motor);
+void set_pwm_motors(uint16_t ccr_top_motor, uint16_t ccr_bottom_motor);
 /*-------------------------------------------------------------------------------------------------------*/
 /*					  		 			COMMON FUNCTIONS			      					     */
 /*-------------------------------------------------------------------------------------------------------*/

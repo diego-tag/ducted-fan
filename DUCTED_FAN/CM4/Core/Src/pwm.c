@@ -19,7 +19,7 @@ void start_all_pwm(void) {
 
 void stop_all_pwm(uint16_t lower_limit_motor, uint16_t center_servo) {
 
-	set_pwm_motors(lower_limit_motor);
+	set_pwm_motors(lower_limit_motor, lower_limit_motor);
 
 	set_pwm_servos(center_servo, center_servo);
 
@@ -78,10 +78,10 @@ void safe_startup(uint16_t number_of_toggles) {
 }
 
 
-void set_pwm_motors(uint16_t ccr_motor) {
+void set_pwm_motors(uint16_t ccr_top_motor, uint16_t ccr_bottom_motor) {
 
-	TIM4->CCR2 = ccr_motor;
-	TIM4->CCR3 = ccr_motor;
+	TIM4->CCR2 = ccr_top_motor;
+	TIM4->CCR3 = ccr_bottom_motor;
 
 }
 

@@ -29,7 +29,17 @@ void imu_read_relative(const imu_angles_t *ref, imu_angles_t *out)
 
     out->roll_deg  = raw.roll_deg  - ref->roll_deg;
     out->pitch_deg = raw.pitch_deg - ref->pitch_deg;
-    out->yaw_deg   = raw.yaw_deg   - ref->yaw_deg;
+
+    /* Yaw requires wraparound handling (BNO055 heading: [0, 360)) */
+	float yaw_diff = raw.yaw_deg - ref->yaw_deg;
+
+	/* Normalize to [-180, +180] */
+	if (yaw_diff > 180.0f)
+		yaw_diff -= 360.0f;
+	else if (yaw_diff < -180.0f)
+		yaw_diff += 360.0f;
+
+	out->yaw_deg = yaw_diff;
 }
 
 /*
@@ -51,6 +61,6 @@ void imu_read_relative(const imu_angles_t *ref, imu_angles_t *out)
 
 void axis_remap_imu_to_flaps(float imu_roll, float imu_pitch, flap_axes_t *out)
 {
-    out->flap_roll  = -( OFFSET_COS * imu_roll + OFFSET_SIN * imu_pitch);
-    out->flap_pitch = (-OFFSET_SIN * imu_roll + OFFSET_COS * imu_pitch);
+    out->flap_roll  = ( OFFSET_COS * imu_roll + OFFSET_SIN * imu_pitch);
+    out->flap_pitch = -(-OFFSET_SIN * imu_roll + OFFSET_COS * imu_pitch);
 }
