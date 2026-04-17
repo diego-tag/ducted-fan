@@ -148,8 +148,7 @@ int main(void) {
 	/*					  		    INITIALIZATION OF VARIABLES AND STRUCTURES			      			     */
 	/*-------------------------------------------------------------------------------------------------------*/
 
-	char msg_bno[STANDARD_MESSAGE_LENGTH];
-	char msg_VL53L1X[STANDARD_MESSAGE_LENGTH];
+	char uart_msg[STANDARD_MESSAGE_LENGTH];
 
 	const float ref_roll_pitch = 0.0f;
 	const uint16_t ref_altitude = 100;
@@ -157,7 +156,7 @@ int main(void) {
 
 	// Positive = makes bottom motor spin faster and bottom lower by default
 	// negative = makes bottom motor spin slower and top lower by default
-	float yaw_trim = 0.0f;
+	const float yaw_trim = 0.0f;
 
 	/*------------------------------ CONTROL-RELATED STRUCTURES ------------------------------*/
 
@@ -173,9 +172,6 @@ int main(void) {
 	VL53L1_Dev_t vl53l1_c;
 	VL53L1_DEV Dev = &vl53l1_c;
 
-	// Setup USART to listen for exactly 1 byte (used for start/stop from serial)
-	HAL_UART_Receive_IT(&huart3, &rx_byte, 1);
-
 	/*-------------------------------------------------------------------------------------------------------*/
 	/*					  		    			  SAFE STARTUP				      			 				 */
 	/*-------------------------------------------------------------------------------------------------------*/
@@ -188,6 +184,9 @@ int main(void) {
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Waiting safe startup (press user button or sends something to serial)...\n", strlen("Waiting safe startup (press user button or sends something to serial)...\n"),
 	HAL_MAX_DELAY);
 
+	// Setup USART to listen for exactly 1 byte (used for start/stop from serial)
+	HAL_UART_Receive_IT(&huart3, &rx_byte, 1);
+
 	while (!run) {
 		__WFI();
 	}
@@ -197,13 +196,13 @@ int main(void) {
 
 	safe_startup(NUMBER_OF_TOGGLES);
 
-	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_12, GPIO_PIN_SET); // Power the altitude sensor
-
 	/*-------------------------------------------------------------------------------------------------------*/
 	/*					  		    	 SENSOR INITIALIZATION				      			 				 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
 	/*------------------------------ VL53L1X INITIALIZATION ------------------------------*/
+
+	HAL_GPIO_WritePin(GPIOG, GPIO_PIN_12, GPIO_PIN_SET); // Power the altitude sensor
 
 	// Hardware reset the sensor with XSHUT (PE14 starts LOW from MX_GPIO_Init)
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, GPIO_PIN_SET);
@@ -215,8 +214,8 @@ int main(void) {
 		HAL_UART_Transmit(&huart3, (uint8_t*) "Altitude sensor (VL53L1X) initialized\n", strlen("Altitude sensor (VL53L1X) initialized\n"),
 		HAL_MAX_DELAY);
 	} else {
-		sprintf(msg_VL53L1X, "Altitude sensor (VL53L1X) error: %d\n", status);
-		HAL_UART_Transmit(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X), HAL_MAX_DELAY);
+		sprintf(uart_msg, "Altitude sensor (VL53L1X) error: %d\n", status);
+		HAL_UART_Transmit(&huart3, (uint8_t*) uart_msg, strlen(uart_msg), HAL_MAX_DELAY);
 		return 1;
 	}
 
@@ -257,8 +256,6 @@ int main(void) {
 		Sensor filtering  No                    Median at PID input      Median at PID input
 	 */
 
-	char tmp[STANDARD_MESSAGE_LENGTH];
-
 	pid_init(&pid_roll,  0.0f, 0.0f, 0.0f, 0.01f,
 			-2*MAX_FLAP_ANGLE_DEG, 2*MAX_FLAP_ANGLE_DEG, 0.0f,
 			 1.0f,    /* lpf_alpha — pass-through   */
@@ -269,12 +266,12 @@ int main(void) {
 			 1.0f,   /* lpf_alpha — pass-through   */
 			 false); /* derivative on error        */
 
-	snprintf(tmp, sizeof tmp, "PID servos: %d.%02d,%d.%02d,%d.%02d\n",
+	snprintf(uart_msg, sizeof uart_msg, "PID servos: %d.%02d,%d.%02d,%d.%02d\n",
 			(int)pid_roll.kp,abs((int)(pid_roll.kp * 100) % 100),
 			(int)pid_roll.ki,abs((int)(pid_roll.ki * 100) % 100),
 			(int)pid_roll.kd,abs((int)(pid_roll.kd * 100) % 100)
 	);
-	HAL_UART_Transmit(&huart3, (uint8_t*) tmp, strlen(tmp), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart3, (uint8_t*) uart_msg, strlen(uart_msg), HAL_MAX_DELAY);
 
 	/* Motor: moderate LPF, derivative on measurement, no offset */
 	pid_init(&pid_motor, 0.0f, 0.0f, 0.0f, 0.033f,
@@ -282,12 +279,12 @@ int main(void) {
 			 0.3f,   /* lpf_alpha — moderate filter */
 			 true);  /* derivative on measurement    */
 
-	snprintf(tmp, sizeof tmp, "PID motors: %d.%02d,%d.%02d,%d.%02d\n",
+	snprintf(uart_msg, sizeof uart_msg, "PID motors: %d.%02d,%d.%02d,%d.%02d\n",
 			(int)pid_motor.kp,abs((int)(pid_motor.kp * 100) % 100),
 			(int)pid_motor.ki,abs((int)(pid_motor.ki * 100) % 100),
 			(int)pid_motor.kd,abs((int)(pid_motor.kd * 100) % 100)
 	);
-	HAL_UART_Transmit(&huart3, (uint8_t*) tmp, strlen(tmp), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart3, (uint8_t*) uart_msg, strlen(uart_msg), HAL_MAX_DELAY);
 
 	float max_yaw_correction = ((float)UPPER_LIMIT_MOTOR - (float)LOWER_LIMIT_MOTOR) / 2.0f - yaw_trim;
 
@@ -297,12 +294,12 @@ int main(void) {
 			 0.3f,   /* lpf_alpha — moderate filter */
 			 false);  /* derivative on error    */
 
-	snprintf(tmp, sizeof tmp, "PID yaw: %d.%02d,%d.%02d,%d.%02d\n",
+	snprintf(uart_msg, sizeof uart_msg, "PID yaw: %d.%02d,%d.%02d,%d.%02d\n",
 			(int)pid_yaw.kp,abs((int)(pid_yaw.kp * 100) % 100),
 			(int)pid_yaw.ki,abs((int)(pid_yaw.ki * 100) % 100),
 			(int)pid_yaw.kd,abs((int)(pid_yaw.kd * 100) % 100)
 	);
-	HAL_UART_Transmit(&huart3, (uint8_t*) tmp, strlen(tmp), HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart3, (uint8_t*) uart_msg, strlen(uart_msg), HAL_MAX_DELAY);
 
 	/*-------------------------------------------------------------------------------------------------------*/
 	/*                                   PWM INITIALIZATIONS                                                 */
@@ -364,8 +361,8 @@ int main(void) {
 			motor_pwm = (uint16_t)(pid_compute(&pid_motor,ref_altitude, alt_mm));
 
 			/* --- Send in serial (comment it if not necessary) ---- */
-			//sprintf(msg_VL53L1X, "%d.%02d,%d\n",(int)alt_mm,abs((int)(alt_mm   * 100) % 100),motor_pwm);
-			//HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_VL53L1X, strlen(msg_VL53L1X));
+			//sprintf(uart_msg, "%d.%02d,%d\n",(int)alt_mm,abs((int)(alt_mm   * 100) % 100),motor_pwm);
+			//HAL_UART_Transmit_DMA(&huart3, (uint8_t*) uart_msg, strlen(uart_msg));
 
 		}
 
@@ -424,7 +421,7 @@ int main(void) {
 
 
 			/* --- Send in serial (comment it if not necessary) ----
-			snprintf(msg_bno,sizeof(msg_bno), "%d.%02d,%d.%02d,%d,%d,%d.%02d,%d,%d\n",
+			snprintf(uart_msg,sizeof(uart_msg), "%d.%02d,%d.%02d,%d,%d,%d.%02d,%d,%d\n",
 					(int)flap.flap_roll, abs((int)(flap.flap_roll * 100) % 100),
 					(int)flap.flap_pitch, abs((int)(flap.flap_pitch * 100) % 100),
 					roll_pwm,
@@ -432,12 +429,12 @@ int main(void) {
 			);
 			*/
 
-			snprintf(msg_bno,sizeof(msg_bno),"%d.%02d,%d,%d\n",
+			snprintf(uart_msg,sizeof(uart_msg),"%d.%02d,%d,%d\n",
 					(int)imu_now.yaw_deg, abs((int)(imu_now.yaw_deg*100) %100),
 					top_pwm,
 					bottom_pwm
 			);
-			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) msg_bno, strlen(msg_bno));
+			HAL_UART_Transmit_DMA(&huart3, (uint8_t*) uart_msg, strlen(uart_msg));
 
 		}
 
