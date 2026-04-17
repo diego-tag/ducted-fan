@@ -15,9 +15,8 @@
  *
  ******************************************************************************
  */
-
+#include "config.h"
 #include "pwm.h"
-#include "DPDF_var_def.h"
 #include "pid.h"
 #include "tof.h"
 #include "imu.h"
@@ -248,23 +247,21 @@ int main(void) {
 	/*                                   PID INITIALIZATIONS                                                 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
-	/*                    Servo (flap/IMU)      Motor (propeller/ToF)    Yaw (propeller/IMU)  
-						  ──────────────────    ──────────────────────   ──────────────────────
-		Median filter     No  (Gaussian noise)  Yes (impulse spikes)     Yes (impulse spikes)
-		Deriv mode        On error              On measurement           On measurement
-		LPF on D          α = 1.0 (off)         α = 0.3 (moderate)       α = 0.3 (moderate)
-		Sensor filtering  No                    Median at PID input      Median at PID input
-	 */
+	pid_init(&pid_roll,
+	         FLIGHT_CFG.servo_roll.kp, FLIGHT_CFG.servo_roll.ki, FLIGHT_CFG.servo_roll.kd,
+	         FLIGHT_CFG.servo_roll.sample_time,
+	         FLIGHT_CFG.servo_roll.out_min, FLIGHT_CFG.servo_roll.out_max,
+	         FLIGHT_CFG.servo_roll.out_offset,
+	         FLIGHT_CFG.servo_roll.lpf_alpha,
+	         FLIGHT_CFG.servo_roll.deriv_on_measurement);
 
-	pid_init(&pid_roll,  0.0f, 0.0f, 0.0f, 0.01f,
-			-2*MAX_FLAP_ANGLE_DEG, 2*MAX_FLAP_ANGLE_DEG, 0.0f,
-			 1.0f,    /* lpf_alpha — pass-through   */
-			 false);  /* derivative on error         */
-
-	pid_init(&pid_pitch, 0.0f, 0.0f, 0.0f, 0.01f,
-			-MAX_FLAP_ANGLE_DEG, MAX_FLAP_ANGLE_DEG, 0.0f,
-			 1.0f,   /* lpf_alpha — pass-through   */
-			 false); /* derivative on error        */
+	pid_init(&pid_pitch,
+	         FLIGHT_CFG.servo_pitch.kp, FLIGHT_CFG.servo_pitch.ki, FLIGHT_CFG.servo_pitch.kd,
+	         FLIGHT_CFG.servo_pitch.sample_time,
+	         FLIGHT_CFG.servo_pitch.out_min, FLIGHT_CFG.servo_pitch.out_max,
+	         FLIGHT_CFG.servo_pitch.out_offset,
+	         FLIGHT_CFG.servo_pitch.lpf_alpha,
+	         FLIGHT_CFG.servo_pitch.deriv_on_measurement);
 
 	snprintf(uart_msg, sizeof uart_msg, "PID servos: %d.%02d,%d.%02d,%d.%02d\n",
 			(int)pid_roll.kp,abs((int)(pid_roll.kp * 100) % 100),
@@ -273,11 +270,14 @@ int main(void) {
 	);
 	HAL_UART_Transmit(&huart3, (uint8_t*) uart_msg, strlen(uart_msg), HAL_MAX_DELAY);
 
-	/* Motor: moderate LPF, derivative on measurement, no offset */
-	pid_init(&pid_motor, 0.0f, 0.0f, 0.0f, 0.033f,
-			LOWER_LIMIT_MOTOR, UPPER_LIMIT_MOTOR, 1300.0f,
-			 0.3f,   /* lpf_alpha — moderate filter */
-			 true);  /* derivative on measurement    */
+
+	pid_init(&pid_motor,
+	         FLIGHT_CFG.motor.kp, FLIGHT_CFG.motor.ki, FLIGHT_CFG.motor.kd,
+	         FLIGHT_CFG.motor.sample_time,
+	         FLIGHT_CFG.motor.out_min, FLIGHT_CFG.motor.out_max,
+	         FLIGHT_CFG.motor.out_offset,
+	         FLIGHT_CFG.motor.lpf_alpha,
+	         FLIGHT_CFG.motor.deriv_on_measurement);
 
 	snprintf(uart_msg, sizeof uart_msg, "PID motors: %d.%02d,%d.%02d,%d.%02d\n",
 			(int)pid_motor.kp,abs((int)(pid_motor.kp * 100) % 100),
@@ -286,13 +286,13 @@ int main(void) {
 	);
 	HAL_UART_Transmit(&huart3, (uint8_t*) uart_msg, strlen(uart_msg), HAL_MAX_DELAY);
 
-	float max_yaw_correction = ((float)UPPER_LIMIT_MOTOR - (float)LOWER_LIMIT_MOTOR) / 2.0f - yaw_trim;
-
-	/* Yaw: moderate LPF, derivative on error, no offset */
-	pid_init(&pid_yaw, 7.0f, 0.02f, 0.15f, 0.01f,
-			-max_yaw_correction, max_yaw_correction, 0.0f,
-			 0.3f,   /* lpf_alpha — moderate filter */
-			 false);  /* derivative on error    */
+	pid_init(&pid_yaw,
+	         FLIGHT_CFG.yaw.kp, FLIGHT_CFG.yaw.ki, FLIGHT_CFG.yaw.kd,
+	         FLIGHT_CFG.yaw.sample_time,
+	         FLIGHT_CFG.yaw.out_min, FLIGHT_CFG.yaw.out_max,
+	         FLIGHT_CFG.yaw.out_offset,
+	         FLIGHT_CFG.yaw.lpf_alpha,
+	         FLIGHT_CFG.yaw.deriv_on_measurement);
 
 	snprintf(uart_msg, sizeof uart_msg, "PID yaw: %d.%02d,%d.%02d,%d.%02d\n",
 			(int)pid_yaw.kp,abs((int)(pid_yaw.kp * 100) % 100),
@@ -358,7 +358,7 @@ int main(void) {
 			float alt_mm = tof_compensate_tilt(filt_tof, imu_now.roll_deg,imu_now.pitch_deg);
 
 			/* ---- Compute motor PID ----- */
-			motor_pwm = (uint16_t)(pid_compute(&pid_motor,ref_altitude, alt_mm));
+			motor_pwm = (uint16_t)(pid_compute(&pid_motor,FLIGHT_CFG.ref_altitude, alt_mm));
 
 			/* --- Send in serial (comment it if not necessary) ---- */
 			//sprintf(uart_msg, "%d.%02d,%d\n",(int)alt_mm,abs((int)(alt_mm   * 100) % 100),motor_pwm);
@@ -379,8 +379,8 @@ int main(void) {
 			axis_remap_imu_to_flaps(imu_now.roll_deg,imu_now.pitch_deg, &flap);
 
 			/* ---- Compute servo PID (IMU Degrees in -> Flap Degrees out) ---- */
-			float req_roll_deg  = pid_compute(&pid_roll,  ref_roll_pitch, flap.flap_roll);
-			float req_pitch_deg = pid_compute(&pid_pitch, ref_roll_pitch, flap.flap_pitch);
+			float req_roll_deg  = pid_compute(&pid_roll,  FLIGHT_CFG.ref_roll_pitch, flap.flap_roll);
+			float req_pitch_deg = pid_compute(&pid_pitch, FLIGHT_CFG.ref_roll_pitch, flap.flap_pitch);
 
 			/* ---- Actuator Mapping (Degrees -> CCR) ---- */
 			uint16_t roll_pwm  = angle_to_pwm(req_roll_deg, CENTER_SERVO, CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
@@ -389,11 +389,11 @@ int main(void) {
 			/* ---- Compute mixer (differential throttle per yaw) --- */
 
 			// Compute the yaw PID
-			float yaw_correction = pid_compute(&pid_yaw, ref_yaw, imu_now.yaw_deg);
+			float yaw_correction = pid_compute(&pid_yaw, FLIGHT_CFG.ref_yaw, imu_now.yaw_deg);
 
 			// Split evenly so altitude PID controls average thrust
-			float top_f  = (float)motor_pwm + yaw_correction + (yaw_trim / 2.0f);
-			float bottom_f = (float)motor_pwm - yaw_correction - (yaw_trim / 2.0f);
+			float top_f  = (float)motor_pwm + yaw_correction + (FLIGHT_CFG.yaw_trim / 2.0f);
+			float bottom_f = (float)motor_pwm - yaw_correction - (FLIGHT_CFG.yaw_trim / 2.0f);
 
 			// Altitude-priority clamping:
 			// If correction hits a limit, clamp it. DO NOT shift the other motor.
@@ -417,7 +417,7 @@ int main(void) {
 
 			/* --- Control --- */
 			set_pwm_motors(top_pwm, bottom_pwm);
-			//set_pwm_servos(roll_pwm, pitch_pwm);
+			set_pwm_servos(roll_pwm, pitch_pwm);
 
 
 			/* --- Send in serial (comment it if not necessary) ----

@@ -1,15 +1,10 @@
-/**********************************************************************************************************
- * _______________________________________________________________________________________________________
- *| @file DPDF_var_def.h																				  |																  |
- *| @brief This file containes the macros, variables and data structure used in the firmware sections     |
- *| 		  responible for motor, servo and PID management.											  |
- *| @version 0.2																				          |
- *| @date 27-10-2025																					  |
- *| ______________________________________________________________________________________________________|
- *********************************************************************************************************/
+#ifndef INC_CONFIG_H_
+#define INC_CONFIG_H_
+
+#include "pid.h"
 
 /*-------------------------------------------------------------------------------------------------------*/
-/*					  		 			MACORS / DEFINITIONS 				      						 */
+/*					  		 	HARDWARE & PLATFORM CONSTANTS		      						         */
 /*-------------------------------------------------------------------------------------------------------*/
 
 /**
@@ -19,29 +14,34 @@
  */
 #define STANDARD_MESSAGE_LENGTH															50
 
-/*-------------------------------------------------------------------------------------------------------*/
-/*					  		 			MOTOR-RELATED MACROS 				      						 */
-/*-------------------------------------------------------------------------------------------------------*/
-
 /**
  * @def NUMBER_OF_TOGGLES
  *
  * @brief This macro is used to specify (or set) the number of seconds before the firmware startup.
- * 		  It defines the number of the toggles of the LD3 on NUCLEO-H745ZIQ. The number of seconds
+ * 		  It defines the number of the toggles of the LED on NUCLEO-H745ZIQ. The number of seconds
  * 		  is obtained by dividing this value by two.
  */
 #define NUMBER_OF_TOGGLES																10
 
 /**
- * @def CCR_VALUE_FOR_MOTOR_ACT
+ * @def CCR_PER_DEGREE
  *
- * @brief This macro specifies the value to be set in the compare register for motor arming. To arm
- * 		  the motor, the PWM signal must have a frequency of 50 Hz and a duty cycle of 4.5%. The
- * 		  value below was calculated considering a precaler of 99 and a period of 14999.
+ * @brief This macro defines the ratio of CCR/degree of servos (based on measurement: 150 CCR / 15°).
  */
-#define CCR_VALUE_FOR_MOTOR_ACT 712
+#define CCR_PER_DEGREE      10.0f
 
-/* MOTOR PID */
+/**
+ * @def MAX_FLAP_ANGLE_DEG
+ *
+ * @brief This macro defines the ROM of servo motors in degrees for both directions. So total ROM is 60°.
+ */
+#define MAX_FLAP_ANGLE_DEG  30.0f  /* Maximum safe physical angle for the flap */
+
+
+/*-------------------------------------------------------------------------------------------------------*/
+/*					  		 			MOTOR-RELATED MACROS 				      						 */
+/*-------------------------------------------------------------------------------------------------------*/
+
 
 /**
  * @def UPPER_LIMIT_MOTOR
@@ -76,7 +76,7 @@
  * 		  This limit is applied in the anti-windup filter of the servo PID controller. The value is
  * 		  calculated considering a frequency of 50 Hz, a prescaler of 99 and a period of 14999. The
  * 		  value below corresponds to a duty cycle of 10.3%.
- * 		  This value rotates the servo motor clockwise to its maximum range: 60°.
+ * 		  This value rotates the servo motor clockwise to its maximum range: 30°.
  *
  */
 #define UPPER_LIMIT_SERVO													1545
@@ -97,19 +97,32 @@
  * 		  This limit is applied in the anti-windup filter of the servo PID controller. The value is
  * 		  calculated considering a frequency of 50 Hz, a prescaler of 99 and a period of 14999. The
  * 		  value below corresponds to a duty cyle of 4,7 %.
- * 		  This value rotates the servo motor counter clockwise to its maximum range: -60°.
+ * 		  This value rotates the servo motor counter clockwise to its maximum range: -30°.
  */
 #define LOWER_LIMIT_SERVO													705
 
+/*  Timing (seconds) */
+#define SERVO_LOOP_SAMPLE_TIME           0.01f       /* Equivalent to 100 Hz */
+#define MOTOR_LOOP_SAMPLE_TIME           0.033f      /* Equivalent to ~30 Hz */
 
-/* Hardware Calibration */
-#define CCR_PER_DEGREE      10.0f   /* Based on 150 CCR / 15° measurement */
+/*-------------------------------------------------------------------------------------------------------*/
+/*                                    CONTROL & TUNABLE CONSTANTS                                        */
+/*-------------------------------------------------------------------------------------------------------*/
 
-/**
- * @def MAX_FLAP_ANGLE_DEG
- *
- * @brief This macro defines the ROM of servo motors in degrees for both directions. So total ROM is 120°.
- */
-#define MAX_FLAP_ANGLE_DEG  30.0f  /* Maximum safe physical angle for the flap */
+/* Flight configuration struct */
+typedef struct {
+    float    ref_roll_pitch;
+    uint16_t ref_altitude;
+    float    ref_yaw;
+    float    yaw_trim;
 
+    pid_controller_t servo_roll;
+    pid_controller_t servo_pitch;
+    pid_controller_t motor;
+    pid_controller_t yaw;
+} flight_config_t;
 
+/*  Single ROM instance (defined in config.c) */
+extern const flight_config_t FLIGHT_CFG;
+
+#endif /* INC_CONFIG_H_ */
