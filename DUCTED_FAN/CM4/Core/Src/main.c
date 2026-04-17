@@ -155,9 +155,9 @@ int main(void) {
 	const uint16_t ref_altitude = 100;
 	const float ref_yaw = 0.0f;
 
-	// Positive = makes bottom motor spin faster by default
-	// negative = makes bottom motor spin slower by default
-	float yaw_trim = 200.0f;
+	// Positive = makes bottom motor spin faster and bottom lower by default
+	// negative = makes bottom motor spin slower and top lower by default
+	float yaw_trim = 0.0f;
 
 	/*------------------------------ CONTROL-RELATED STRUCTURES ------------------------------*/
 
@@ -259,12 +259,12 @@ int main(void) {
 
 	char tmp[STANDARD_MESSAGE_LENGTH];
 
-	pid_init(&pid_roll,  10.0f, 0.0f, 0.5f, 0.01f,
+	pid_init(&pid_roll,  0.0f, 0.0f, 0.0f, 0.01f,
 			-2*MAX_FLAP_ANGLE_DEG, 2*MAX_FLAP_ANGLE_DEG, 0.0f,
 			 1.0f,    /* lpf_alpha — pass-through   */
 			 false);  /* derivative on error         */
 
-	pid_init(&pid_pitch, 10.0f, 0.0f, 0.5f, 0.01f,
+	pid_init(&pid_pitch, 0.0f, 0.0f, 0.0f, 0.01f,
 			-MAX_FLAP_ANGLE_DEG, MAX_FLAP_ANGLE_DEG, 0.0f,
 			 1.0f,   /* lpf_alpha — pass-through   */
 			 false); /* derivative on error        */
@@ -283,7 +283,7 @@ int main(void) {
 	 */
 
 	/* Motor: moderate LPF, derivative on measurement, no offset */
-	pid_init(&pid_motor, 6.0f, 0.0f, 0.0f, 0.033f,
+	pid_init(&pid_motor, 0.0f, 0.0f, 0.0f, 0.033f,
 			LOWER_LIMIT_MOTOR, UPPER_LIMIT_MOTOR, 1300.0f,
 			 0.3f,   /* lpf_alpha — moderate filter */
 			 true);  /* derivative on measurement    */
@@ -298,7 +298,7 @@ int main(void) {
 	float max_yaw_correction = ((float)UPPER_LIMIT_MOTOR - (float)LOWER_LIMIT_MOTOR) / 2.0f - yaw_trim;
 
 	/* Yaw: moderate LPF, derivative on error, no offset */
-	pid_init(&pid_yaw, 3.0f, 0.1f, 0.1f, 0.01f,
+	pid_init(&pid_yaw, 7.0f, 0.02f, 0.15f, 0.01f,
 			-max_yaw_correction, max_yaw_correction, 0.0f,
 			 0.3f,   /* lpf_alpha — moderate filter */
 			 false);  /* derivative on error    */
@@ -400,9 +400,9 @@ int main(void) {
 			// Compute the yaw PID
 			float yaw_correction = pid_compute(&pid_yaw, ref_yaw, imu_now.yaw_deg);
 
-			// Symmetric Trim: Split evenly so altitude PID controls average thrust
-			float top_f  = (float)motor_pwm - yaw_correction - (yaw_trim / 2.0f);
-			float bottom_f = (float)motor_pwm + yaw_correction + (yaw_trim / 2.0f);
+			// Split evenly so altitude PID controls average thrust
+			float top_f  = (float)motor_pwm + yaw_correction + (yaw_trim / 2.0f);
+			float bottom_f = (float)motor_pwm - yaw_correction - (yaw_trim / 2.0f);
 
 			// Altitude-Priority Clamping:
 			// If we hit a limit, clamp it. DO NOT shift the other motor.
@@ -426,7 +426,7 @@ int main(void) {
 
 			/* --- Control --- */
 			set_pwm_motors(top_pwm, bottom_pwm);
-			set_pwm_servos(roll_pwm, pitch_pwm);
+			//set_pwm_servos(roll_pwm, pitch_pwm);
 
 
 			/* --- Send in serial (comment it if not necessary) ----
