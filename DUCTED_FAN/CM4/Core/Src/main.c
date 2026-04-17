@@ -145,7 +145,7 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 
 	/*-------------------------------------------------------------------------------------------------------*/
-	/*					  		    INITIALIZATION OF THE CONTROL STRUCTURES 				      			 */
+	/*					  		    INITIALIZATION OF VARIABLES AND STRUCTURES			      			     */
 	/*-------------------------------------------------------------------------------------------------------*/
 
 	char msg_bno[STANDARD_MESSAGE_LENGTH];
@@ -185,7 +185,7 @@ int main(void) {
 		__WFI();
 	}
 
-	HAL_UART_Transmit(&huart3, (uint8_t*) "Waiting safe startup (press user button)...\n", strlen("Waiting safe startup (press user button)...\n"),
+	HAL_UART_Transmit(&huart3, (uint8_t*) "Waiting safe startup (press user button or sends something to serial)...\n", strlen("Waiting safe startup (press user button or sends something to serial)...\n"),
 	HAL_MAX_DELAY);
 
 	while (!run) {
@@ -242,19 +242,19 @@ int main(void) {
 
 	bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
 	//bno055_calibration();
-	imu_set_reference(&imu_ref);          // capture "level" orientation
+	imu_set_reference(&imu_ref);          // Capture "level" orientation
 	HAL_UART_Transmit(&huart3, (uint8_t*) "IMU (BNO055) initialized\n", strlen("IMU (BNO055) initialized\n"), HAL_MAX_DELAY);
 
 	/*-------------------------------------------------------------------------------------------------------*/
 	/*                                   PID INITIALIZATIONS                                                 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
-	/*                    Servo (flap/IMU)         Motor (propeller/ToF)
-						  ──────────────────       ──────────────────────
-		Median filter     No  (Gaussian noise)     Yes (impulse spikes)
-		Deriv mode        On error                 On measurement
-		LPF on D          α = 1.0 (off)            α = 0.3 (moderate)
-		Sensor filtering  Upstream (Kalman/CF)     Median at PID input
+	/*                    Servo (flap/IMU)      Motor (propeller/ToF)    Yaw (propeller/IMU)  
+						  ──────────────────    ──────────────────────   ──────────────────────
+		Median filter     No  (Gaussian noise)  Yes (impulse spikes)     Yes (impulse spikes)
+		Deriv mode        On error              On measurement           On measurement
+		LPF on D          α = 1.0 (off)         α = 0.3 (moderate)       α = 0.3 (moderate)
+		Sensor filtering  No                    Median at PID input      Median at PID input
 	 */
 
 	char tmp[STANDARD_MESSAGE_LENGTH];
@@ -275,12 +275,6 @@ int main(void) {
 			(int)pid_roll.kd,abs((int)(pid_roll.kd * 100) % 100)
 	);
 	HAL_UART_Transmit(&huart3, (uint8_t*) tmp, strlen(tmp), HAL_MAX_DELAY);
-
-	/*
-	 * Tuning P: Inizia da un valore basso (es. 1.0 o 2.0). L'obiettivo è avere una reazione pronta ma non oscillante quando "disturbi" il drone (es. spingendolo leggermente verso il basso). Aumenta Kp finché non vedi delle leggere oscillazioni, poi riducilo di un 30-40%.
-	 * Tuning D: Se hai oscillazioni veloci, aumenta Kd per smorzarle. Il tuo codice ha già un filtro passa-basso sul derivativo (lpf_alpha), il che è ottimo per ridurre il rumore. Un piccolo Kd (es. 0.1, 0.5) è spesso sufficiente.
-	 * Tuning I: Solo alla fine, se noti che il drone si stabilizza costantemente un po' sopra o un po' sotto il setpoint (errore a regime stazionario), introduci un Ki molto piccolo (es. 0.05, 0.1). Il suo compito è solo quello di eliminare quel piccolo errore residuo nel tempo.
-	 */
 
 	/* Motor: moderate LPF, derivative on measurement, no offset */
 	pid_init(&pid_motor, 0.0f, 0.0f, 0.0f, 0.033f,
@@ -320,7 +314,7 @@ int main(void) {
 	/*					  		    	 ACTUATORS SETUP       				      			 				 */
 	/*-------------------------------------------------------------------------------------------------------*/
 
-	HAL_TIM_Base_Start_IT(&htim7);  // start interrupt for servo control actuation
+	HAL_TIM_Base_Start_IT(&htim7);  // Start interrupt for servo control actuation
 	HAL_UART_Transmit(&huart3, (uint8_t*) "Control servos' actuation started\n", strlen("Control servos' actuation started\n"), HAL_MAX_DELAY);
 
 	// Setup signal for ESC (throttle to the bottom)
@@ -404,9 +398,9 @@ int main(void) {
 			float top_f  = (float)motor_pwm + yaw_correction + (yaw_trim / 2.0f);
 			float bottom_f = (float)motor_pwm - yaw_correction - (yaw_trim / 2.0f);
 
-			// Altitude-Priority Clamping:
-			// If we hit a limit, clamp it. DO NOT shift the other motor.
-			// We sacrifice yaw authority to preserve altitude (prevent sinking).
+			// Altitude-priority clamping:
+			// If correction hits a limit, clamp it. DO NOT shift the other motor.
+			// Sacrifice yaw authority to preserve altitude (prevent sinking).
 			if (bottom_f > (float)UPPER_LIMIT_MOTOR) {
 				bottom_f = (float)UPPER_LIMIT_MOTOR;
 			}
@@ -888,7 +882,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	// This is the usb cable
 	if (huart->Instance == USART3) {
-		// At every terminator, toggle run flag. This is useful to trigger start/stop from serial
+		// At every terminator, toggle run flag. This is used to trigger start/stop from serial
 		if (rx_byte == '\n') {
 			run = !run;
 		}
