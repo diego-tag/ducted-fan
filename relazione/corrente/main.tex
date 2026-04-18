@@ -118,12 +118,12 @@
 	
 	\section*{Introduzione}
 	
-	Il presente documento illustra le attività di sviluppo, ottimizzazione e controllo svolte sul \textit{Double Propeller Ducted-Fan (DPDF)}, proseguendo e ampliando il lavoro impostato in una precedente tesi triennale. Il punto di partenza dell'attività non ha tuttavia coinciso con un sistema pronto all'uso: a causa di un pregresso cedimento strutturale, si è resa necessaria una complessa fase iniziale di ripristino fisico. L'intera struttura meccanica è stata ridisegnata e ristampata in 3D, mentre le componenti hardware e l'elettronica di bordo sono state interamente riassemblate, ricablate e testate da zero.\\
-	L'obiettivo a lungo termine del progetto consiste nel raggiungimento di una condizione di \textit{hovering} stabile. All'interno di questo scenario, il \textit{task} assegnato al nostro gruppo prevede lo sviluppo dell'infrastruttura logica di controllo e l'avvio della fase di taratura sperimentale dei regolatori PID (già parzialmente abbozzati nel codice originale) sui rami di quota e assetto.\\
-	Durante i primi approcci sperimentali è infatti emerso come, prima ancora di poter ricercare i guadagni ottimali del PID, il sistema necessitasse di fondamenta software ben più solide per poter operare in sicurezza. Di conseguenza, gran parte del nostro contributo si è concentrata su un profondo \textit{refactoring} e irrobustimento del \textit{firmware} ereditato. Per rendere il percorso \textit{misura--controllo--attuazione} affidabile e trasparente, abbiamo introdotto e implementato numerosi accorgimenti: un filtro mediano per la reiezione dei disturbi del sensore ToF, la compensazione geometrica del \textit{tilt}, il \textit{remap} matriciale delle misure inerziali, una gestione \textit{event-driven} dei loop di controllo e logiche sicure di saturazione e \textit{anti-windup}.\\
+	Il presente documento illustra le attività di sviluppo, ottimizzazione e controllo svolte sul \textit{Double Propeller Ducted-Fan (DPDF)}, proseguendo e ampliando il lavoro impostato in una precedente tesi triennale \cite{Mincu2025}. Il punto di partenza dell'attività non ha tuttavia coinciso con un sistema pronto all'uso: a causa di un pregresso cedimento strutturale, si è resa necessaria una complessa fase iniziale di ripristino fisico. L'intera struttura meccanica è stata ridisegnata e ristampata in 3D, mentre le componenti hardware e l'elettronica di bordo sono state interamente riassemblate, ricablate e testate da zero.\\
+	L'obiettivo a lungo termine del progetto consiste nel raggiungimento di una condizione di \textit{hovering} stabile. All'interno di questo scenario, il \textit{task} assegnato al nostro gruppo prevede lo sviluppo dell'infrastruttura logica di controllo e l'avvio della fase di taratura sperimentale dei regolatori PID. Nel corso delle prove è stato riscontrato che la sola configurazione controrotante dei due motori non è sufficiente a compensare in modo affidabile le rotazioni attorno all'asse \textit{z}, per questo motivo una parte del lavoro si è progressivamente concentrata sull'introduzione e sulla taratura di un regolatore dedicato al controllo dello \textit{yaw}.\\
+	Inoltre durante i primi approcci sperimentali è emerso come, prima ancora di poter ricercare i guadagni ottimali dei regolatori, il sistema necessitasse di fondamenta software ben più solide per poter operare in sicurezza. Di conseguenza, è stato necessario un profondo \textit{refactoring} e irrobustimento del \textit{firmware} ereditato. Per rendere il percorso \textit{misura--controllo--attuazione} affidabile e trasparente, abbiamo introdotto e implementato numerosi accorgimenti: un filtro mediano per la reiezione dei disturbi del sensore ToF, la compensazione geometrica del \textit{tilt}, il \textit{remap} matriciale delle misure inerziali, una gestione \textit{event-driven} dei loop di controllo, logiche sicure di saturazione e \textit{anti-windup} e, nella fase finale della sperimentazione, un PID dedicato alla stabilizzazione dello \textit{yaw}, divenuto il principale oggetto della taratura conclusiva.\\
 	Nel seguito, la trattazione è organizzata secondo la seguente struttura:
 	\begin{itemize}
-		\item Nel \textbf{Capitolo 1} viene introdotta l'architettura meccanica del \textit{DPDF} e viene descritto concettualmente l'obiettivo di controllo dell'\textit{hovering}.
+		\item Nel \textbf{Capitolo 1} viene introdotta l'architettura meccanica del \textit{DPDF} e viene descritto l'obiettivo di controllo adottato.
 		\item Nel \textbf{Capitolo 2} vengono richiamate le principali componenti hardware impiegate e i relativi collegamenti elettrici. Al fine di fornire un documento autoconsistente, le specifiche tecniche riportate sintetizzano la documentazione prodotta nel lavoro originario, limitandosi alle informazioni con un impatto diretto sullo sviluppo del \textit{firmware}.
 		\item Nel \textbf{Capitolo 3} viene descritta nel dettaglio l'architettura software implementata. Costituisce il cuore del lavoro svolto, illustrando i diagrammi di flusso, la teoria dei regolatori PID discreti e tutte le logiche di filtraggio e sicurezza introdotte.
 		\item Nel \textbf{Capitolo 4} vengono infine documentati i test sperimentali. Sono riportati i criteri utilizzati per la taratura dei PID, i risultati dei test di volo e una discussione critica sulle prestazioni ottenute.
@@ -135,8 +135,9 @@
 	\section{Double Propeller Ducted-Fan. Struttura}
 	Il \textit{Double Propeller Ducted Fan} presenta una struttura cilindrica cava di \textbf{220 [mm]} di altezza e con un diametro esterno pari a \textbf{235 [mm]}. Il diametro interno, pari a \textbf{230 [mm]}, contiene le componenti necessarie al volo stabile del drone.\\
 	La configurazione con montaggio interno delle componenti responsabili del moto rappresenta l'elemento distintivo rispetto alle architetture di droni convenzionali. Tale configurazione risulta vantaggiosa per qualsiasi forma di interazione di contatto, sia con l'operatore umano sia con oggetti esterni, in quanto le eliche non sono esposte ma risultano integrate e protette dalla stessa struttura portante del drone.\\
-	Proseguendo con la descrizione della struttura interna del \textit{DPDF}, nella parte superiore sono posizionati due motori disposti in configurazione controrotante. L'implementazione di tale assetto garantisce la generazione di spinte verticali senza che il drone ruoti su se stesso attorno all'asse Z, passante per il centro della struttura cilindrica. Le eliche, infatti, generano momenti torcenti in direzione opposta e, bilanciandosi, restituiscono un momento risultante nullo per il velivolo.\\
-	Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste. I motori sono ancorati a una struttura a croce usata sia come base sia come rinforzo per le sollecitazioni che il \textit{DPDF} può subire. Tale struttura è stata progettata con una geometria e una finitura superficiale tali da minimizzare l'insorgenza di turbolenze aerodinamiche potenzialmente destabilizzanti per il volo del drone.
+	Proseguendo con la descrizione della struttura interna del \textit{DPDF}, nella parte superiore sono posizionati due motori disposti in configurazione controrotante. In linea di principio, tale assetto dovrebbe consentire la generazione di spinte verticali limitando la rotazione del drone attorno all'asse Z, poiché le eliche producono momenti torcenti di verso opposto. Le prove sperimentali hanno tuttavia mostrato che questa compensazione passiva, pur utile, non è risultata sufficiente da sola a sopprimere in modo soddisfacente la dinamica di \textit{yaw}, rendendo necessaria l'introduzione di un'azione di controllo dedicata.\\
+	Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste. I motori sono ancorati a una struttura a croce usata sia come base sia come rinforzo per le sollecitazioni che il \textit{DPDF} può subire.
+	
 	\begin{figure}[H]
 		\centering
 		\begin{subfigure}[b]{0.48\textwidth}
@@ -153,13 +154,15 @@
 		\caption{\textcolor{black}{Struttura del ducted fan}}
 		\label{fig:struttura_ducted_fan}
 	\end{figure}
+	
+	\newpage
 	Il disegno strutturale rende il \textit{DPDF} suscettibile a rotazioni indesiderate sul piano definito dagli assi X e Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinando una completa perdita di controllo del mezzo.\\
 	Al fine di limitare tali perturbazioni, la parte inferiore del \textit{DPDF} integra due \textbf{flap}: uno dedicato al controllo dell'assetto lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.\\
 	I \textit{flap}, interagendo con il getto d'aria generato dai motori, operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{roll} e \textit{pitch}. L'intervento di regolazione si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso. Il \textit{flap}, ruotando di un piccolo angolo, genera una deviazione del getto che lo investe. Tale deviazione produce una variazione della distribuzione di pressione tra il lato esposto al flusso (lato di pressione) e il lato opposto (lato di depressione). La differenza di pressione genera una forza aerodinamica risultante che produce un momento correttivo sull'assetto del velivolo. In prima approssimazione, la forza può essere considerata perpendicolare alla superficie del \textit{flap}. La direzione e il verso della forza devono essere tali da contrastare il momento perturbativo.\\
 	Entrambi i \textit{flap} sono collegati, a un'estremità, al servomotore che ne gestisce il movimento, mentre all'altra sono inseriti in un apposito modulo strutturale che, oltre a fissare ciascun sensore del sistema, lo mantiene parallelo al terreno. I \textit{flap} sono posizionati in modo tale da risultare perpendicolari tra loro.\\
-	Lungo la superficie esterna del cilindro sono state posizionate le componenti hardware necessarie al perseguimento degli scopi progettuali. La posizione di tali componenti è stata oggetto di studio al fine di ottenere un preciso bilanciamento del sistema. Gli elementi hardware utilizzati verranno approfonditi nel Capitolo 2.\\
+	Lungo la superficie esterna del cilindro sono state posizionate le componenti hardware necessarie al perseguimento degli scopi progettuali, cercando il più possibile di ottenere un preciso bilanciamento del sistema. Gli elementi hardware utilizzati verranno approfonditi nel Capitolo 2.\\
 	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere un'ottima distribuzione dei pesi. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione permette di evitare l'allentamento del dado di fissaggio causato dal flusso d'aria incidente generato dai motori.\\
-	L'intera struttura cilindrica, i \textit{flap}, i piedi di appoggio e i supporti di sostegno di tutte le componenti hardware e dei motori sono stati realizzati tramite \textbf{stampa 3D}, utilizzando \textbf{PVC} come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
+	L'intera struttura cilindrica, i \textit{flap}, i piedi di appoggio e i supporti di sostegno di tutte le parti hardware e dei motori sono stati realizzati tramite \textbf{stampa 3D}, utilizzando \textbf{PVC} come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
 	
 	\begin{figure}[!htbp]
 		\centering
@@ -190,8 +193,8 @@
 	
 	\section{Controllo del Double Propeller Ducted-Fan}
 	L'obiettivo di controllo del progetto è l'ottenimento dell'\textbf{hovering} del \textit{DPDF}. Con il termine \textit{hovering} si intende una condizione di volo stazionario in cui il velivolo mantiene quota e assetto prossimi ai valori desiderati, senza deriva apprezzabile nel breve intervallo temporale di osservazione.\\
-	Dal punto di vista progettuale, questo obiettivo non viene affrontato come un unico problema monolitico, ma come la composizione di due sottoproblemi fisicamente distinti. Il primo è il controllo della \textbf{quota}, cioè dell'equilibrio tra peso e spinta verticale generata dai due propulsori. Il secondo è il controllo dell'\textbf{assetto}, cioè della soppressione delle rotazioni indesiderate attorno agli assi di \textit{roll} e \textit{pitch}, ottenuta deviando il getto d'aria tramite il comparto \textit{flap-servo}. Questa scomposizione è conveniente perché i due fenomeni sono osservati con sensori diversi, agiscono su attuatori diversi e presentano dinamiche caratteristiche differenti.\\
-	Per questa ragione il firmware adotta un'architettura a tre regolatori PID: un anello dedicato alla quota, che modifica la portanza totale intervenendo in modo simmetrico sui due motori, e due anelli dedicati all'assetto, che generano l'angolo richiesto ai flap per contrastare gli errori di \textit{roll} e \textit{pitch}. La scelta dei PID non deriva da una preferenza generica per una soluzione nota, ma dal fatto che essi permettono di costruire un legame diretto e interpretabile tra errore misurato e azione correttiva, rendendo il comportamento del sistema abbastanza trasparente in fase di analisi sperimentale e di taratura.
+	Dal punto di vista progettuale, questo obiettivo non viene affrontato come un unico problema monolitico, ma come la composizione di più sottoproblemi fisicamente distinti. Il primo è il controllo della \textbf{quota}, cioè dell'equilibrio tra peso e spinta verticale generata dai due propulsori. Il secondo è il controllo dell'\textbf{assetto} in termini di \textit{roll} e \textit{pitch}, ottenuto deviando il getto d'aria tramite il comparto \textit{flap-servo}. A questi si è aggiunta, emersa con chiarezza durante le prove, la necessità di controllare anche lo \textbf{yaw}, poiché la sola controrotazione dei motori non garantiva una compensazione sufficiente delle coppie attorno all'asse verticale. Questa scomposizione è conveniente perché i diversi fenomeni agiscono su attuatori differenti e presentano dinamiche caratteristiche diverse.\\
+	Per questa ragione il firmware adotta un'architettura a quattro regolatori PID: un anello dedicato alla quota, che modifica la portanza totale intervenendo sui motori; due anelli dedicati all'assetto, che generano l'angolo richiesto ai flap per contrastare gli errori di \textit{roll} e \textit{pitch}; e un ulteriore anello dedicato allo \textit{yaw}, introdotto quando è emerso sperimentalmente che la compensazione passiva offerta dai motori controrotanti non era sufficiente. La scelta dei PID non deriva da una preferenza generica per una soluzione nota, ma dal fatto che essi permettono di costruire un legame diretto e interpretabile tra errore misurato e azione correttiva. Nel caso specifico del nostro lavoro, il regolatore di \textit{yaw} ha assunto un ruolo centrale, diventando l'elemento su cui si è concentrata la fase finale di taratura sperimentale.
 	
 	\newpage
 	\chapter{Hardware}
@@ -207,14 +210,9 @@
 	Segue una descrizione dettagliata delle principali caratteristiche del microcontrollore STM32H745ZI-TQ6.
 	
 	\subsection{STM32H745ZI-TQ6. Architettura}
-	Il microcontrollore STM32H745ZI-TQ6 presenta un'architettura \textit{dual-core} a 32-bit composta da un processore ad alte prestazioni, il \textbf{Cortex-M7}, e da un processore il cui utilizzo è consigliato per applicazioni \textit{real-time} e \textit{low-power tasks}. L'architettura consente l'implementazione di applicazioni \textit{multithread}.
-	In questo progetto, l'esecuzione delle librerie \textit{software} di gestione dei dispositivi interessati è affidata al \textbf{Cortex-M4}.
-	La selezione e la configurazione delle periferiche dello \textit{STM32H745ZI-TQ6} necessarie al raggiungimento degli obiettivi progettuali verranno approfondite nel capitolo dedicato al \textit{firmware}.
-	A seguire un elenco delle caratteristiche concernenti all'architettura \textit{dual-core}:
-	\begin{itemize}
-		\item Il \textbf{Cortex-M7} opera ad una frequenza di 480 MHz.
-		\item Il \textbf{Cortex-M4} opera ad una frequenza di 240 MHz.
-	\end{itemize}
+	Il microcontrollore STM32H745ZI-TQ6 presenta un'architettura \textit{dual-core} a 32-bit composta da un processore ad alte prestazioni, il \textbf{Cortex-M7}, che opera a una frequenza massima di 480 MHz, e dal \textbf{Cortex-M4}, la cui frequenza massima è 240 MHz. 
+	In questo progetto, l'esecuzione del firmware e delle librerie di gestione dei dispositivi interessati è affidata al \textbf{Cortex-M4}. Sebbene il core supporti frequenze superiori, nella configurazione adottata per il nostro sistema la frequenza di lavoro effettiva è stata fissata a \textbf{75 MHz}. Tale impostazione è stata definita tramite il file \texttt{.ioc}, nel menù \textit{Clock Configuration}.
+	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.5\textwidth]{figures/02_hardware/architettura_stm32h745zi_tq6.png}
@@ -230,7 +228,8 @@
 	La Flash interna da \textbf{2 MByte} ospita il \textit{firmware} ed è organizzata in \textit{dual-bank}, caratteristica utile per le operazioni di programmazione e aggiornamento.
 	
 	\paragraph{\small{SRAM}}\mbox{}\\
-	Il dispositivo dispone di circa \textbf{1 MByte} di SRAM, suddivisa in più banchi. Questa organizzazione consente di separare dati, buffer e risorse condivise tra i due \textit{core}, mantenendo elevate prestazioni di accesso.
+	Il dispositivo dispone di circa \textbf{1 MByte} di SRAM, suddivisa in più banchi.
+	
 	\begin{itemize}
 		\item SRAM1 e SRAM2 costituiscono i blocchi principali ad alta velocità, accessibili da entrambi i \textit{core}.
 		\item SRAM3 è tipicamente associata al \textit{Cortex-M4}, favorendo una separazione più ordinata delle risorse.
@@ -251,13 +250,20 @@
 	
 	\subsection{STM32H745ZI-TQ6. Convertitori}
 	\paragraph{\small{Convertitori Analogici-Digitali}}\mbox{}\\
-	Lo STM32H745ZI-TQ6 integra tre \textbf{SAR ADC} a 16 bit: ADC1, ADC2 e ADC3. I primi due possono operare in modo accoppiato per conversioni sincronizzate, mentre la risoluzione è configurabile da 8 a 16 bit.
+	Lo STM32H745ZI-TQ6 integra tre \textbf{SAR ADC} a 16 bit: ADC1, ADC2 e ADC3. I primi due possono operare in modo accoppiato per conversioni sincronizzate, mentre la risoluzione è configurabile da 8 a 16 bit. Nel nostro progetto, tuttavia, tali periferiche non sono state impiegate, poiché l'acquisizione delle grandezze di interesse è avvenuta esclusivamente tramite sensori digitali.
 	
 	\paragraph{\small{Convertitori Digitali-Analogici}}\mbox{}\\
-	Il microcontrollore dispone di due \textbf{DAC} indipendenti a 12 bit.
+	Il microcontrollore dispone di due \textbf{DAC} indipendenti a 12 bit, che in questo lavoro non sono stati utilizzati, non essendo richiesta la generazione di segnali analogici.
 	
 	\subsection{STM32H745ZI-TQ6. Timer}
-	Lo STM32H745ZI-TQ6 mette a disposizione 15 \textit{timer} e 5 \textit{low power timer}, utilizzabili per temporizzazioni, gestione di eventi periodici e generazione di segnali PWM, tutti aspetti centrali nel controllo del sistema.
+	Lo STM32H745ZI-TQ6 mette a disposizione 15 \textit{timer} e 5 \textit{low power timer}, utilizzabili per temporizzazioni, gestione di eventi periodici e generazione di segnali PWM, tutti aspetti centrali nel controllo del sistema. Nel progetto sono stati impiegati in particolare i seguenti timer:
+	\begin{itemize}
+		\item \texttt{TIM2}, per la generazione dei segnali PWM dei servomotori.
+		\item \texttt{TIM4}, per la generazione dei PWM diretti agli ESC dei motori.
+		\item \texttt{TIM6}, per il controllo dei LED della scheda.
+		\item \texttt{TIM7}, per la gestione periodica della lettura in \textit{polling mode} dei dati dell'IMU.
+		
+	\end{itemize}
 	
 	\subsection{STM32H745ZI-TQ6. Periferiche di comunicazione}
 	Il microcontrollore integra numerose periferiche di comunicazione. Ai fini del progetto risultano soprattutto rilevanti i protocolli seriali $I^{2}C$, USART/UART e SPI, impiegati per il collegamento con sensori, attuatori e strumenti di sviluppo. Sono inoltre disponibili interfacce più avanzate, come CAN, USB OTG ed Ethernet, non utilizzate direttamente nel lavoro svolto.
@@ -267,7 +273,6 @@
 	
 	
 	\subsection{NUCLEO-H745ZI-Q. Caratteristiche della scheda}
-	La NUCLEO-H745ZI-Q è la \textit{development board} utilizzata nel progetto e rende disponibili tutte le principali funzionalità del microcontrollore.
 	
 	\paragraph{Caratteristiche fisiche}
 	\begin{itemize}
@@ -326,7 +331,7 @@
 	
 	\paragraph{\small{Tensione}}\mbox{}\\
 	La \textit{TATTU LiPo} adottata è composta da \textbf{4} celle da \textbf{3.7 [V]} collegate in serie; ne deriva una tensione nominale di circa \textbf{14.8 [V]}. A piena carica ogni cella può raggiungere \textbf{4.2 [V]}, per una tensione complessiva pari a \textbf{16.8 [V]}.
-	Il mantenimento della tensione delle celle in prossimità del valore nominale contribuisce a preservarne la vita utile; per questo motivo è opportuno evitare sia permanenze prolungate a piena carica, sia scariche eccessive. Durante lo sviluppo \textit{firmware} le batterie sono state mantenute in bilanciamento attorno a \textbf{14.8 [V]}, mentre nei test finali di volo venivano caricate fino a \textbf{4.2 [V]} per cella per massimizzare autonomia e prestazioni. In ogni caso, è consigliabile non scendere sotto i \textbf{12 [V]} complessivi, così da mantenere ciascuna cella sopra i \textbf{3 [V]}.
+	Il mantenimento della tensione delle celle in prossimità del valore nominale contribuisce a preservarne la vita utile; per questo motivo è opportuno evitare sia permanenze prolungate a piena carica, sia scariche eccessive. In ogni caso, è consigliabile non scendere sotto i \textbf{12 [V]} complessivi, così da mantenere ciascuna cella sopra i \textbf{3 [V]}.
 	
 	\paragraph{\small{Capacità}}\mbox{}\\
 	La \textit{capacità}, espressa in [mAh], rappresenta la quantità di carica che la batteria può immagazzinare e fornire nel tempo. Nel caso in esame la capacità nominale è pari a \textbf{1300 [mAh]}, cioè la batteria può erogare idealmente \textbf{1.3 [A]} per un'ora. In prima approssimazione, il tempo di funzionamento può essere stimato tramite:
@@ -342,7 +347,7 @@
 	\end{equation}
 	dove $A_{max}$ è la corrente massima espressa in [A], mentre $C_s$ e $C$ indicano rispettivamente il valore di scarica e la capacità nominale della batteria.
 	
-	\begin{figure}[ht]
+	\begin{figure}[H]
 		\centering
 		\captionsetup{margin=0pt}
 		\includegraphics[width=0.6\textwidth]{figures/02_hardware/batteria_tattu_lipo_4s_1300mah_75c.jpg}
@@ -351,26 +356,14 @@
 	\end{figure}
 	
 	\section{PowerSafe Twin ADV. MNR-electronics}
-	Per garantire la sicurezza e l'affidabilità dell'alimentazione a due pacchi batteria, si è deciso per l'implementazione del
-	\textbf{modulo di ridondanza, PowerSafe Twin ADV di MNR-electronics}.\\
-	Il dispositivo incarna un'avanzata soluzione di \textit{ridondanza attiva}. Quest'ultima fa riferimento alla capacità del sistema di intervenire attivamente nel funzionamento del circuito con il fine di garantire continuità di alimentazione.
-	Il modulo, di fatto, monitora continuamente alcune variabili di stato, come tensione e corrente, selezionando, in tempo reale, il pacco alimentante il carico. Per esempio, se dovesse abbassarsi la tensione di una batteria sotto
+	Per garantire la sicurezza e l'affidabilità dell'alimentazione a due pacchi batteria, si utilizza un
+	\textbf{modulo di ridondanza, il PowerSafe Twin ADV di MNR-electronics}.\\
+	Il dispositivo incarna un'avanzata soluzione di \textit{ridondanza attiva}.
+	Il modulo infatti verifica continuamente alcune variabili di stato, come tensione e corrente, selezionando, in tempo reale, il pacco alimentante il carico. Per esempio, se dovesse abbassarsi la tensione di una batteria sotto
 	una certa soglia critica, il dispositivo commuterebbe automaticamente sull'altra, evitando così una significativa interruzione della potenza fornita.\\
-	Nell'architettura del sistema è possibile distinguere tre moduli distinti.
-	
-	\paragraph{\small{Modulo di potenza}}\mbox{}\\
-	Il modulo di potenza è il circuito elettrico responsabile della commutazione tra i pacchi batteria, del bilanciamento e della distribuzione di corrente verso il carico.\\
-	Inoltre, il dispositivo implementa circuiti di protezione, isolando la sorgente guasta, qualora si dovesse presentare un malfunzionamento, ed evitando il trasferimento di corrente fra i pacchi batteria.
-	
-	\paragraph{\small{Modulo di controllo}}\mbox{}\\
-	Il modulo di controllo rappresenta il "centro di comando" del dispositivo. L'implementazione di un microprocessore permette la continua misura di parametri decisionali fondamentali, quali: la tensione delle batterie, la corrente di carico
-	e l'eventuale squilibrio. L'inserimento del modulo di controllo nell'architettura circuitale permette l'implementazione della, precedentemente citata, tecnologia di \textit{ridondanza attiva}.
-	
-	\paragraph{\small{Modulo di allarme}}\mbox{}\\
-	Il modulo di allarme provvede alla segnalazione di eventuali guasti mediante emissioni luminose (LED) ed acustiche (Buzzer).
+	Nell'architettura del sistema si distinguono tre moduli principali: il \textbf{modulo di potenza}, che gestisce la commutazione tra i pacchi batteria, il bilanciamento e la distribuzione della corrente verso il carico, includendo anche le protezioni in caso di guasto; il \textbf{modulo di controllo}, che tramite microprocessore monitora continuamente grandezze come tensione, corrente e possibili squilibri, rendendo possibile la logica di \textit{ridondanza attiva}; infine il \textbf{modulo di allarme}, che segnala eventuali anomalie attraverso indicatori luminosi e acustici.
 	
 	\subsection{PowerSafe Twin ADV. Caratteristiche fisiche e tecniche}
-	A seguire, un breve elenco delle caratteristiche fisiche e tecniche del dispositivo:
 	\begin{itemize}
 		\item Dimensioni con involucro protettivo: $80\times 59\times 26$ [mm].
 		\item Peso, considerando sia l'involucro protettivo che i cablaggi (connettori XT60): 100 [g].
@@ -387,13 +380,12 @@
 	\end{figure}
 	
 	\section{DFRobot Power Module. Convertitore di tensione}
-	Ai fini progettuali sono stati implementati diversi dispositivi, ciascuno dei quali richiedente una specifica tensione di alimentazione.
-	Si è reso necessario ricorrere a convertitori di tensione per distribuire nella maniera corretta le tensioni di alimentazione ai vari dispositivi.\\
+	Ai fini progettuali	si è reso necessario ricorrere a convertitori di tensione per distribuire nella maniera corretta le tensioni di alimentazione ai vari dispositivi.\\
 	Il \textbf{DFRobot Power Module} riceve in ingresso la tensione proveniente dal pacco batterie, erogando quattro diversi valori di tensione a seconda del terminale che si sceglie di utilizzare.\\
 	La prima soluzione offerta dal dispositivo fornisce in uscita la stessa tensione che si ha in ingresso, diventando così un ponte per il passaggio della tensione.\\
 	Un'altra soluzione consiste nell'utilizzo degli appositi \textit{pin} sul dispositivo, dai quali può essere erogata una tensione di \textbf{5 [V]}, selezionabile mediante un apposito \textit{switch}.\\
-	Infine, il dispositivo presenta un terminale che eroga una tensione variabile il cui valore è controllato da un \textit{dimmer}. Il \textit{dimmer} permette di selezionare valori intermedi fino ad un massimo
-	pari alla tensione di ingresso. Quest'ultima è stata utilizzata nell'alimentazione dei servomotori.
+	Infine, il dispositivo presenta un terminale che eroga una tensione variabile controllata da un \textit{dimmer}, che permette di selezionare valori intermedi fino ad un massimo
+	pari alla tensione di ingresso.
 	La presenza di due servomotori ha richiesto l'integrazione di due convertitori di tensione.
 	
 	\begin{figure}[htbp]
@@ -426,7 +418,7 @@
 	
 	\section{Power Distribution Board}
 	Con \textbf{Power Distribution Board (PDB)} si fa riferimento ad un sottosistema elettrico la cui principale funzione è la \textbf{distribuzione in modo sicuro ed efficiente dell'energia fornita dal pacco batterie} agli \textit{ESC} e, conseguentemente, ai motori.
-	Ai fini progettuali, è stata selezionata una \textit{PDB}, il cui punto di prelievo del segnale presenta un connettore \textbf{XT60}, adatto al pacco batterie.
+	Ai fini progettuali, è stata selezionata una \textit{PDB}, il cui punto di prelievo del segnale presenta un connettore \textbf{XT60}, adatto al pacco batterie. Il dispositivo integrato nel contesto operativo possiede inoltre quattro uscite, ciascuna in grado di erogare al massimo una corrente di \textbf{20 [A]}, e ha un peso complessivo di \textbf{27.3 [g]}.
 	
 	\begin{figure}[H]
 		\centering
@@ -434,8 +426,6 @@
 		\caption{Power Distribution Board}
 		\label{fig:pdb}
 	\end{figure}
-	
-	Il \textit{PDB} integrato nel contesto operativo possiede quattro uscite eroganti al massimo una corrente di \textbf{20 [A]} ed un peso di \textbf{27.3 [g]}.
 	
 	\section{Turnigy AereoDrive SK3-3536 1400KV}
 	\label{MotoriBrushless}
@@ -458,7 +448,7 @@
 		\item Numero dei poli: \textbf{12}.
 	\end{itemize}
 	
-	Il valore "KV" è comune nel contesto del modellismo ed indica il numero di giri al minuto (RPM) che il motore compie per ogni \textit{volt} applicato a vuoto, in formula:
+	Il valore "KV" indica il numero di giri al minuto (RPM) che il motore compie per ogni \textit{volt} applicato a vuoto, in formula:
 	\begin{equation}
 		RPM = KV\cdot V
 	\end{equation}
@@ -475,7 +465,7 @@
 	\end{figure}
 	
 	\section{Turnigy Plush 40A. \textit{Electronic Speed Controller}}
-	Il Turnigy Plush 40A è un controllore elettronico di velocità per motori \textit{brushless} BLDC \cite{DCdriver}. Il suo compito è convertire la tensione continua di alimentazione nelle tre fasi necessarie al pilotaggio del motore.
+	Il Turnigy Plush 40A \cite{ESCDatasheet} è un controllore elettronico di velocità per motori \textit{brushless} BLDC. Il suo compito è convertire la tensione continua di alimentazione nelle tre fasi necessarie al pilotaggio del motore.
 	Il dispositivo è di tipo \textit{sensorless}: la posizione del rotore viene stimata indirettamente attraverso la forza controelettromotrice, senza impiegare sensori dedicati. Il comando di velocità viene invece ricevuto dal microcontrollore sotto forma di segnale PWM, sulla base del quale l'ESC genera la corretta sequenza di commutazione delle fasi.\\
 	Nel \textit{Double Propeller Ducted Fan} sono impiegati due Turnigy Plush 40A, uno per ciascun motore.
 	
@@ -529,7 +519,7 @@
 	È stata scelta l'impostazione \textbf{Medium}, che nel caso di una batteria LiPo a 4 celle corrisponde a una soglia complessiva di $11.4$ [V].
 	
 	\paragraph{\small{Start Mode}}\mbox{}\\
-	La \textit{Start Mode} regola la rapidità con cui il motore accelera da fermo. Per limitare sollecitazioni meccaniche, movimenti bruschi ed errori di misura durante le prove in gabbia, è stata selezionata la modalità \textit{Soft Start}.
+	La \textit{Start Mode} regola la rapidità con cui il motore accelera da fermo. Durante i primi test è stata selezionata la modalità \textit{Very Soft Start}, così da limitare ulteriormente sollecitazioni meccaniche, movimenti bruschi ed errori di misura nelle prove in gabbia. Negli ultimi test dedicati alla taratura del PID relativo al controllo dello \textit{yaw}, invece, è stata adottata la modalità \textit{Normal}.
 	
 	\paragraph{\small{Timing Mode}}\mbox{}\\
 	Il \textit{Timing} rappresenta l'anticipo con cui l'ESC commuta le fasi del motore rispetto alla posizione del rotore. Un valore basso privilegia efficienza e regolarità, uno alto favorisce potenza e velocità. Nel progetto è stata adottata la modalità \textit{Medium Timing}, in quanto compromesso tra prestazioni ed efficienza.
@@ -551,7 +541,7 @@
 	
 	\subsection{Turnigy Plush 40A. Risoluzione e controllo dei motori}
 	\label{ESCRisoluzioneEControllo}
-	Il \textit{Turnigy Plush 40A} controlla i motori tramite un segnale PWM a $50$ [Hz], frequenza tipica delle applicazioni modellistiche. Prima del funzionamento è necessaria una procedura di armamento, ottenuta inviando un segnale con \textit{duty cycle} pari al $4.75\%$.
+	Il \textit{Turnigy Plush 40A} controlla i motori tramite un segnale PWM a $50$ [Hz], frequenza tipica delle applicazioni modellistiche. Prima del funzionamento è necessaria una procedura di armamento, ottenuta inviando un segnale con \textit{duty cycle} pari al $5\%$.
 	L'esito dell'armamento può essere riconosciuto tramite le emissioni acustiche dell'ESC.
 	
 	\paragraph{\small{Attesa di un segnale di armamento valido}}\mbox{}\\
@@ -562,10 +552,6 @@
 	
 	\paragraph{\small{Esito negativo dell'operazione di armamento}}\mbox{}\\
 	Una rapida sequenza di segnali acustici segnala invece un errore di armamento, generalmente dovuto a un segnale iniziale non corretto o a una variazione troppo rapida del \textit{duty cycle}. In base alle prove effettuate, è consigliabile attendere $[2\div6]$ [s] prima di aumentare il comando e l'intervallo di lavoro utile dei motori è risultato compreso tra $[6\%\div12\%]$.
-	
-	\paragraph{Risoluzione}\mbox{}\\
-	Nel caso degli ESC, la ``risoluzione'' è intesa come intervallo di valori PWM distinguibili dal dispositivo. Questa informazione sarebbe utile per determinare la minima variazione di comando applicabile ai motori.
-	Per il \textit{Turnigy Plush 40A} la documentazione ufficiale non fornisce un valore certo; alcune fonti non ufficiali indicano una risoluzione compresa tra 8 e 12 bit. A causa di questa incertezza, lo sviluppo del controllore è stato impostato in modo da non dipendere esplicitamente dalla risoluzione dell'ESC.
 	
 	\section{Eliche}
 	La scelta dell'elica deve garantire lo sviluppo della portanza necessaria al sollevamento del \textit{DPDF}, la quale dipende principalmente da due parametri, il \textbf{diametro} e il \textbf{passo}: il primo rappresenta il diametro della circonferenza descritta in rotazione, il secondo l'avanzamento teorico in un giro completo, in modo analogo a una vite.\\
@@ -584,7 +570,7 @@
 	Un passo elevato è quindi tipico dei sistemi maggiormente orientati alla velocità.
 	
 	\subsection{APC 9x4.5. Caratteristiche fisiche}
-	I dati riportati in \cite{Relazione1} indicano le seguenti caratteristiche fisiche:
+	
 	\begin{itemize}
 		\item Diametro: 9 [in], pari a 228.6 [mm].
 		\item Passo: 4.5 [in], pari a 114.3 [mm].
@@ -603,7 +589,7 @@
 	\label{HitecHS82MG}
 	Il disegno strutturale rende il \textit{DPDF} suscettibile a rotazioni indesiderate sul piano definito dagli assi X ed Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinandone una completa perdita di controllo del mezzo.\\
 	Al fine di limitare tali perturbazioni, sono stati integrati due \textit{flap}, uno relativo al controllo lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.\\
-	I \textit{flap} operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{rollio} e \textit{beccheggio}. Sono posizionati sulla parte terminale del condotto ed interagiscono con il getto generato
+	I \textit{flap} operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{roll} e \textit{pitch}. Sono posizionati sulla parte terminale del condotto ed interagiscono con il getto generato
 	dai motori controrotanti. L'intervento si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso.
 	Nel progetto sono stati integrati due servomotori del tipo sopra citato, uno per ogni \textit{flap}.
 	
@@ -656,15 +642,13 @@
 	
 	\paragraph{Alimentazione}\mbox{}\\
 	L'intervallo di tensione operativa è il seguente: \textbf{[4.8$\div$6.0] [V]}.\\
-	Per valori di tensione prossimi all'estremo superiore dell'intervallo si hanno dei miglioramenti sulle prestazioni generali del dispositivo. Tuttavia aumentano anche gli effetti dei comportamenti indesiderati, come un aumento della dispersione di calore per effetto Joule o dello stress sull'elettronica interna di controllo.\\
+	Per valori di tensione prossimi all'estremo superiore si hanno dei miglioramenti sulle prestazioni generali del dispositivo, ma si ha un aumento della dispersione di calore per effetto Joule e dello stress sull'elettronica interna di controllo.\\
 	Per evitare complicazioni, il valore di tensione in ingresso è stato impostato a \textbf{5 [V]}.
 	
 	\paragraph{Controllo}\mbox{}\\
-	Il controllo della posizione angolare del rotore avviene tramite segnale PWM. Si è optato per una frequenza di \textbf{50 [Hz]}, mentre l'ampiezza è pari a \textbf{3.3 [V]}.
-	Con il fine di ottenere il posizionamento dei \textit{flap} in configurazione perpendicolare al terreno, è necessario fornire un impulso di attivazione pari a \textbf{1.5 [ms]}. Con la frequenza scelta, tale valore corrisponde ad un \textbf{duty cycle del 7.5\%}, che rappresenta la posizione centrale del servomotore.\\
-	La documentazione indica una \textit{Dead Band Width} pari a \textbf{5 [$\mu$s]}, ovvero la minima variazione di impulso che il servomotore è in grado di rilevare. Da ciò si deduce che la minima variazione angolare attuabile col servomotore è di \textbf{0.5\degree}. Nel contesto applicativo ciò equivale ad una variazione minima del \textit{duty cycle} pari a \textbf{0.025\%}.
-	Per ottenere una rotazione oraria del rotore, il comando deve operare nel seguente intervallo di impulsi: \textbf{1.5$\div$2.1 [ms]}. L'effetto di rotazione antioraria si ha per: \textbf{0.9$\div$1.5 [ms]}.
-	Analizzando il dato di velocità dei servomotori, è possibile determinare il tempo necessario affinché il servo compia la minima variazione angolare. Da questa informazione si può calcolare la frequenza massima di variazione della posizione del rotore, che si aggira intorno ai \textbf{400 [Hz]}.
+	Il controllo della posizione angolare del rotore avviene tramite segnale \textbf{PWM}. Si è optato per una frequenza di \textbf{50 [Hz]}, mentre l'ampiezza è pari a \textbf{3.3 [V]}.
+	Con il fine di ottenere il posizionamento dei \textit{flap} in configurazione iniziale perpendicolare al terreno, è necessario fornire un impulso di attivazione pari a \textbf{1.5 [ms]} corrispondente ad un \textbf{duty cycle del 7.5\%}.\\
+	Per ottenere una rotazione oraria del rotore, il comando deve operare nel seguente intervallo di impulsi: \textbf{1.5$\div$2.1 [ms]}. L'effetto di rotazione antioraria si ha invece per: \textbf{0.9$\div$1.5 [ms]}.
 	
 	\begin{figure}[ht]
 		\centering
@@ -756,7 +740,7 @@
 	\end{itemize}
 	
 	\section{VL53L1X ST. Sensore Time-of-Flight per la misurazione a lunga distanza}
-	Al fine di controllare correttamente il \textbf{DPDF}, è necessario stimare la distanza dal suolo durante il volo. Per questo scopo è stato adottato il \textbf{VL53L1X} di STMicroelectronics. Nel progetto non è stato utilizzato il sensore in forma nativa, ma il modulo \textbf{IRIS11A0J9776} prodotto da \textbf{Pololu}, scelto per semplificare l'integrazione elettronica grazie alla relativa \textit{breakout board}.
+	Al fine di controllare correttamente il \textit{DPDF}, è necessario stimare la distanza dal suolo durante il volo. Per questo scopo è stato adottato il \textbf{VL53L1X} di STMicroelectronics \cite{VL53L1XDatasheet}. Nel progetto non è stato utilizzato il sensore in forma nativa, ma il modulo \textbf{IRIS11A0J9776} prodotto da \textbf{Pololu}, scelto per semplificare l'integrazione elettronica grazie alla relativa \textit{breakout board}.
 	
 	\subsection{Il principio di misura di un sensore \textit{Time-of-Flight (ToF)}}
 	La misura \textit{Time-of-Flight} si basa sul tempo impiegato da un impulso luminoso per compiere un tragitto di andata e ritorno tra il sensore e l'oggetto da rilevare. Nel caso del \textit{VL53L1X}, l'emissione avviene tramite un laser \textit{VCSEL}, mentre la radiazione riflessa viene raccolta da un rilevatore sensibile, tipicamente uno \textit{SPAD array}.
@@ -803,9 +787,6 @@
 		\
 		{\footnotesize L'immagine a sinistra specifica la disposizione della piedinatura del modulo \textit{Pololu} (\textit{P.C.: Pin Configuration}), mentre la figura di destra rappresenta la suddivisione modulare del \textit{VL53L1X} (\textit{S.B.D.: System Block Diagram}).}
 	\end{figure}
-	\paragraph{\small{Emettitore}}\mbox{}\\
-	Il \textit{VL53L1X} integra un emettitore \textbf{laser a infrarossi con lunghezza d'onda pari a 940 [nm]}, classificato come \textbf{\textit{Classe 1}} secondo la norma internazionale \textbf{IEC 60825-1}.
-	Tale classificazione descrive il livello di rischio associato all'esposizione umana alla radiazione laser, in particolare per occhi e pelle. La norma suddivide infatti gli emettitori in diverse \textit{classi}, ciascuna associata a un diverso livello di pericolosità. Nel caso di un laser di \textit{Classe 1}, come quello utilizzato dal dispositivo, le condizioni operative normali sono considerate sicure per l'esposizione di occhi e pelle.
 	
 	\begin{figure}[H]
 		\centering
@@ -813,19 +794,13 @@
 		\caption{VL53L1X, dettaglio sull'emettitore}
 	\end{figure}
 	
-	\paragraph{\small{Field of View  (FoV)}}\mbox{}\\
-	Il \textit{Field of View} rappresenta l'angolo massimo entro il quale il dispositivo è in grado di rilevare un oggetto. Per il sensore in esame, il \textbf{FoV} è pari a circa \textbf{27\degree}.\\
-	A seguire, un'immagine esplicativa del \textit{FoV}:
+	\paragraph{\small{Field of View e Region of Interest}}\mbox{}\\
+	Il \textit{Field of View} rappresenta l'angolo massimo entro il quale il dispositivo è in grado di rilevare un oggetto; per il sensore in esame, il \textbf{FoV} è pari a circa \textbf{27\degree}. Il \textit{VL53L1X} mette inoltre a disposizione la funzione \textit{Region of Interest (R.O.I.)}, che consente di restringere il \textit{Field of View} effettivamente utilizzato durante la misura, risultando utile soprattutto nel caso di oggetti di piccole dimensioni. Nel presente progetto, tuttavia, il sensore è impiegato per la misura dell'altitudine del \textit{DPDF}; di conseguenza, la funzione \textit{R.O.I.} non è stata utilizzata e il \textit{FoV} è stato lasciato al valore nominale.
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.7\textwidth]{figures/02_hardware/vl53l1x_cono_campo_visivo.jpg}
 		\caption{Field of View del VL53L1X}
 	\end{figure}
-	
-	\paragraph{\small{Region-of-interest (R.O.I)}}\mbox{}\\
-	Con \textit{Region-Of-Interest} si indica una funzione del \textit{VL53L1X} che permette di restringere il \textit{Field of View} effettivamente utilizzato durante la misura.
-	Questa opzione è utile quando si vuole migliorare la precisione su oggetti di piccole dimensioni.\\
-	Nel presente progetto, il sensore è impiegato per la misura dell'altitudine del \textit{DPDF}; di conseguenza, la funzione \textit{R.O.I.} non è mai stata utilizzata e il \textit{FoV} è stato lasciato al valore nominale di 27\degree.
 	
 	\paragraph{\small{Prestazioni di misura, Timing Budget e modalità operative di misura}}\mbox{}\\
 	Il \textit{VL53L1X} offre buone prestazioni di misura in termini di accuratezza e rapidità. Il dispositivo è in grado di misurare distanze fino a 4 [m], con frequenze che possono arrivare fino a 50 [Hz].
@@ -847,16 +822,12 @@
 		}
 		\label{tab:VL53L1X. Hardware}
 	\end{table}
-	\begin{center}
-		\footnotesize \textit{Tabella riportata dal datasheet ufficiale del VL53L1X. I valori presentati, sono stati ricavati sotto le seguenti condizioni : \textit{timing budget} = 100 [ms], bersaglio bianco, riflettanza : 88\%, luce ambientale : 200 [kcps/SPAD].}
-	\end{center}
 	
 	La \textit{Short ranging mode} è pensata per misure ravvicinate, stabili e robuste anche in ambienti luminosi. La \textit{Long range mode} privilegia invece la massima portata, accettando però misure più sensibili al rumore. Tra queste due opzioni si colloca la \textit{Medium range mode}, che rappresenta un compromesso tra distanza operativa e robustezza.\\
-	L'ambiente in cui sono stati eseguiti i test di volo era fortemente illuminato; inoltre, i fili di sostegno costituivano un vincolo sull'altitudine massima raggiungibile, che non superava i 60 [cm].\\
-	Per queste ragioni, ai fini progettuali è stata scelta la \textbf{\textit{Short ranging mode}}, che è rimasta l'unica modalità operativa utilizzata per l'intero progetto.\\
+	Ai fini progettuali è stata scelta la \textbf{\textit{Short ranging mode}}, che è rimasta l'unica modalità operativa utilizzata per l'intero progetto.\\
 	Per gestire in modo accurato il compromesso tra temporizzazione e precisione, è stata sfruttata la funzione di \textbf{Timing Budget} del sensore. Con \textit{Timing Budget} si indica il tempo totale impiegato dal sensore per eseguire una singola misura di distanza. Tale grandezza è espressa in [ms] e può assumere valori compresi nell'intervallo \textbf{[20$\div$1000] [ms]}.
 	Un aumento del \textit{Timing Budget} comporta una riduzione della frequenza di misura ma, al tempo stesso, ne migliora l'accuratezza e la stabilità.\\
-	La documentazione suggerisce che un \textit{Timing Budget} di \textbf{33 ms} offra un buon compromesso tra velocità e accuratezza; per questo motivo, ai fini progettuali, è stato selezionato tale valore. La gestione dell'effettiva temporizzazione è stata poi completata intervenendo sull'\textit{Inter-Measurement Period}, approfondito nella sezione \textit{Software}.\\
+	La documentazione suggerisce che un \textit{Timing Budget} di \textbf{33 ms} offra un buon compromesso tra velocità e accuratezza; per questo motivo è stato selezionato tale valore.
 	A seguire, un'immagine riportata direttamente dallo \textit{User Manual} del \textit{VL53L1X}, raffigurante le prestazioni di misura a fronte di diversi valori del \textit{Timing Budget}.
 	\begin{figure}[ht]
 		\centering
