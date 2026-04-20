@@ -74,8 +74,7 @@
  * @brief This macro defines the upper limit for the compare register value used in PWM generation
  * 		  for the control of the servos.
  * 		  This limit is applied in the anti-windup filter of the servo PID controller. The value is
- * 		  calculated considering a frequency of 50 Hz, a prescaler of 99 and a period of 14999. The
- * 		  value below corresponds to a duty cycle of 10.3%.
+ * 		  calculated considering a frequency of 50 Hz, a prescaler of 99 and a period of 14999.
  * 		  This value rotates the servo motor clockwise to its maximum range: 30°.
  *
  */
@@ -95,8 +94,7 @@
  * @brief This macro defines the lower limit for the compare register value used in PWM generation
  * 		  for the control of the servos.
  * 		  This limit is applied in the anti-windup filter of the servo PID controller. The value is
- * 		  calculated considering a frequency of 50 Hz, a prescaler of 99 and a period of 14999. The
- * 		  value below corresponds to a duty cyle of 4,7 %.
+ * 		  calculated considering a frequency of 50 Hz, a prescaler of 99 and a period of 14999.
  * 		  This value rotates the servo motor counter clockwise to its maximum range: -30°.
  */
 #define LOWER_LIMIT_SERVO													705

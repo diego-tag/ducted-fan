@@ -25,6 +25,17 @@
 \usepackage{gensymb}
 \usepackage[hidelinks]{hyperref}
 
+\makeatletter
+\renewcommand{\@cite}[2]{{\bfseries[#1\if@tempswa , #2\fi]}}
+\makeatother
+
+\newcommand{\reportmaintitle}{Double Propeller Ducted-Fan}
+\newcommand{\reportsubtitle}{Irrobustimento del firmware e taratura sperimentale del controllo di \textit{imabardata}}
+
+\hypersetup{
+	pdftitle={Double Propeller Ducted-Fan: irrobustimento del firmware e taratura sperimentale del controllo di imbardata}
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definecolor{custom_green}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -45,7 +56,7 @@
 	inputencoding=utf8,
 	extendedchars=true,
 	keepspaces=true,
-	literate={à}{{\`a}}1 {è}{{\`e}}1 {é}{{\'e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1,
+	literate={à}{{\`a}}1 {è}{{\`e}}1 {é}{{\'e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1 {°}{{\textdegree}}1 {μ}{{$\mu$}}1 {─}{{--}}1 {—}{{--}}1 {→}{{$\rightarrow$}}2,
 	escapeinside={\%*}{*)},
 	keywordstyle=\color{custom_purple},
 	identifierstyle=\color{custom_blue},
@@ -80,7 +91,8 @@
 			\LARGE {\scshape{Università Politecnica delle Marche}}\\[0.5cm]
 			\LARGE {\scshape{Ingegneria Informatica e dell'Automazione}}\\[0.7cm]
 			\linespread{1}
-			\huge {\bfseries Ducted Fan }\\[1cm]
+			\huge {\bfseries \reportmaintitle}\\[0.25cm]
+			{\Large\bfseries\parbox{0.9\textwidth}{\centering \reportsubtitle}}\\[1cm]
 			\linespread{1}
 			\includegraphics[width=5cm]{figures/00_frontespizio/logo_univpm.jpg}\\[0.5cm]
 			\linespread{1.2}
@@ -118,25 +130,26 @@
 	
 	\section*{Introduzione}
 	
-	Il presente documento illustra le attività di sviluppo, ottimizzazione e controllo svolte sul \textit{Double Propeller Ducted-Fan (DPDF)}, proseguendo e ampliando il lavoro impostato in una precedente tesi triennale \cite{Mincu2025}. Il punto di partenza dell'attività non ha tuttavia coinciso con un sistema pronto all'uso: a causa di un pregresso cedimento strutturale, si è resa necessaria una complessa fase iniziale di ripristino fisico. L'intera struttura meccanica è stata ridisegnata e ristampata in 3D, mentre le componenti hardware e l'elettronica di bordo sono state interamente riassemblate, ricablate e testate da zero.\\
-	L'obiettivo a lungo termine del progetto consiste nel raggiungimento di una condizione di \textit{hovering} stabile. All'interno di questo scenario, il \textit{task} assegnato al nostro gruppo prevede lo sviluppo dell'infrastruttura logica di controllo e l'avvio della fase di taratura sperimentale dei regolatori PID. Nel corso delle prove è stato riscontrato che la sola configurazione controrotante dei due motori non è sufficiente a compensare in modo affidabile le rotazioni attorno all'asse \textit{z}, per questo motivo una parte del lavoro si è progressivamente concentrata sull'introduzione e sulla taratura di un regolatore dedicato al controllo dello \textit{yaw}.\\
-	Inoltre durante i primi approcci sperimentali è emerso come, prima ancora di poter ricercare i guadagni ottimali dei regolatori, il sistema necessitasse di fondamenta software ben più solide per poter operare in sicurezza. Di conseguenza, è stato necessario un profondo \textit{refactoring} e irrobustimento del \textit{firmware} ereditato. Per rendere il percorso \textit{misura--controllo--attuazione} affidabile e trasparente, abbiamo introdotto e implementato numerosi accorgimenti: un filtro mediano per la reiezione dei disturbi del sensore ToF, la compensazione geometrica del \textit{tilt}, il \textit{remap} matriciale delle misure inerziali, una gestione \textit{event-driven} dei loop di controllo, logiche sicure di saturazione e \textit{anti-windup} e, nella fase finale della sperimentazione, un PID dedicato alla stabilizzazione dello \textit{yaw}, divenuto il principale oggetto della taratura conclusiva.\\
+	Il presente documento illustra le attività di sviluppo, ottimizzazione e controllo svolte sul \textit{Double Propeller Ducted-Fan (DPDF)}, proseguendo e ampliando il lavoro impostato in una precedente tesi triennale \cite{Mincu2025}. Il punto di partenza dell'attività non ha tuttavia coinciso con un sistema pronto all'uso: a causa di un pregresso cedimento strutturale, si è resa necessaria una fase iniziale di ripristino fisico. L'intera struttura meccanica è stata ridisegnata e ristampata in 3D, mentre le componenti hardware e l'elettronica di bordo sono state interamente riassemblate, ricablate e testate da zero.\\
+	L'obiettivo a lungo termine del progetto consiste nel raggiungimento di una condizione di \textit{hovering} stabile. All'interno di questo scenario, il \textit{task} assegnato al nostro gruppo non è stato la taratura completa di tutti gli anelli di controllo, ma la costruzione di una base software affidabile su cui intervenire in seguito e la taratura sperimentale isolata del solo regolatore di \textit{yaw}. Nel corso delle prove è infatti emerso che la sola configurazione controrotante dei due motori non è sufficiente a compensare in modo affidabile le rotazioni attorno all'asse \textit{z}; per questo motivo il lavoro si è progressivamente concentrato sul contenimento della dinamica di imbardata tramite un'azione di controllo dedicata.\\
+	Inoltre, già nei primi approcci sperimentali è apparso chiaro che la ricerca dei guadagni non avrebbe avuto significato senza un \textit{firmware} sufficientemente robusto, osservabile e sicuro. Di conseguenza, una parte sostanziale dell'attività ha riguardato il \textit{refactoring} e l'irrobustimento del codice ereditato. Per rendere il percorso \textit{misura--controllo--attuazione} più affidabile e più leggibile, sono stati introdotti un filtro mediano per la reiezione dei disturbi del sensore ToF, la compensazione geometrica del \textit{tilt}, il \textit{remap} matriciale delle misure inerziali, una gestione \textit{event-driven} dei loop di controllo e logiche esplicite di saturazione e \textit{anti-windup}. In questo quadro, i regolatori di quota, \textit{roll} e \textit{pitch} sono stati mantenuti come infrastruttura futura del sistema, mentre la sola taratura effettivamente svolta e validata in questa relazione riguarda il PID di \textit{yaw}.\\
 	Nel seguito, la trattazione è organizzata secondo la seguente struttura:
 	\begin{itemize}
 		\item Nel \textbf{Capitolo 1} viene introdotta l'architettura meccanica del \textit{DPDF} e viene descritto l'obiettivo di controllo adottato.
 		\item Nel \textbf{Capitolo 2} vengono richiamate le principali componenti hardware impiegate e i relativi collegamenti elettrici. Al fine di fornire un documento autoconsistente, le specifiche tecniche riportate sintetizzano la documentazione prodotta nel lavoro originario, limitandosi alle informazioni con un impatto diretto sullo sviluppo del \textit{firmware}.
-		\item Nel \textbf{Capitolo 3} viene descritta nel dettaglio l'architettura software implementata. Costituisce il cuore del lavoro svolto, illustrando i diagrammi di flusso, la teoria dei regolatori PID discreti e tutte le logiche di filtraggio e sicurezza introdotte.
-		\item Nel \textbf{Capitolo 4} vengono infine documentati i test sperimentali. Sono riportati i criteri utilizzati per la taratura dei PID, i risultati dei test di volo e una discussione critica sulle prestazioni ottenute.
+		\item Nel \textbf{Capitolo 3} viene descritta nel dettaglio l'architettura software implementata. Costituisce il cuore del lavoro svolto, illustrando i diagrammi di flusso, la struttura modulare del \textit{firmware}, la teoria del PID discreto adottato e le logiche di filtraggio e sicurezza introdotte per rendere il sistema sperimentabile.
+		\item Nel \textbf{Capitolo 4} vengono infine documentati i test sperimentali pertinenti al perimetro reale dell'attività. Sono quindi riportati il metodo seguito per la taratura del solo PID di \textit{yaw}, i confronti tra diversi set di parametri e una discussione critica dei risultati ottenuti.
 	\end{itemize}
 	\newpage
 	\chapter{Sistema}
 	Nel presente capitolo viene descritta la struttura meccanica del \textit{Double Propeller Ducted-Fan (DPDF)} e viene introdotto l'obiettivo di controllo adottato nel progetto.
 	
 	\section{Double Propeller Ducted-Fan. Struttura}
-	Il \textit{Double Propeller Ducted Fan} presenta una struttura cilindrica cava di \textbf{220 [mm]} di altezza e con un diametro esterno pari a \textbf{235 [mm]}. Il diametro interno, pari a \textbf{230 [mm]}, contiene le componenti necessarie al volo stabile del drone.\\
+	Il \textit{Double Propeller Ducted Fan} presenta una struttura cilindrica cava di \textbf{220 [mm]} di altezza e con un diametro esterno pari a \textbf{235 [mm]}. Il diametro interno, pari a \textbf{230 [mm]}, contiene le componenti necessarie al funzionamento del sistema.\\
 	La configurazione con montaggio interno delle componenti responsabili del moto rappresenta l'elemento distintivo rispetto alle architetture di droni convenzionali. Tale configurazione risulta vantaggiosa per qualsiasi forma di interazione di contatto, sia con l'operatore umano sia con oggetti esterni, in quanto le eliche non sono esposte ma risultano integrate e protette dalla stessa struttura portante del drone.\\
-	Proseguendo con la descrizione della struttura interna del \textit{DPDF}, nella parte superiore sono posizionati due motori disposti in configurazione controrotante. In linea di principio, tale assetto dovrebbe consentire la generazione di spinte verticali limitando la rotazione del drone attorno all'asse Z, poiché le eliche producono momenti torcenti di verso opposto. Le prove sperimentali hanno tuttavia mostrato che questa compensazione passiva, pur utile, non è risultata sufficiente da sola a sopprimere in modo soddisfacente la dinamica di \textit{yaw}, rendendo necessaria l'introduzione di un'azione di controllo dedicata.\\
-	Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste. I motori sono ancorati a una struttura a croce usata sia come base sia come rinforzo per le sollecitazioni che il \textit{DPDF} può subire.
+	Proseguendo con la descrizione della struttura interna del \textit{DPDF}, nella parte superiore sono posizionati due motori disposti in configurazione controrotante. In linea di principio, tale assetto dovrebbe consentire la generazione di spinte verticali limitando la rotazione del drone attorno all'asse Z, poiché le eliche producono momenti torcenti di verso opposto. Le prove sperimentali hanno tuttavia mostrato che questa compensazione passiva, pur utile, non è risultata sufficiente da sola a contenere in modo soddisfacente la dinamica di \textit{yaw}, rendendo necessaria l'introduzione di un'azione di controllo dedicata.\\
+	Inoltre, l'adozione di due motori si è resa necessaria in quanto un singolo attuatore non sarebbe stato in grado di generare una spinta sufficiente a garantire la portanza richiesta dal sistema nelle condizioni operative previste. I motori sono ancorati a una struttura a croce utilizzata sia come base sia come rinforzo per le sollecitazioni che il \textit{DPDF} può subire.
+	La configurazione meccanica reale del sistema è mostrata in Figura~\ref{fig:struttura_ducted_fan}.
 	
 	\begin{figure}[H]
 		\centering
@@ -161,8 +174,9 @@
 	I \textit{flap}, interagendo con il getto d'aria generato dai motori, operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{roll} e \textit{pitch}. L'intervento di regolazione si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso. Il \textit{flap}, ruotando di un piccolo angolo, genera una deviazione del getto che lo investe. Tale deviazione produce una variazione della distribuzione di pressione tra il lato esposto al flusso (lato di pressione) e il lato opposto (lato di depressione). La differenza di pressione genera una forza aerodinamica risultante che produce un momento correttivo sull'assetto del velivolo. In prima approssimazione, la forza può essere considerata perpendicolare alla superficie del \textit{flap}. La direzione e il verso della forza devono essere tali da contrastare il momento perturbativo.\\
 	Entrambi i \textit{flap} sono collegati, a un'estremità, al servomotore che ne gestisce il movimento, mentre all'altra sono inseriti in un apposito modulo strutturale che, oltre a fissare ciascun sensore del sistema, lo mantiene parallelo al terreno. I \textit{flap} sono posizionati in modo tale da risultare perpendicolari tra loro.\\
 	Lungo la superficie esterna del cilindro sono state posizionate le componenti hardware necessarie al perseguimento degli scopi progettuali, cercando il più possibile di ottenere un preciso bilanciamento del sistema. Gli elementi hardware utilizzati verranno approfonditi nel Capitolo 2.\\
-	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere un'ottima distribuzione dei pesi. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione permette di evitare l'allentamento del dado di fissaggio causato dal flusso d'aria incidente generato dai motori.\\
+	Inoltre, sulla superficie esterna sono montati sei piedi, posizionati in corrispondenza dei vertici dell'esagono in cui è inscritta la circonferenza del \textit{DPDF}. Tale configurazione permette di ottenere una distribuzione dei pesi più regolare. I piedi sono agganciati alla struttura mediante due bulloni opportunamente posizionati, il cui dado di fissaggio si trova all'esterno, lasciando così la testa all'interno. Tale impostazione riduce il rischio di allentamento del dado causato dal flusso d'aria generato dai motori.\\
 	L'intera struttura cilindrica, i \textit{flap}, i piedi di appoggio e i supporti di sostegno di tutte le parti hardware e dei motori sono stati realizzati tramite \textbf{stampa 3D}, utilizzando \textbf{PVC} come materiale principale. Tutte le componenti sono state stampate separatamente e successivamente assemblate e fissate tra loro al fine di costruire la struttura completa del sistema.
+	Una rappresentazione CAD dell'insieme, utile per evidenziare geometria generale, \textit{flap} e ingombri, è riportata in Figura~\ref{fig:render_ducted_fan}.
 	
 	\begin{figure}[!htbp]
 		\centering
@@ -188,26 +202,26 @@
 			\caption{Render struttura: vista dall'alto}
 		\end{subfigure}
 		\caption{\textcolor{black}{Render ducted fan}}
+		\label{fig:render_ducted_fan}
 	\end{figure}
 	\clearpage
 	
 	\section{Controllo del Double Propeller Ducted-Fan}
-	L'obiettivo di controllo del progetto è l'ottenimento dell'\textbf{hovering} del \textit{DPDF}. Con il termine \textit{hovering} si intende una condizione di volo stazionario in cui il velivolo mantiene quota e assetto prossimi ai valori desiderati, senza deriva apprezzabile nel breve intervallo temporale di osservazione.\\
+	L'obiettivo di controllo del progetto è l'ottenimento dell'\textbf{hovering} del \textit{DPDF}. Con il termine \textit{hovering} si intende una condizione di volo stazionario in cui il velivolo mantiene quota e assetto prossimi ai valori desiderati, senza una deriva apprezzabile nel breve intervallo temporale di osservazione.\\
 	Dal punto di vista progettuale, questo obiettivo non viene affrontato come un unico problema monolitico, ma come la composizione di più sottoproblemi fisicamente distinti. Il primo è il controllo della \textbf{quota}, cioè dell'equilibrio tra peso e spinta verticale generata dai due propulsori. Il secondo è il controllo dell'\textbf{assetto} in termini di \textit{roll} e \textit{pitch}, ottenuto deviando il getto d'aria tramite il comparto \textit{flap-servo}. A questi si è aggiunta, emersa con chiarezza durante le prove, la necessità di controllare anche lo \textbf{yaw}, poiché la sola controrotazione dei motori non garantiva una compensazione sufficiente delle coppie attorno all'asse verticale. Questa scomposizione è conveniente perché i diversi fenomeni agiscono su attuatori differenti e presentano dinamiche caratteristiche diverse.\\
-	Per questa ragione il firmware adotta un'architettura a quattro regolatori PID: un anello dedicato alla quota, che modifica la portanza totale intervenendo sui motori; due anelli dedicati all'assetto, che generano l'angolo richiesto ai flap per contrastare gli errori di \textit{roll} e \textit{pitch}; e un ulteriore anello dedicato allo \textit{yaw}, introdotto quando è emerso sperimentalmente che la compensazione passiva offerta dai motori controrotanti non era sufficiente. La scelta dei PID non deriva da una preferenza generica per una soluzione nota, ma dal fatto che essi permettono di costruire un legame diretto e interpretabile tra errore misurato e azione correttiva. Nel caso specifico del nostro lavoro, il regolatore di \textit{yaw} ha assunto un ruolo centrale, diventando l'elemento su cui si è concentrata la fase finale di taratura sperimentale.
+	Per questa ragione il firmware adotta un'architettura a quattro regolatori PID: un anello dedicato alla quota, che modifica la portanza totale intervenendo sui motori; due anelli dedicati all'assetto, che generano l'angolo richiesto ai flap per contrastare gli errori di \textit{roll} e \textit{pitch}; e un ulteriore anello dedicato allo \textit{yaw}. La scelta dei PID non deriva da una preferenza generica per una soluzione nota, ma dal fatto che essi permettono di costruire un legame diretto e interpretabile tra errore misurato e azione correttiva. Nel caso specifico del nostro lavoro, tuttavia, la sola taratura effettivamente affrontata e validata sperimentalmente è stata quella del regolatore di \textit{yaw}: i rami di quota, \textit{roll} e \textit{pitch} sono stati mantenuti volutamente in configurazione neutra, con guadagni nulli, per isolare il problema di imbardata e rendere leggibile l'effetto del mixer sui due motori.
 	
 	\newpage
 	\chapter{Hardware}
 	\label{Hardware}
-	Nel presente capitolo viene fornita la descrizione di tutte le componenti hardware
-	impiegate ai fini progettuali.
-	Per ciascun componente sono stati approfonditi il ruolo nel sistema, le principali
-	caratteristiche fisiche e tecniche e le modalità di utilizzo. Infine sono stati riportati un
+	Nel presente capitolo vengono descritte le componenti hardware impiegate nel progetto.
+	Per ciascun componente sono richiamati il ruolo nel sistema, le principali
+	caratteristiche fisiche e tecniche e le modalità di utilizzo. Infine sono riportati un
 	diagramma esplicativo dei collegamenti e una tabella riepilogativa delle connessioni.
 	\section{STM32 NUCLEO-H745ZI-Q. La scheda di controllo}
-	La scheda \textit{STM32 NUCLEO-H745ZI-Q} è una piattaforma di sviluppo prodotta da STMicroelectronics, basata sul microcontrollore STM32H745ZI-TQ6, appartenente alla famiglia ad alte prestazioni STM32H7. Il dispositivo è stato progettato per facilitare lo sviluppo, il \textit{debug} e la prototipazione di applicazioni \textit{embedded} complesse.
-	La NUCLEO-H745ZI-Q è stata utilizzata per lo sviluppo e la fase di prova dei \textit{firmware} di gestione di tutte le componenti del \textit{DPDF}. Su di essa sono state caricate le librerie software sviluppate con l'ausilio di STM32CubeIDE.
-	Segue una descrizione dettagliata delle principali caratteristiche del microcontrollore STM32H745ZI-TQ6.
+	La scheda \textit{STM32 NUCLEO-H745ZI-Q} \cite{STM32H7NucleoUM2408} è una piattaforma di sviluppo prodotta da STMicroelectronics, basata sul microcontrollore STM32H745ZI-TQ6, appartenente alla famiglia ad alte prestazioni STM32H7. Il dispositivo è stato progettato per facilitare lo sviluppo, il \textit{debug} e la prototipazione di applicazioni \textit{embedded} complesse.
+	La NUCLEO-H745ZI-Q è stata utilizzata per lo sviluppo e la fase di prova del \textit{firmware} di gestione delle componenti del \textit{DPDF}. Su di essa sono state caricate le librerie software sviluppate con l'ausilio di STM32CubeIDE.
+	Segue una descrizione dettagliata delle principali caratteristiche del microcontrollore STM32H745ZI-TQ6, la cui architettura è richiamata in Figura~\ref{fig:stm32h745zi-tq6}.
 	
 	\subsection{STM32H745ZI-TQ6. Architettura}
 	Il microcontrollore STM32H745ZI-TQ6 presenta un'architettura \textit{dual-core} a 32-bit composta da un processore ad alte prestazioni, il \textbf{Cortex-M7}, che opera a una frequenza massima di 480 MHz, e dal \textbf{Cortex-M4}, la cui frequenza massima è 240 MHz. 
@@ -215,53 +229,20 @@
 	
 	\begin{figure}[H]
 		\centering
+		\setlength{\abovecaptionskip}{4pt}
+		\setlength{\belowcaptionskip}{0pt}
 		\includegraphics[width=0.5\textwidth]{figures/02_hardware/architettura_stm32h745zi_tq6.png}
 		\caption{\textcolor{black}{Il microcontrollore STM32H745ZI-TQ6}}
 		\label{fig:stm32h745zi-tq6}
 	\end{figure}
-	
-	
-	\subsection{STM32H745ZI-TQ6. Memoria}
-	Il microcontrollore possiede una struttura di memoria complessa e stratificata.
-	
-	\paragraph{\small{Flash}}\mbox{}\\
-	La Flash interna da \textbf{2 MByte} ospita il \textit{firmware} ed è organizzata in \textit{dual-bank}, caratteristica utile per le operazioni di programmazione e aggiornamento.
-	
-	\paragraph{\small{SRAM}}\mbox{}\\
-	Il dispositivo dispone di circa \textbf{1 MByte} di SRAM, suddivisa in più banchi.
-	
-	\begin{itemize}
-		\item SRAM1 e SRAM2 costituiscono i blocchi principali ad alta velocità, accessibili da entrambi i \textit{core}.
-		\item SRAM3 è tipicamente associata al \textit{Cortex-M4}, favorendo una separazione più ordinata delle risorse.
-		\item Gli ulteriori banchi completano la struttura e possono essere impiegati per buffer e funzioni specifiche.
-	\end{itemize}
-	
-	\paragraph{\small{Cache L1}}\mbox{}\\
-	Il \textit{Cortex-M7} integra una \textit{cache L1} per istruzioni e dati, utile a ridurre la latenza di accesso alla memoria e a migliorare le prestazioni complessive del sistema.
-	
-	\paragraph{Unità di elaborazione}\mbox{}\\
-	L'architettura dell'STM32H745ZI-TQ6 integra anche unità di elaborazione dedicate ai calcoli numerici e al processamento dei segnali.
-	
-	\paragraph{\small{Floating Point Unit}}\mbox{}\\
-	Entrambi i \textit{core} integrano una \textit{FPU}, utile per accelerare i calcoli in virgola mobile. In particolare, il \textit{Cortex-M7} supporta sia la \textit{single precision} sia la \textit{double precision}, mentre il \textit{Cortex-M4} supporta la sola precisione singola.
-	
-	\paragraph{\small{Digital Signal Processing}}\mbox{}\\
-	Il supporto hardware alle istruzioni di \textit{Digital Signal Processing} risulta utile nelle elaborazioni numeriche e nei filtraggi impiegati dal \textit{firmware}.
-	
-	\subsection{STM32H745ZI-TQ6. Convertitori}
-	\paragraph{\small{Convertitori Analogici-Digitali}}\mbox{}\\
-	Lo STM32H745ZI-TQ6 integra tre \textbf{SAR ADC} a 16 bit: ADC1, ADC2 e ADC3. I primi due possono operare in modo accoppiato per conversioni sincronizzate, mentre la risoluzione è configurabile da 8 a 16 bit. Nel nostro progetto, tuttavia, tali periferiche non sono state impiegate, poiché l'acquisizione delle grandezze di interesse è avvenuta esclusivamente tramite sensori digitali.
-	
-	\paragraph{\small{Convertitori Digitali-Analogici}}\mbox{}\\
-	Il microcontrollore dispone di due \textbf{DAC} indipendenti a 12 bit, che in questo lavoro non sono stati utilizzati, non essendo richiesta la generazione di segnali analogici.
 	
 	\subsection{STM32H745ZI-TQ6. Timer}
 	Lo STM32H745ZI-TQ6 mette a disposizione 15 \textit{timer} e 5 \textit{low power timer}, utilizzabili per temporizzazioni, gestione di eventi periodici e generazione di segnali PWM, tutti aspetti centrali nel controllo del sistema. Nel progetto sono stati impiegati in particolare i seguenti timer:
 	\begin{itemize}
 		\item \texttt{TIM2}, per la generazione dei segnali PWM dei servomotori.
 		\item \texttt{TIM4}, per la generazione dei PWM diretti agli ESC dei motori.
-		\item \texttt{TIM6}, per il controllo dei LED della scheda.
-		\item \texttt{TIM7}, per la gestione periodica della lettura in \textit{polling mode} dei dati dell'IMU.
+		\item \texttt{TIM6}, per la sequenza di \textit{safe startup} e il controllo dei LED della scheda.
+		\item \texttt{TIM7}, per la generazione periodica dell'evento che attiva il ramo IMU-servo secondo logica \textit{event-driven}.
 		
 	\end{itemize}
 	
@@ -294,7 +275,7 @@
 		\item Alimentazione via Jack esterno da 7-12V.
 		\item Alimentazione tramite \textit{pin Vin} esterno a 3.3V.
 	\end{itemize}
-	In ogni caso, il microcontrollore opera a 3.3V tramite regolatori interni. La presenza dei \textit{jumper} consente di riconfigurare l'alimentazione della scheda, ma richiede attenzione quando si usano sorgenti diverse dalla porta ST-LINK.
+	In ogni caso, il microcontrollore opera a 3.3V tramite regolatori interni. La presenza dei \textit{jumper} consente di riconfigurare l'alimentazione della scheda, ma richiede attenzione quando si usano sorgenti diverse dalla porta ST-LINK. Il dettaglio dei \textit{jumper} rilevanti è mostrato in Figura~\ref{fig:nucleo-jumpers}.
 	
 	\begin{figure}[H]
 		\centering
@@ -305,7 +286,7 @@
 	
 	\paragraph{Formato fisico}\mbox{}\\
 	La scheda di sviluppo in esame appartiene alla famiglia \textbf{Nucleo-144} di STMicroelectronics e, dunque, mette a disposizione 2 connettori \textbf{\textit{Morpho}} che espongono i 144 \textit{pin} del microcontrollore. Il sistema di espansione poco fa citato viene chiamato ST Zio.
-	La NUCLEO-H745ZI-Q offre, inoltre, la compatibilità hardware e pinout con gli \textit{shield Arduino Uno R3}.
+	La NUCLEO-H745ZI-Q offre, inoltre, la compatibilità hardware e pinout con gli \textit{shield Arduino Uno R3}; una vista complessiva della scheda è riportata in Figura~\ref{fig:nucleo-h745zi-q}.
 	
 	\begin{figure}[H]
 		\centering
@@ -345,7 +326,7 @@
 	\begin{equation}
 		A_{max} = C_s\cdot C \implies A_{max} = 75\,\,[C]\cdot 1.3\,\,[A]= 97.5\,\,[A]
 	\end{equation}
-	dove $A_{max}$ è la corrente massima espressa in [A], mentre $C_s$ e $C$ indicano rispettivamente il valore di scarica e la capacità nominale della batteria.
+	dove $A_{max}$ è la corrente massima espressa in [A], mentre $C_s$ e $C$ indicano rispettivamente il valore di scarica e la capacità nominale della batteria. Il pacco batteria adottato nelle prove è mostrato in Figura~\ref{fig:tattu-lipo}.
 	
 	\begin{figure}[H]
 		\centering
@@ -361,7 +342,7 @@
 	Il dispositivo incarna un'avanzata soluzione di \textit{ridondanza attiva}.
 	Il modulo infatti verifica continuamente alcune variabili di stato, come tensione e corrente, selezionando, in tempo reale, il pacco alimentante il carico. Per esempio, se dovesse abbassarsi la tensione di una batteria sotto
 	una certa soglia critica, il dispositivo commuterebbe automaticamente sull'altra, evitando così una significativa interruzione della potenza fornita.\\
-	Nell'architettura del sistema si distinguono tre moduli principali: il \textbf{modulo di potenza}, che gestisce la commutazione tra i pacchi batteria, il bilanciamento e la distribuzione della corrente verso il carico, includendo anche le protezioni in caso di guasto; il \textbf{modulo di controllo}, che tramite microprocessore monitora continuamente grandezze come tensione, corrente e possibili squilibri, rendendo possibile la logica di \textit{ridondanza attiva}; infine il \textbf{modulo di allarme}, che segnala eventuali anomalie attraverso indicatori luminosi e acustici.
+	Nell'architettura del sistema si distinguono tre moduli principali: il \textbf{modulo di potenza}, che gestisce la commutazione tra i pacchi batteria, il bilanciamento e la distribuzione della corrente verso il carico, includendo anche le protezioni in caso di guasto; il \textbf{modulo di controllo}, che tramite microprocessore monitora continuamente grandezze come tensione, corrente e possibili squilibri, rendendo possibile la logica di \textit{ridondanza attiva}; infine il \textbf{modulo di allarme}, che segnala eventuali anomalie attraverso indicatori luminosi e acustici. Il dispositivo impiegato è riportato in Figura~\ref{fig:powersafe-module}.
 	
 	\subsection{PowerSafe Twin ADV. Caratteristiche fisiche e tecniche}
 	\begin{itemize}
@@ -381,12 +362,12 @@
 	
 	\section{DFRobot Power Module. Convertitore di tensione}
 	Ai fini progettuali	si è reso necessario ricorrere a convertitori di tensione per distribuire nella maniera corretta le tensioni di alimentazione ai vari dispositivi.\\
-	Il \textbf{DFRobot Power Module} riceve in ingresso la tensione proveniente dal pacco batterie, erogando quattro diversi valori di tensione a seconda del terminale che si sceglie di utilizzare.\\
+	Il \textbf{DFRobot Power Module} \cite{DFR0205Datasheet} riceve in ingresso la tensione proveniente dal pacco batterie, erogando quattro diversi valori di tensione a seconda del terminale che si sceglie di utilizzare.\\
 	La prima soluzione offerta dal dispositivo fornisce in uscita la stessa tensione che si ha in ingresso, diventando così un ponte per il passaggio della tensione.\\
 	Un'altra soluzione consiste nell'utilizzo degli appositi \textit{pin} sul dispositivo, dai quali può essere erogata una tensione di \textbf{5 [V]}, selezionabile mediante un apposito \textit{switch}.\\
 	Infine, il dispositivo presenta un terminale che eroga una tensione variabile controllata da un \textit{dimmer}, che permette di selezionare valori intermedi fino ad un massimo
 	pari alla tensione di ingresso.
-	La presenza di due servomotori ha richiesto l'integrazione di due convertitori di tensione.
+	La presenza di due servomotori ha richiesto l'integrazione di due convertitori di tensione; la disposizione dei terminali di uscita è richiamata in Figura~\ref{fig:dfrobot-terminali}, mentre una fotografia del modulo realmente utilizzato è riportata in Figura~\ref{fig:dfrobot-modulo}.
 	
 	\begin{figure}[htbp]
 		\centering
@@ -418,7 +399,7 @@
 	
 	\section{Power Distribution Board}
 	Con \textbf{Power Distribution Board (PDB)} si fa riferimento ad un sottosistema elettrico la cui principale funzione è la \textbf{distribuzione in modo sicuro ed efficiente dell'energia fornita dal pacco batterie} agli \textit{ESC} e, conseguentemente, ai motori.
-	Ai fini progettuali, è stata selezionata una \textit{PDB}, il cui punto di prelievo del segnale presenta un connettore \textbf{XT60}, adatto al pacco batterie. Il dispositivo integrato nel contesto operativo possiede inoltre quattro uscite, ciascuna in grado di erogare al massimo una corrente di \textbf{20 [A]}, e ha un peso complessivo di \textbf{27.3 [g]}.
+	Ai fini progettuali, è stata selezionata una \textit{PDB}, il cui punto di prelievo del segnale presenta un connettore \textbf{XT60}, adatto al pacco batterie. Il dispositivo integrato nel contesto operativo possiede inoltre quattro uscite, ciascuna in grado di erogare al massimo una corrente di \textbf{20 [A]}, e ha un peso complessivo di \textbf{27.3 [g]}. Una vista del componente è riportata in Figura~\ref{fig:pdb}.
 	
 	\begin{figure}[H]
 		\centering
@@ -430,8 +411,8 @@
 	\section{Turnigy AereoDrive SK3-3536 1400KV}
 	\label{MotoriBrushless}
 	Il Turnigy AereoDrive SK3 3536 1400KV è un motore \textit{brushless} trifase a magneti permanenti, il cui funzionamento richiede un \textit{Electronic Speed Controller} (ESC) per la corretta commutazione delle fasi.
-	La sequenza di alimentazione imposta dall'ESC genera il campo magnetico rotante che mette in moto il rotore; invertendo due delle tre fasi è possibile invertire anche il senso di rotazione del motore.\\
-	Nel progetto sono stati impiegati due motori di questo tipo in configurazione \textbf{controrotante}, così da compensare le coppie di reazione delle eliche e limitare le rotazioni indesiderate di \textbf{yaw}. Tale scelta è stata inoltre necessaria per garantire la spinta richiesta al sollevamento del sistema.
+	Invertendo due delle tre fasi è possibile invertire anche il senso di rotazione del motore.\\
+	Nel progetto sono stati impiegati due motori di questo tipo in configurazione \textbf{controrotante}, così da ridurre le coppie di reazione delle eliche e contenere le rotazioni indesiderate di \textbf{yaw}, senza però riuscire a compensarle completamente. Tale scelta è stata inoltre necessaria per garantire la spinta richiesta al sollevamento del sistema.
 	
 	\subsection{Turnigy AereoDrive SK3-3536 1400 KV. Caratteristiche fisiche e tecniche}
 	\begin{itemize}
@@ -455,7 +436,7 @@
 	A tensioni di alimentazione maggiori rispetto a quelle specificate il motore rischia di assorbire troppa corrente e surriscaldarsi.\\
 	I giri al minuto massimi dipenderanno dalla tensione applicata e dalle dimensioni delle eliche.\\
 	Nel presente progetto, il motore in interesse deve essere alimentato a batteria, vale a dire in corrente continua, lasciando spazio alla necessità di un dispositivo che trasformi la tensione continua erogata dalle batterie in un segnale trifase a corrente alternata.
-	Il dispositivo in questione è il precedentemente citato \textit{Electronic Speed Controller}.
+	Il dispositivo in questione è il precedentemente citato \textit{Electronic Speed Controller}. Il motore adottato nel progetto è mostrato in Figura~\ref{fig:turnigy-sk3}.
 	
 	\begin{figure}[H]
 		\centering
@@ -464,10 +445,10 @@
 		\label{fig:turnigy-sk3}
 	\end{figure}
 	
-	\section{Turnigy Plush 40A. \textit{Electronic Speed Controller}}
-	Il Turnigy Plush 40A \cite{ESCDatasheet} è un controllore elettronico di velocità per motori \textit{brushless} BLDC. Il suo compito è convertire la tensione continua di alimentazione nelle tre fasi necessarie al pilotaggio del motore.
+	\section{Turnigy Plush 40A. Electronic Speed Controller}
+	Il \textbf{Turnigy Plush 40A} \cite{ESCDatasheet} è un controllore elettronico di velocità per motori \textit{brushless} BLDC. Il suo compito è convertire la tensione continua di alimentazione nelle tre fasi necessarie al pilotaggio del motore.
 	Il dispositivo è di tipo \textit{sensorless}: la posizione del rotore viene stimata indirettamente attraverso la forza controelettromotrice, senza impiegare sensori dedicati. Il comando di velocità viene invece ricevuto dal microcontrollore sotto forma di segnale PWM, sulla base del quale l'ESC genera la corretta sequenza di commutazione delle fasi.\\
-	Nel \textit{Double Propeller Ducted Fan} sono impiegati due Turnigy Plush 40A, uno per ciascun motore.
+	Nel \textit{Double Propeller Ducted Fan} sono impiegati due Turnigy Plush 40A, uno per ciascun motore; il componente è riportato in Figura~\ref{fig:turnigy-plush-40a}.
 	
 	\subsection{Turnigy Plush 40A. Caratteristiche fisiche}
 	\begin{itemize}
@@ -488,7 +469,7 @@
 	
 	\subsection{Turnigy Plush 40A. Programmazione}
 	Il \textit{Turnigy Plush 40A} permette di configurare diversi parametri operativi del controllo motore. Nel progetto, entrambi gli ESC sono stati programmati tramite \textit{Turnigy Programming Card}, così da adattarne il comportamento alle esigenze del \textit{DPDF}.
-	Per effettuare la programmazione è necessario predisporre i collegamenti elettrici mostrati in figura:
+	Per effettuare la programmazione è necessario predisporre i collegamenti elettrici mostrati in Figura~\ref{fig:programmazione-esc}:
 	
 	\begin{figure}[H]
 		\centering
@@ -497,7 +478,7 @@
 		\label{fig:programmazione-esc}
 	\end{figure}
 	
-	La \textit{Programming Card} è alimentata nell'intervallo $[4.8\div6]$ [V]; la navigazione fra i parametri avviene tramite i pulsanti \textit{up/down} e \textit{left/right}. Il LED \textit{connecting} segnala la corretta memorizzazione del parametro selezionato.
+	La \textit{Programming Card}, mostrata in Figura~\ref{fig:turnigy-programming-card}, è alimentata nell'intervallo $[4.8\div6]$ [V]; la navigazione fra i parametri avviene tramite i pulsanti \textit{up/down} e \textit{left/right}. Il LED \textit{connecting} segnala la corretta memorizzazione del parametro selezionato.
 	Di seguito sono riportati i parametri principali e le impostazioni adottate.
 	
 	\paragraph{\small{Brake}}\mbox{}\\
@@ -516,7 +497,7 @@
 		\item \textit{Medium}: 3.15 [V];
 		\item \textit{High}: 3.3 [V].
 	\end{itemize}
-	È stata scelta l'impostazione \textbf{Medium}, che nel caso di una batteria LiPo a 4 celle corrisponde a una soglia complessiva di $11.4$ [V].
+	È stata scelta l'impostazione \textbf{Medium}, che nel caso di una batteria LiPo a 4 celle corrisponde a una soglia complessiva di $12.6$ [V].
 	
 	\paragraph{\small{Start Mode}}\mbox{}\\
 	La \textit{Start Mode} regola la rapidità con cui il motore accelera da fermo. Durante i primi test è stata selezionata la modalità \textit{Very Soft Start}, così da limitare ulteriormente sollecitazioni meccaniche, movimenti bruschi ed errori di misura nelle prove in gabbia. Negli ultimi test dedicati alla taratura del PID relativo al controllo dello \textit{yaw}, invece, è stata adottata la modalità \textit{Normal}.
@@ -541,7 +522,7 @@
 	
 	\subsection{Turnigy Plush 40A. Risoluzione e controllo dei motori}
 	\label{ESCRisoluzioneEControllo}
-	Il \textit{Turnigy Plush 40A} controlla i motori tramite un segnale PWM a $50$ [Hz], frequenza tipica delle applicazioni modellistiche. Prima del funzionamento è necessaria una procedura di armamento, ottenuta inviando un segnale con \textit{duty cycle} pari al $5\%$.
+	Il \textit{Turnigy Plush 40A} controlla i motori tramite un segnale PWM a $50$ [Hz]. Prima del funzionamento è necessaria una procedura di armamento, ottenuta inviando un segnale con \textit{duty cycle} pari al $5\%$.
 	L'esito dell'armamento può essere riconosciuto tramite le emissioni acustiche dell'ESC.
 	
 	\paragraph{\small{Attesa di un segnale di armamento valido}}\mbox{}\\
@@ -551,25 +532,10 @@
 	Tre segnali brevi seguiti da un segnale prolungato indicano che la procedura di armamento è andata a buon fine.
 	
 	\paragraph{\small{Esito negativo dell'operazione di armamento}}\mbox{}\\
-	Una rapida sequenza di segnali acustici segnala invece un errore di armamento, generalmente dovuto a un segnale iniziale non corretto o a una variazione troppo rapida del \textit{duty cycle}. In base alle prove effettuate, è consigliabile attendere $[2\div6]$ [s] prima di aumentare il comando e l'intervallo di lavoro utile dei motori è risultato compreso tra $[6\%\div12\%]$.
+	Una rapida sequenza di segnali acustici segnala invece un errore di armamento, generalmente dovuto a un segnale iniziale non corretto o a una variazione troppo rapida del \textit{duty cycle}. In base alle prove effettuate, è consigliabile attendere $[2\div6]$ [s] prima di aumentare il comando e l'intervallo di lavoro utile stimato dei motori, in termini di \textit{duty cycle} è risultato compreso tra $[5\%\div10\%]$.
 	
-	\section{Eliche}
-	La scelta dell'elica deve garantire lo sviluppo della portanza necessaria al sollevamento del \textit{DPDF}, la quale dipende principalmente da due parametri, il \textbf{diametro} e il \textbf{passo}: il primo rappresenta il diametro della circonferenza descritta in rotazione, il secondo l'avanzamento teorico in un giro completo, in modo analogo a una vite.\\
-	Il \textbf{diametro} influenza principalmente:
-	\begin{itemize}
-		\item \textbf{Spinta ed efficienza}: a parità di RPM, un diametro maggiore genera più spinta e tende a migliorare l'efficienza.
-		\item \textbf{Coppia richiesta}: aumenta la coppia necessaria per mantenere l'elica in rotazione.
-		\item \textbf{Reattività}: una maggiore inerzia rotazionale rende il sistema meno pronto nelle variazioni di regime.
-	\end{itemize}
-	Per questo motivo, diametri più elevati sono in genere preferibili in sistemi orientati alla stabilità. Il \textbf{passo}, invece, influisce su:
-	\begin{itemize}
-		\item \textbf{Velocità}: un passo maggiore favorisce la velocità in volo traslato.
-		\item \textbf{Carico sul motore}: aumentano coppia richiesta e sollecitazioni meccaniche.
-		\item \textbf{Hovering}: un passo elevato tende a penalizzare l'efficienza e la stabilità in sospensione.
-	\end{itemize}
-	Un passo elevato è quindi tipico dei sistemi maggiormente orientati alla velocità.
-	
-	\subsection{APC 9x4.5. Caratteristiche fisiche}
+	\section{APC 9x4.5. Eliche}
+	\subsection{Caratteristiche fisiche}
 	
 	\begin{itemize}
 		\item Diametro: 9 [in], pari a 228.6 [mm].
@@ -584,20 +550,19 @@
 		\caption{Elica APC 9x4.5}
 		\label{fig:apc-9x45}
 	\end{figure}
+	La geometria dell'elica impiegata è riportata in Figura~\ref{fig:apc-9x45}.
 	
 	\section{Hitec HS-82MG Gear micro servo}
 	\label{HitecHS82MG}
-	Il disegno strutturale rende il \textit{DPDF} suscettibile a rotazioni indesiderate sul piano definito dagli assi X ed Y. Tali perturbazioni possono compromettere la stabilità del sistema, determinandone una completa perdita di controllo del mezzo.\\
-	Al fine di limitare tali perturbazioni, sono stati integrati due \textit{flap}, uno relativo al controllo lungo l'asse delle ascisse e uno lungo l'asse delle ordinate.\\
-	I \textit{flap} operano come superfici aerodinamiche di controllo dedicate alla compensazione dei disturbi di \textit{roll} e \textit{pitch}. Sono posizionati sulla parte terminale del condotto ed interagiscono con il getto generato
-	dai motori controrotanti. L'intervento si basa sulla modifica della direzione e della velocità del flusso d'aria spinto verso il basso.
-	Nel progetto sono stati integrati due servomotori del tipo sopra citato, uno per ogni \textit{flap}.
+	Come discusso nella descrizione della struttura meccanica, il controllo dell'assetto in \textit{roll} e \textit{pitch} è affidato a due \textit{flap} montati nella parte inferiore del condotto. Tali superfici, investite dal getto prodotto dai motori controrotanti, generano l'azione aerodinamica correttiva necessaria a contrastare le rotazioni indesiderate del velivolo.
+	Il movimento di ciascun \textit{flap} è affidato a un servomotore dedicato, in particolare nel progetto sono stati integrati due servomotori \textbf{Hitec HS-82MG} \cite{HS82MGDatasheet}.
 	
 	\subsection{HS-82MG Hitec. Caratteristiche fisiche}
 	\begin{itemize}
 		\item Dimensioni: $29.8\times 12.0\times 29.6$ [mm].
 		\item Peso: 19.0 [g].
 	\end{itemize}
+	Le dimensioni del servomotore sono riportate in Figura~\ref{fig:hs82-misure}.
 	
 	\begin{figure}[ht]
 		\centering
@@ -628,7 +593,7 @@
 	
 	\paragraph{Corsa operativa}\mbox{}\\
 	La \textit{corsa operativa} fa riferimento all'intervallo angolare che il servomotore copre in risposta ad un segnale PWM \textbf{standard}.
-	Nel caso del \textit{HS-82}, l'intervallo è pari a \textbf{120\degree}.
+	Nel caso del \textit{HS-82}, l'intervallo è pari a \textbf{120\degree}. Una vista del dispositivo è riportata in Figura~\ref{fig:hs82-foto}.
 	
 	\begin{figure}[ht]
 		\centering
@@ -648,7 +613,7 @@
 	\paragraph{Controllo}\mbox{}\\
 	Il controllo della posizione angolare del rotore avviene tramite segnale \textbf{PWM}. Si è optato per una frequenza di \textbf{50 [Hz]}, mentre l'ampiezza è pari a \textbf{3.3 [V]}.
 	Con il fine di ottenere il posizionamento dei \textit{flap} in configurazione iniziale perpendicolare al terreno, è necessario fornire un impulso di attivazione pari a \textbf{1.5 [ms]} corrispondente ad un \textbf{duty cycle del 7.5\%}.\\
-	Per ottenere una rotazione oraria del rotore, il comando deve operare nel seguente intervallo di impulsi: \textbf{1.5$\div$2.1 [ms]}. L'effetto di rotazione antioraria si ha invece per: \textbf{0.9$\div$1.5 [ms]}.
+	Per ottenere una rotazione oraria del rotore, il comando deve operare nel seguente intervallo di impulsi: \textbf{1.5$\div$2.1 [ms]}. L'effetto di rotazione antioraria si ha invece per: \textbf{0.9$\div$1.5 [ms]}. La disposizione dei terminali del servo è mostrata in Figura~\ref{fig:hs82-terminali}.
 	
 	\begin{figure}[ht]
 		\centering
@@ -658,7 +623,7 @@
 	\end{figure}
 	
 	\section{BNO055 Bosch Sensortec. Unità di misura inerziale e magnetometro}
-	Al fine di controllare l'orientamento nello spazio del \textit{DPDF} mediante servomotori, si necessita dell'informazione di rotazione del sistema nello spazio di riferimento. Si richiede, dunque, un dispositivo
+	Al fine di controllare l'orientamento nello spazio del \textit{DPDF}, si necessita dell'informazione di rotazione del sistema nello spazio di riferimento. Si richiede, dunque, un dispositivo
 	capace di ottenere tale informazione. Il \textbf{BNO055}, sviluppato da \textbf{Bosch Sensortec}, è un sensore di orientamento assoluto a 9 assi e rappresenta, per accuratezza e livello di integrazione, il candidato più adatto a questo compito. Il dispositivo è un \textit{System in Package} che, come riporta il datasheet ufficiale \cite{BNO055Datasheet}, integra un accelerometro triassiale a 14 bit, un giroscopio triassiale a 16 bit, un sensore geomagnetico triassiale e un microcontrollore Cortex $M0^+$ a 32 bit dedicato all'esecuzione dell'\textit{algoritmo di sensor fusion} integrato.\\
 	Tale algoritmo combina i dati provenienti da accelerometro, giroscopio e magnetometro, fornendo quaternioni, angoli di Eulero (\textit{pitch}, \textit{roll} e \textit{yaw}) e vettori lineari e gravitazionali.
 	Nel presente progetto, il \textit{chip} BNO055 è stato acquistato con montaggio su \textit{scheda di breakout} incluso, dunque nel paragrafo sottostante sono state aggiunte sia le dimensioni/peso del modulo che le dimensioni/peso del chip.
@@ -676,7 +641,7 @@
 	Il \textit{BNO055} dispone dei terminali \textbf{$V_{DD}$} e \textbf{$V_{DDIO}$}, dedicati rispettivamente all'alimentazione del sensore e delle interfacce digitali. I relativi intervalli di alimentazione sono \textbf{[2.4$\div$3.6] [V]} per $V_{DD}$ e \textbf{[1.7$\div$3.6] [V]} per $V_{DDIO}$. Nel modulo utilizzato, questi ingressi sono gestiti internamente dalla \textit{breakout board} tramite il terminale unico $V_{IN}$, alimentabile nell'intervallo \textbf{[2.4$\div$3.6] [V]}. Tra le modalità di alimentazione disponibili, nel progetto è stata scelta la \textbf{\textit{Normal mode}}.
 	
 	\paragraph{\small{Protocollo di comunicazione}}\mbox{}\\
-	Il \textit{BNO055} supporta i protocolli seriali \textit{$I^{2}C$} e \textit{UART}; nel progetto è stato utilizzato esclusivamente \textit{$I^{2}C$}. Il sensore può operare sia in \textit{Standard Mode} a 100 [kHz] sia in \textit{Fast Mode} a 400 [kHz]. Sia il sensore sia la relativa \textit{breakout board} espongono i terminali \textbf{SDA} e \textbf{SCL} per la comunicazione digitale.
+	Il \textit{BNO055} supporta i protocolli seriali \textit{$I^{2}C$} e \textit{UART}; nel progetto è stato utilizzato esclusivamente \textit{$I^{2}C$}. Il sensore può operare sia in \textit{Standard Mode} a 100 [kHz] sia in \textit{Fast Mode} a 400 [kHz]. Sia il sensore sia la relativa \textit{breakout board} espongono i terminali \textbf{SDA} e \textbf{SCL} per la comunicazione digitale. La piedinatura del modulo utilizzato è richiamata in Figura~\ref{fig:bno055-pinout}.
 	\begin{figure}[ht!]
 		\centering
 		\includegraphics[width=0.4\textwidth]{figures/02_hardware/bno055_pinout_superiore.jpg}
@@ -687,7 +652,7 @@
 	
 	
 	\subsection{BNO055 Bosch Sensortec. Sensori inerziali e \textit{sensor fusion}}
-	Il \textit{BNO055} integra accelerometro, giroscopio e magnetometro in un unico dispositivo, combinandoli con un algoritmo interno di \textit{sensor fusion}. L'accelerometro è un sensore M.E.M.S. capacitivo che misura l'accelerazione sui tre assi, il giroscopio è un M.E.M.S. vibrante che misura la velocità angolare, mentre il magnetometro rileva il campo magnetico terrestre fornendo un riferimento assoluto di orientamento.
+	Il \textit{BNO055} integra accelerometro, giroscopio e magnetometro in un unico dispositivo, combinandoli con un algoritmo interno di \textit{sensor fusion}. L'accelerometro è un sensore M.E.M.S. capacitivo che misura l'accelerazione sui tre assi, il giroscopio è un M.E.M.S. vibrante che misura la velocità angolare, mentre il magnetometro rileva il campo magnetico terrestre fornendo un riferimento assoluto di orientamento. L'architettura di sistema del sensore è mostrata in Figura~\ref{fig:bno055-architettura}.
 	
 	\paragraph{Accelerometro}\mbox{}\\
 	L'accelerometro ha una \textbf{risoluzione di 14 bit} e supporta intervalli di misura pari a $[\pm 2]$ [g], $[\pm 4]$ [g], $[\pm 8]$ [g] e $[\pm 16]$ [g]. Nel progetto è stato utilizzato con intervallo $[\pm 4]$ [g], con banda passante pari a \textbf{62.5 Hz}.
@@ -699,7 +664,7 @@
 	Il magnetometro misura campi fino a \textbf{$\pm 1300$ [\,$\mu$T]} sugli assi X e Y e fino a \textbf{$\pm 2500$ [\,$\mu$T]} sull'asse Z, con risoluzione rispettivamente di \textbf{13 bit} e \textbf{15 bit}. Con \textit{sensor fusion} attiva, la banda passante è \textbf{10 Hz}.
 	
 	\paragraph{Sensor fusion}\mbox{}\\
-	I tre sensori presentano limiti complementari: il giroscopio è soggetto a deriva, l'accelerometro risente delle accelerazioni non gravitazionali e il magnetometro è sensibile ai disturbi ambientali. La \textit{sensor fusion} utilizza congiuntamente i dati provenienti da accelerometro, giroscopio e magnetometro per ottenere una stima dell'orientamento più stabile e affidabile; secondo la documentazione del \textit{BNO055}, tale elaborazione è basata su un \textbf{Filtro di Kalman esteso}. Nel lavoro svolto questa modalità è stata mantenuta attiva e, nella catena di controllo sviluppata, sono state utilizzate le stime di \textit{roll} e \textit{pitch} restituite dal sensore, mentre le altre grandezze disponibili non sono state impiegate direttamente.
+	I tre sensori presentano limiti complementari: il giroscopio è soggetto a deriva, l'accelerometro risente delle accelerazioni non gravitazionali e il magnetometro è sensibile ai disturbi ambientali. La \textit{sensor fusion} utilizza congiuntamente i dati provenienti da accelerometro, giroscopio e magnetometro per ottenere una stima dell'orientamento più stabile e affidabile; secondo la documentazione del \textit{BNO055}, tale elaborazione è basata su un \textbf{Filtro di Kalman esteso}. Nel lavoro svolto questa modalità è stata mantenuta attiva e, nella catena di controllo sviluppata, sono state utilizzate le stime di \textit{roll}, \textit{pitch} e \textit{yaw} restituite dal sensore, mentre le altre grandezze disponibili non sono state impiegate direttamente.
 	A seguire una rappresentazione schematica del \textit{System in package BNO055 Bosch Sensortec}.
 	\begin{figure}[ht!]
 		\centering
@@ -714,30 +679,14 @@
 	\paragraph{Fusion-modes}\mbox{}\\
 	Nel momento in cui viene impostata una delle seguenti modalità, l'algoritmo di fusione \textbf{esegue automaticamente, in \textit{background}, la calibrazione dei sensori}.
 	\begin{itemize}
-		\item \textbf{IMU (Inertial Measurement Unit)}. In questa modalità di fusione, l'orientamento relativo del \textit{BNO055} nello spazio, è determinato utilizzando i dati estratti dall'accelerometro e dal giroscopio. La computazione è veloce, di fatto è suggerita nelle applicazioni ad alta velocità.
-		\item \textbf{M4G (Magnet for Gyroscope)}. Simile alla precedente modalità, tuttavia, il giroscopio non viene più utilizzato per la rilevazione della rotazione bensì la variazione dell'orientamento del magnetometro nel campo magnetico terrestre.
-		\item \textbf{COMPASS}. In questa modalità, il \textit{BNO055} opera come una bussola elettronica, stimando l'orientamento sul piano orizzontale rispetto al nord magnetico. Rispetto alle modalità IMU e NDOF, che sfruttano il giroscopio per una risposta più pronta e stabile, questa modalità utilizza il magnetometro con consumi inferiori ma robustezza minore.
-		\item \textbf{NDOF}. In questa modalità, la computazione dell'orientamento del dispositivo, è eseguita servendosi di tutti i dati provenienti dai sensori. La presente modalità è quella con il più alto consumo di corrente.
+		\item \textbf{IMU}. Stima l'orientamento usando accelerometro e giroscopio. Essendo una modalità rapida è adatta ad applicazioni dinamiche.
+		\item \textbf{M4G}. È simile alla modalità IMU, ma usa il magnetometro al posto del giroscopio per correggere l'orientamento rispetto al campo magnetico terrestre.
+		\item \textbf{COMPASS}. Il sensore opera come una bussola elettronica, stimando l'orientamento orizzontale rispetto al nord magnetico.
+		\item \textbf{NDOF}. Utilizza congiuntamente tutti i sensori disponibili per fornire la stima di orientamento più completa.
 	\end{itemize}
-	Nel presente progetto, la modalità \textbf{NDOF} è sempre stata scelta come modalità operativa del \textit{BNO055}.
-	A seguire, un'immagine riportata dalla documentazione ufficiale, specificante la frequenza con cui il sensore produce dati in uscita, nel mentre che la \textit{sensor fusion} è attiva.
-	\begin{figure}[ht!]
-		\centering
-		\includegraphics[width=1.0\textwidth]{figures/02_hardware/bno055_frequenza_aggiornamento.png}
-		\caption{\textcolor{black}{Frequenza di acquisizione della misura per ciascuna modalità
-				di fusione sensoriale, tabella ripresa dal datasheet ufficiale}}
-		\label{fig:bno055-frequenza}
-	\end{figure}
+	
 	\paragraph{Non-Fusion Modes}
-	\begin{itemize}
-		\item \textbf{ACCONLY}. Il dispositivo fornisce solamente dati grezzi provenienti dall'accelerometro, ponendo magnetometro e giroscopio nella modalità a basso consumo.
-		\item \textbf{MAGONLY}. Se impostata, il dispositivo fornisce solamente i dati del magnetometro, sospendendo accelerometro e giroscopio.
-		\item \textbf{GYROONLY}. La modalità è simile alle precedenti, però, in questo caso il dispositivo fornisce solo le misure del giroscopio, sospendendo l'accelerometro ed il magnetometro.
-		\item \textbf{ACCMAG}. In questa modalità, il sistema fornisce sia le misure dell'accelerometro che quelle del magnetometro. Il giroscopio è sospeso.
-		\item \textbf{ACCGYRO}. Simile alla precedente, ma il sensore rende disponibili solo le misure dell'accelerometro e del giroscopio.
-		\item \textbf{MAGGYRO}. In questo caso, il sensore fornisce le misure del magnetometro e del giroscopio, sospendendo l'accelerometro.
-		\item \textbf{AMG (ACC-MAG-GYRO)}. Con la presente modalità, il $\mu C$ attiva tutti i sensori, fornendo le misure di accelerometro, giroscopio e magnetometro.
-	\end{itemize}
+	Le modalità \textit{non-fusion} del \textit{BNO055} mettono a disposizione direttamente i dati grezzi dei singoli sensori o di loro combinazioni, senza applicare la fusione sensoriale interna. In particolare, il dispositivo può lavorare con il solo accelerometro (\texttt{ACCONLY}), il solo magnetometro (\texttt{MAGONLY}), il solo giroscopio (\texttt{GYROONLY}) oppure con coppie di sensori (\texttt{ACCMAG}, \texttt{ACCGYRO}, \texttt{MAGGYRO}); la modalità \texttt{AMG} abilita infine accelerometro, magnetometro e giroscopio contemporaneamente, lasciando però al microcontrollore esterno l'eventuale elaborazione congiunta delle misure. Nel nostro progetto tali modalità non sono state utilizzate, poiché si è preferita la \textit{fusion mode} \textbf{NDOF}, più adatta a ottenere direttamente una stima dell'orientamento.
 	
 	\section{VL53L1X ST. Sensore Time-of-Flight per la misurazione a lunga distanza}
 	Al fine di controllare correttamente il \textit{DPDF}, è necessario stimare la distanza dal suolo durante il volo. Per questo scopo è stato adottato il \textbf{VL53L1X} di STMicroelectronics \cite{VL53L1XDatasheet}. Nel progetto non è stato utilizzato il sensore in forma nativa, ma il modulo \textbf{IRIS11A0J9776} prodotto da \textbf{Pololu}, scelto per semplificare l'integrazione elettronica grazie alla relativa \textit{breakout board}.
@@ -767,7 +716,7 @@
 	Il sensore comunica esclusivamente tramite protocollo \textit{$I^2C$} e supporta la \textit{Fast Mode} a 400 [kHz]. I terminali messi a disposizione per la comunicazione sono \textbf{SDA} e \textbf{SCL}.
 	
 	\paragraph{\small{XSHUT e GPIO 1 (Interrupt)}}\mbox{}\\
-	Il \textit{VL53L1X} dispone dell'ingresso \textbf{XSHUT}, usato per spegnimento, riavvio o \textit{reset} hardware del dispositivo, e dell'uscita \textbf{GPIO1}, utilizzata come linea di interrupt per segnalare eventi al microcontrollore. Nel progetto, \textbf{XSHUT} è stato impiegato per il \textit{reset} forzato del sensore, mentre \textbf{GPIO1} è stato usato per notificare la disponibilità di una nuova misura, semplificando la gestione firmware e la temporizzazione.
+	Il \textit{VL53L1X} dispone dell'ingresso \textbf{XSHUT}, usato per spegnimento, riavvio o \textit{reset} hardware del dispositivo, e dell'uscita \textbf{GPIO1}, utilizzata come linea di interrupt per segnalare eventi al microcontrollore. Nel progetto, \textbf{XSHUT} è stato impiegato per il \textit{reset} forzato del sensore, mentre \textbf{GPIO1} è stato usato per notificare la disponibilità di una nuova misura, semplificando la gestione firmware e la temporizzazione. La configurazione dei pin del modulo e lo schema a blocchi del sensore sono riportati rispettivamente in Figura~\ref{fig:img1} e Figura~\ref{fig:img2}.
 	\begin{figure}[H]
 		\centering
 		\captionsetup{margin=0pt}
@@ -792,20 +741,23 @@
 		\centering
 		\includegraphics[width=0.6\textwidth]{figures/02_hardware/vl53l1x_dettaglio_emettitore.png}
 		\caption{VL53L1X, dettaglio sull'emettitore}
+		\label{fig:vl53l1x-emettitore}
 	\end{figure}
+	Il dettaglio dell'emettitore ottico del sensore è mostrato in Figura~\ref{fig:vl53l1x-emettitore}.
 	
 	\paragraph{\small{Field of View e Region of Interest}}\mbox{}\\
-	Il \textit{Field of View} rappresenta l'angolo massimo entro il quale il dispositivo è in grado di rilevare un oggetto; per il sensore in esame, il \textbf{FoV} è pari a circa \textbf{27\degree}. Il \textit{VL53L1X} mette inoltre a disposizione la funzione \textit{Region of Interest (R.O.I.)}, che consente di restringere il \textit{Field of View} effettivamente utilizzato durante la misura, risultando utile soprattutto nel caso di oggetti di piccole dimensioni. Nel presente progetto, tuttavia, il sensore è impiegato per la misura dell'altitudine del \textit{DPDF}; di conseguenza, la funzione \textit{R.O.I.} non è stata utilizzata e il \textit{FoV} è stato lasciato al valore nominale.
+	Il \textit{Field of View} rappresenta l'angolo massimo entro il quale il dispositivo è in grado di rilevare un oggetto; per il sensore in esame, il \textbf{FoV} è pari a circa \textbf{27\degree}. Il \textit{VL53L1X} mette inoltre a disposizione la funzione \textit{Region of Interest (R.O.I.)}, che consente di restringere il \textit{Field of View} effettivamente utilizzato durante la misura, risultando utile soprattutto nel caso di oggetti di piccole dimensioni. Nel presente progetto, tuttavia, il sensore è impiegato per la misura dell'altitudine del \textit{DPDF}; di conseguenza, la funzione \textit{R.O.I.} non è stata utilizzata e il \textit{FoV} è stato lasciato al valore nominale, come illustrato in Figura~\ref{fig:vl53l1x-fov}.
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.7\textwidth]{figures/02_hardware/vl53l1x_cono_campo_visivo.jpg}
 		\caption{Field of View del VL53L1X}
+		\label{fig:vl53l1x-fov}
 	\end{figure}
 	
 	\paragraph{\small{Prestazioni di misura, Timing Budget e modalità operative di misura}}\mbox{}\\
 	Il \textit{VL53L1X} offre buone prestazioni di misura in termini di accuratezza e rapidità. Il dispositivo è in grado di misurare distanze fino a 4 [m], con frequenze che possono arrivare fino a 50 [Hz].
 	Per adattarsi a scenari applicativi differenti, il sensore consente di selezionare la modalità di misura più adatta, bilanciando portata, robustezza e velocità di acquisizione.
-	A seguire, una tabella riassuntiva delle modalità di misura offerte dal dispositivo:
+	A seguire, una tabella riassuntiva delle modalità di misura offerte dal dispositivo, riportata in Tabella~\ref{tab:VL53L1X. Hardware}:
 	\begin{table}[htb]
 		\centering
 		\caption{VL53L1X. Modalità di misura}
@@ -828,14 +780,16 @@
 	Per gestire in modo accurato il compromesso tra temporizzazione e precisione, è stata sfruttata la funzione di \textbf{Timing Budget} del sensore. Con \textit{Timing Budget} si indica il tempo totale impiegato dal sensore per eseguire una singola misura di distanza. Tale grandezza è espressa in [ms] e può assumere valori compresi nell'intervallo \textbf{[20$\div$1000] [ms]}.
 	Un aumento del \textit{Timing Budget} comporta una riduzione della frequenza di misura ma, al tempo stesso, ne migliora l'accuratezza e la stabilità.\\
 	La documentazione suggerisce che un \textit{Timing Budget} di \textbf{33 ms} offra un buon compromesso tra velocità e accuratezza; per questo motivo è stato selezionato tale valore.
-	A seguire, un'immagine riportata direttamente dallo \textit{User Manual} del \textit{VL53L1X}, raffigurante le prestazioni di misura a fronte di diversi valori del \textit{Timing Budget}.
+	A seguire, un'immagine riportata direttamente dallo \textit{User Manual} del \textit{VL53L1X}, raffigurante le prestazioni di misura a fronte di diversi valori del \textit{Timing Budget}; tale andamento è mostrato in Figura~\ref{fig:vl53l1x-timing-budget}.
 	\begin{figure}[ht]
 		\centering
 		\includegraphics[width=0.7\textwidth]{figures/02_hardware/vl53l1x_prestazioni_timing_budget.png}
 		\caption{VL53L1X, prestazioni di misura}
+		\label{fig:vl53l1x-timing-budget}
 	\end{figure}
 	
 	\section{Schema dei collegamenti}
+	Lo schema elettrico complessivo del sistema è riportato in Figura~\ref{fig:schema}.
 	
 	\begin{figure}[H]
 		\centering
@@ -846,10 +800,10 @@
 	
 	\clearpage
 	\subsection{Tabelle dei collegamenti}
-	Di seguito sono riportati i collegamenti elettrici tra i principali componenti del sistema e la scheda di controllo.
+	Di seguito sono riportati i collegamenti elettrici tra i principali componenti del sistema e la scheda di controllo. Le tabelle di questa sottosezione sono richiamate puntualmente nel testo per facilitare la consultazione.
 	
 	\paragraph{Collegamenti NUCLEO-H745ZI-Q e VL53L1X}\mbox{}\\
-	Il sensore \textit{VL53L1X} (STMicroelectronics) è stato collegato direttamente alla \textit{NUCLEO-H745ZI-Q}.
+	Il sensore \textit{VL53L1X} (STMicroelectronics) è stato collegato direttamente alla \textit{NUCLEO-H745ZI-Q}; il dettaglio delle connessioni è riportato in Tabella~\ref{tab:collegamenti-vl53l1x}.
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{l l}
@@ -865,10 +819,11 @@
 			\bottomrule
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e VL53L1X}
+		\label{tab:collegamenti-vl53l1x}
 	\end{table}
 	
 	\paragraph{Collegamenti NUCLEO-H745ZI-Q e BNO055}\mbox{}\\
-	Il sensore \textit{BNO055} (Bosch Sensortec) è stato collegato direttamente alla \textit{NUCLEO-H745ZI-Q}.
+	Il sensore \textit{BNO055} (Bosch Sensortec) è stato collegato direttamente alla \textit{NUCLEO-H745ZI-Q}; il cablaggio adottato è sintetizzato in Tabella~\ref{tab:collegamenti-bno055}.
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{l l}
@@ -882,10 +837,11 @@
 			\bottomrule
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e BNO055}
+		\label{tab:collegamenti-bno055}
 	\end{table}
 	
 	\paragraph{Collegamenti DF-Robot, servo e NUCLEO-H745ZI-Q}\mbox{}\\
-	Per garantire il corretto funzionamento del comparto servomotori è necessario un riferimento di massa comune. Nel progetto è stata utilizzata una \textit{breadboard} esterna per distribuire la massa proveniente dalla NUCLEO-H745ZI-Q (GND, CN7-8). L'alimentazione dei servomotori è stata prelevata direttamente dall'uscita dei convertitori di tensione collegati in serie.
+	Per garantire il corretto funzionamento del comparto servomotori è necessario un riferimento di massa comune. Nel progetto è stata utilizzata una \textit{breadboard} esterna per distribuire la massa proveniente dalla NUCLEO-H745ZI-Q (GND, CN7-8). L'alimentazione dei servomotori è stata prelevata direttamente dall'uscita dei convertitori di tensione collegati in serie. I collegamenti del servo di \textit{roll} e di quello di \textit{pitch} sono riportati rispettivamente in Tabella~\ref{tab:collegamenti-roll-servo} e Tabella~\ref{tab:collegamenti-pitch-servo}.
 	
 	\begin{table}[H]
 		\centering
@@ -899,6 +855,7 @@
 			\bottomrule
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e Roll-servo}
+		\label{tab:collegamenti-roll-servo}
 	\end{table}
 	
 	\begin{table}[H]
@@ -913,10 +870,11 @@
 			\bottomrule
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e Pitch-servo}
+		\label{tab:collegamenti-pitch-servo}
 	\end{table}
 	
 	\paragraph{Collegamenti Power Distribution Module, ESC e NUCLEO-H745ZI-Q}\mbox{}\\
-	Per il comparto motori, gli ESC sono collegati al \textit{Power Distribution Module}, a sua volta connesso al comparto batterie-PSM e ai motori tramite i rispettivi connettori trifase. Il terminale di massa degli ESC deve condividere la massa della NUCLEO-H745ZI-Q, mentre il terminale \textit{Signal} deve essere connesso al pin PWM della scheda.
+	Per il comparto motori, gli ESC sono collegati al \textit{Power Distribution Module}, a sua volta connesso al comparto batterie-PSM e ai motori tramite i rispettivi connettori trifase. Il terminale di massa degli ESC deve condividere la massa della NUCLEO-H745ZI-Q, mentre il terminale \textit{Signal} deve essere connesso al pin PWM della scheda. I cablaggi dei due ESC sono riportati rispettivamente in Tabella~\ref{tab:collegamenti-top-esc} e Tabella~\ref{tab:collegamenti-bottom-esc}.
 	
 	\begin{table}[H]
 		\centering
@@ -931,6 +889,7 @@
 			\bottomrule
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e Top-motor-ESC}
+		\label{tab:collegamenti-top-esc}
 	\end{table}
 	
 	\begin{table}[H]
@@ -946,25 +905,25 @@
 			\bottomrule
 		\end{tabular}
 		\caption{Collegamenti NUCLEO-H745ZI-Q e Bottom-motor-ESC}
+		\label{tab:collegamenti-bottom-esc}
 	\end{table}
 	
 	\textit{Nota}: il dispositivo che riceve il segnale PWM deve condividere lo stesso riferimento di massa del dispositivo che genera tale segnale.
 	
 	\chapter{Software}
-	Il firmware di controllo del \textit{Double Propeller Ducted-Fan (DPDF)} è stato sviluppato con l'obiettivo di ottenere una condizione di \textit{hovering} sufficientemente stabile del velivolo.
-	L'implementazione è stata realizzata in linguaggio C all'interno di \textit{STM32CubeIDE} (versione \textbf{1.16.1}), utilizzando i flussi di configurazione hardware, generazione codice basata su HAL (\textit{Hardware Abstraction Layer}), compilazione e debug integrati nell'ambiente.
-	Per la configurazione delle periferiche del microcontrollore \textit{STM32H745ZI-TQ6} è stato impiegato \textit{STM32CubeMX} (versione \textbf{6.12.1}).\\
+	Il presente capitolo descrive il \textit{firmware} sviluppato per rendere il DPDF una piattaforma sperimentabile in modo ordinato e sicuro. L'obiettivo non è mostrare un controllo completo già validato, ma spiegare come l'architettura software sia stata resa sufficientemente chiara e robusta da permettere la taratura isolata del PID di \textit{yaw}.
+	L'implementazione è stata realizzata in linguaggio C all'interno di \textit{STM32CubeIDE} (versione \textbf{1.12.1}), utilizzando i flussi di configurazione hardware, la generazione del codice basata su HAL (\textit{Hardware Abstraction Layer}) e gli strumenti integrati di compilazione e debug. Per la configurazione delle periferiche del microcontrollore \textit{STM32H745ZI-TQ6} è stato impiegato \textit{STM32CubeMX}.\\
 	Per i sensori \textit{BNO055} (Bosch Sensortec) e \textit{VL53L1X} (STMicroelectronics) sono stati integrati i driver ufficiali dei produttori, nativamente \textit{platform-agnostic}, e adattati al contesto HAL tramite un sottile livello di interfaccia per comunicazione, interrupt e gestione dei pin.
-	Una parte del sub-firmware di base, in particolare l'infrastruttura iniziale e alcuni moduli driver, era già stata sviluppata in precedenza. Il lavoro svolto si è quindi concentrato sulla modifica, miglioramento, integrazione e validazione del codice nel contesto del progetto DPDF.\\
-	Nelle sezioni successive vengono quindi descritti i diagrammi di flusso e l'organizzazione del firmware adottata nel progetto, mantenendo la terminologia operativa usata nel codice (i termini \textit{procedura} e \textit{funzione} sono considerati equivalenti in questa relazione).
+	Una parte del sottosistema di base, in particolare l'infrastruttura iniziale e alcuni moduli driver, era già stata sviluppata in precedenza. Il lavoro svolto si è quindi concentrato sulle modifiche necessarie a ottenere un percorso di misura, elaborazione e attuazione coerente con la successiva campagna di tuning. In tale architettura, i rami di quota, \textit{roll} e \textit{pitch} restano presenti come base per sviluppi futuri, mentre la validazione sperimentale riportata in questa relazione riguarda il solo ramo di \textit{yaw}.\\
+	Nelle sezioni successive sono descritti i diagrammi di flusso e l'organizzazione del firmware adottata nel progetto.
 	
 	\section{Diagrammi di flusso}
-	Nella presente sezione sono stati riportati i diagrammi di flusso esplicativi del funzionamento del \textit{firmware}. Poiché i driver di gestione del \textit{VL53L1X} e \textit{BNO055} sono esterni allo sviluppo, sono stati riportati anche i diagrammi di flusso di questi, in tal modo da specificare la procedura di estrazione dell'informazione.
+	Nella presente sezione sono riportati i diagrammi di flusso esplicativi del funzionamento del \textit{firmware}. Poiché i driver di gestione del \textit{VL53L1X} e del \textit{BNO055} sono esterni allo sviluppo, sono stati riportati anche i relativi diagrammi di flusso, così da chiarire il percorso di estrazione dell'informazione. In particolare, le Figure~\ref{fig:diagramma-firmware-generale}, \ref{fig:diagramma-vl53l1x} e \ref{fig:diagramma-bno055} sintetizzano rispettivamente la logica generale del firmware, il ramo ToF per la quota e il ramo IMU per l'orientamento.
 	
 	\subsection{Diagramma di flusso del firmware}
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.55\textwidth,keepaspectratio]{figures/03_software/diagramma_di_flusso_generale.png}
+		\includegraphics[width=0.92\textwidth,height=0.82\textheight,keepaspectratio]{figures/03_software/diagramma_di_flusso_generale.png}
 		\caption{Diagramma di flusso del funzionamento del firmware}
 		\label{fig:diagramma-firmware-generale}
 	\end{figure}
@@ -989,21 +948,23 @@
 	\end{figure}
 	
 	\section{Gestione singoli componenti}
-	Il firmware è organizzato in modo modulare perché, in un sistema di controllo reale, la chiarezza dell'architettura ha un impatto diretto sulla robustezza. Il file \texttt{main.c} svolge il ruolo di supervisore: inizializza le periferiche, imposta i riferimenti, configura i controllori e coordina il ciclo principale. I moduli specialistici separano invece le responsabilità fisiche: \texttt{pwm.c} traduce i comandi in segnali per motori e servo, \texttt{pid.c} implementa il nucleo numerico dei regolatori e il filtro mediano, \texttt{tof.c} corregge la misura di quota rispetto all'inclinazione del velivolo, mentre \texttt{imu.c} raccoglie lettura e riorientamento delle misure di assetto.\\
+	Il firmware è organizzato in modo modulare perché, in un sistema di controllo reale, la chiarezza dell'architettura ha un impatto diretto sulla robustezza. Il file \texttt{main.c} svolge il ruolo di supervisore: inizializza le periferiche, istanzia i controllori usando i parametri centralizzati in \texttt{FLIGHT\_CFG} e coordina il ciclo principale. La sorgente unica dei riferimenti e dei parametri numerici non è quindi il \texttt{main}, ma la configurazione costante definita in \texttt{config.c}; il \texttt{main} la utilizza per costruire il comportamento operativo del firmware. I moduli specialistici separano invece le responsabilità fisiche: \texttt{pwm.c} traduce i comandi in segnali per motori e servo, \texttt{pid.c} implementa il nucleo numerico dei regolatori e il filtro mediano, \texttt{tof.c} corregge la misura di quota rispetto all'inclinazione del velivolo, mentre \texttt{imu.c} raccoglie lettura e riorientamento delle misure di assetto.\\
 	Questa suddivisione non è utile soltanto per ``tenere ordinato'' il codice. Il motivo principale è che i blocchi time-critical possono restare semplici, mentre la logica numerica viene mantenuta nel ciclo principale. Le callback di interrupt non eseguono perciò elaborazioni di controllo, ma si limitano a notificare la presenza di un evento tramite le flag \texttt{actuate\_motors\_control} e \texttt{actuate\allowbreak\_servo\allowbreak\_control}. Così si riduce il tempo passato in ISR, si limita il jitter e si rende il percorso misura-elaborazione-comando più leggibile e verificabile.
 	
 	\subsection{Architettura del controllo}
-	L'architettura prevista è costruita come un sistema a due rami principali, ciascuno dedicato a una grandezza fisica ben definita. Il primo ramo controlla la quota, cioè la distanza verticale dal piano di riferimento. Il secondo controlla l'assetto, cioè la vicinanza degli angoli di \textit{roll} e \textit{pitch} al valore nullo. Separare i due rami è una scelta naturale perché la quota dipende in modo predominante dalla spinta totale, mentre l'assetto dipende soprattutto dai momenti aerodinamici generati dai flap.\\
-	Dal punto di vista concettuale, il controllo opera secondo la seguente catena causale: il sensore misura una grandezza fisica, la misura viene trasformata nella coordinata utile al problema, il regolatore confronta il valore misurato con il riferimento e genera un comando che abbia lo stesso significato fisico dell'attuatore. Nel ramo motori, l'uscita del controllore è un livello di comando PWM comune ai due ESC; nel ramo flap, l'uscita del controllore è invece un angolo richiesto, successivamente convertito in PWM per i servo. Questo passaggio intermedio è importante perché evita di confondere il livello di controllo con il livello di attuazione.\\
-	La scomposizione adottata può essere riassunta come segue:
+	L'architettura implementata nel firmware non è descrivibile in modo completo come un semplice sistema a due rami. Dal punto di vista fisico e software, infatti, il controllo è organizzato in \textbf{tre catene logiche distinte}: una dedicata alla quota, una dedicata all'assetto in \textit{roll/pitch} e una dedicata alla stabilizzazione dello \textit{yaw}. Questa distinzione è importante perché ciascuna catena usa una misura diversa, agisce su attuatori diversi oppure sugli stessi attuatori con un significato fisico differente, ed è aggiornata secondo la propria dinamica.\\
+	Il principio comune è sempre lo stesso: il sensore misura una grandezza fisica, il firmware la trasforma nella coordinata utile al problema, il PID confronta misura e riferimento e genera un comando che abbia lo stesso significato fisico della variabile da imporre all'attuatore. Ciò che cambia da un ramo all'altro non è la logica di fondo, ma la natura della grandezza controllata e il modo in cui il comando viene tradotto in attuazione reale.\\
+	Nel perimetro della presente relazione, tuttavia, è essenziale distinguere tra \textit{architettura disponibile} e \textit{architettura validata}. I tre rami sono presenti nel firmware perché descrivono la struttura finale attesa del controllo, ma durante la campagna sperimentale soltanto il ramo di \textit{yaw} è stato effettivamente tarato. I rami di quota, \textit{roll} e \textit{pitch} sono stati mantenuti come infrastruttura futura, con l'obiettivo di documentare in modo completo il punto di arrivo del codice senza attribuire loro risultati sperimentali non ancora dimostrati.\\
+	La scomposizione effettiva è la seguente:
 	\begin{itemize}
-		\item \textbf{quota}: riferimento verticale $z_{ref}$, misura proveniente dal VL53L1X, comando comune ai due motori;
-		\item \textbf{assetto}: riferimenti $\phi_{ref}=0$ e $\theta_{ref}=0$, misura proveniente dal BNO055, comando angolare ai flap di \textit{roll} e \textit{pitch}.
+		\item \textbf{quota}: riferimento verticale $z_{ref}$, misura del VL53L1X filtrata e compensata rispetto al \textit{tilt}, comando PWM medio comune ai due motori;
+		\item \textbf{assetto \textit{roll/pitch}}: riferimenti nulli per gli angoli nel riferimento dei flap, misura del BNO055 rimappata nel riferimento meccanico degli attuatori, comando angolare ai due flap poi convertito in PWM per i servo;
+		\item \textbf{yaw}: riferimento nullo di imbardata, misura inerziale letta rispetto alla posa iniziale, comando differenziale sui due motori ottenuto tramite PID e mixer.
 	\end{itemize}
-	La presenza di due motori controrotanti e di due flap ortogonali rende infatti possibile associare in maniera sufficientemente pulita ciascun attuatore alla grandezza dominante che deve correggere.
+	Questa decomposizione chiarisce il senso fisico dell'architettura. La quota dipende soprattutto dalla \emph{spinta media} dei due motori, il \textit{roll/pitch} dipende dai \emph{momenti aerodinamici} generati dai flap, mentre lo \textit{yaw} dipende dalla \emph{differenza di coppia} tra i due gruppi motore-elica. Separare questi tre livelli rende il firmware più leggibile e, soprattutto, permette di interpretare in modo diretto il legame tra misura, errore e azione correttiva.
 	
 	\subsection{Definizione delle costanti e delle strutture condivise}
-	Il file \texttt{DPDF\_var\_def.h} raccoglie i parametri numerici che descrivono il comportamento ammissibile del sistema. Centralizzare questi valori non serve soltanto a evitare la dispersione di costanti nel codice, ma soprattutto a rendere esplicito il confine tra legge di controllo e limiti imposti dall'hardware reale. In un problema di controllo embedded, infatti, il regolatore ideale e l'attuatore fisico non coincidono: il primo potrebbe richiedere qualunque valore, mentre il secondo può operare solo entro un intervallo ristretto e sicuro.\\
+	Il file \texttt{config.h} raccoglie i parametri numerici che descrivono il comportamento ammissibile del sistema, mentre \texttt{config.c} definisce l'istanza costante \texttt{FLIGHT\_CFG} contenente riferimenti e parametri dei quattro PID. Centralizzare questi valori non serve soltanto a evitare la dispersione di costanti nel codice, ma soprattutto a rendere esplicito il confine tra legge di controllo e limiti imposti dall'hardware reale. In un problema di controllo embedded, infatti, il regolatore ideale e l'attuatore fisico non coincidono: il primo potrebbe richiedere qualunque valore, mentre il secondo può operare solo entro un intervallo ristretto e sicuro.\\
 	Le macro principali sono le seguenti:
 	\begin{itemize}
 		\item \texttt{NUMBER\_OF\_TOGGLES} fissa la durata del conto alla rovescia prima dell'avvio;
@@ -1013,20 +974,19 @@
 	\end{itemize}
 	
 	Il significato di queste costanti è quindi progettuale prima ancora che implementativo. La saturazione dei motori impedisce di uscire dal range accettato dagli ESC; quella dei servo evita il raggiungimento di fine corsa inutili o dannosi. Dichiarare questi limiti in modo esplicito rende il controllore più interpretabile, perché ogni uscita numerica può essere letta come ``comando valido e realizzabile'', non come semplice risultato di una formula.\\
-	Il firmware utilizza inoltre una struttura PID unica, inizializzata tramite \texttt{pid\_init()} e aggiornata tramite \texttt{pid\_compute()}. Questa scelta uniforma il comportamento interno dei tre regolatori: inizializzazione dello stato, gestione dell'integrale, calcolo della derivata e saturazione seguono la stessa logica, mentre cambiano i parametri che descrivono il problema fisico. In questo modo il codice non contiene tre implementazioni diverse dello stesso concetto, ma un solo strumento generale specializzato tramite configurazione.
+	Il firmware utilizza inoltre una struttura PID unica, inizializzata tramite \texttt{pid\_init()} e aggiornata tramite \texttt{pid\_compute()}. Questa scelta uniforma il comportamento interno dei quattro regolatori: inizializzazione dello stato, gestione dell'integrale, calcolo della derivata filtrata e saturazione seguono la stessa logica, mentre cambiano i parametri che descrivono il problema fisico. In questo modo il codice non contiene implementazioni diverse dello stesso concetto, ma un solo strumento generale specializzato tramite configurazione.
 	
-	\begin{lstlisting}[style=base,language=C,caption={Costanti principali usate dal firmware per definire i limiti hardware e di sicurezza}]
-		#define UPPER_LIMIT_MOTOR                      1500
-		#define LOWER_LIMIT_MOTOR                       750
-		#define UPPER_LIMIT_SERVO                      1545
-		#define CENTER_SERVO                           1125
-		#define LOWER_LIMIT_SERVO                       705
-		#define CCR_PER_DEGREE                          5.0f
-		#define MAX_FLAP_ANGLE_DEG                     60.0f
-	\end{lstlisting}
+	\lstinputlisting[
+	style=base,
+	language=C,
+	caption={Estratto di \texttt{config.h} con i limiti hardware e di sicurezza},
+	firstline=31,
+	lastline=100,
+	firstnumber=31
+	]{codefiles/config.h}
 	
 	\subsection{Teoria del regolatore PID}
-	Il regolatore PID nasce dall'idea di trasformare l'errore di controllo in un comando che tenga conto non soltanto della sua ampiezza istantanea, ma anche della sua storia e della sua tendenza futura. Indicando con $r(t)$ il riferimento, con $y(t)$ la variabile misurata e con
+	Il regolatore PID trasforma l'errore di controllo in un comando che tiene conto dell'errore istantaneo, della sua accumulazione nel tempo e della sua variazione. Indicando con $r(t)$ il riferimento, con $y(t)$ la variabile misurata e con
 	\begin{equation}
 		e(t)=r(t)-y(t)
 	\end{equation}
@@ -1034,16 +994,15 @@
 	\begin{equation}
 		u(t)=K_p e(t) + K_i \int_0^t e(\tau)\,d\tau + K_d\frac{de(t)}{dt}.
 	\end{equation}
-	Questa scrittura è utile perché separa tre effetti fisicamente diversi. Il termine proporzionale reagisce subito all'errore presente e determina la prontezza della risposta. Il termine integrale accumula l'errore nel tempo e serve a rimuovere gli scostamenti persistenti, cioè quelle condizioni in cui il sistema resta vicino al riferimento ma non vi converge esattamente. Il termine derivativo, infine, reagisce alla rapidità con cui l'errore cambia e introduce un effetto di anticipazione che tende a smorzare la dinamica.\\
-	Dal punto di vista ingegneristico, il PID non è interessante perché somma tre termini, ma perché consente di assegnare un significato fisico distinto a ciascuna componente dell'azione di controllo. In un sistema come il DPDF questo è particolarmente utile: una parte del comando deve reagire rapidamente agli scostamenti, una parte può compensare errori sistematici e una parte, se necessaria, può limitare l'insorgenza di oscillazioni.\\
+	Questa scrittura separa tre effetti fisicamente diversi. Il termine proporzionale reagisce subito all'errore presente, l'integrale compensa gli scostamenti persistenti e il derivativo introduce smorzamento reagendo alla rapidità di variazione dell'errore. In un sistema come il DPDF questa distinzione è utile perché consente di attribuire un significato fisico chiaro a ciascuna componente del comando.\\
 	Una forma equivalente, spesso utile nella taratura, si ottiene introducendo il tempo integrale $T_i$ e il tempo derivativo $T_d$:
 	\begin{equation}
 		u(t)=K_p\left[e(t)+\frac{1}{T_i}\int_0^t e(\tau)\,d\tau + T_d\frac{de(t)}{dt}\right].
 	\end{equation}
-	Questa parametrizzazione mette in evidenza che il guadagno proporzionale fissa la scala complessiva dell'azione di controllo, mentre integrale e derivata modellano il modo in cui il regolatore reagisce alla persistenza e alla variazione dell'errore.
+	Questa parametrizzazione evidenzia che il guadagno proporzionale fissa la scala complessiva dell'azione di controllo, mentre integrale e derivata ne modellano la risposta.
 	
 	\subsection{PID discreto adottato nel firmware}
-	Il firmware non implementa un PID continuo ideale, ma una sua approssimazione numerica causale, compatibile con il periodo di campionamento, con il rumore dei sensori e con i limiti fisici degli attuatori. In altre parole, il passaggio al discreto non è una semplice riscrittura formale: è il modo con cui la legge di controllo viene resa eseguibile da un microcontrollore che riceve misure a istanti separati e aggiorna il comando solo quando dispone di nuovi dati.\\
+	Il firmware non implementa un PID continuo ideale, ma una sua approssimazione numerica causale, compatibile con il periodo di campionamento, con il rumore dei sensori e con i limiti fisici degli attuatori. Il passaggio al discreto è quindi la forma concreta con cui la legge di controllo viene resa eseguibile dal microcontrollore.\\
 	Indicando con $k$ l'indice temporale e con $T_s$ il periodo di campionamento, si definisce innanzitutto
 	\begin{equation}
 		e[k]=r[k]-y[k].
@@ -1058,25 +1017,25 @@
 		I[k] &= I[k-1] + K_i T_s e[k], \\
 		D_e[k] &= \frac{K_d}{T_s}\bigl(e[k]-e[k-1]\bigr).
 	\end{align}
-	La seconda equazione è la discretizzazione in avanti dell'integrale e mostra con chiarezza il motivo per cui il termine integrale può diventare dominante: se l'errore persiste, il suo contributo si accumula passo dopo passo. È proprio questa capacità di memoria che rende l'integrale utile contro gli errori statici, ma anche potenzialmente pericoloso se non viene limitato.\\
-	Nel firmware il termine derivativo può essere calcolato anche sulla misura, scelta particolarmente utile quando il riferimento può cambiare nel corso delle prove e non si vuole che un suo gradino produca un picco artificiale di comando. In tal caso la forma adottata è
+	La seconda equazione è la discretizzazione in avanti dell'integrale e mostra perché il suo contributo possa diventare dominante: se l'errore persiste, esso si accumula campione dopo campione.\\
+	Nel firmware il termine derivativo può essere calcolato anche sulla misura, scelta utile quando non si vuole che un gradino del riferimento produca un picco artificiale di comando. In tal caso la forma adottata è
 	\begin{equation}
 		D_y[k]= -\frac{K_d}{T_s}\bigl(y[k]-y[k-1]\bigr).
 	\end{equation}
-	Il segno meno compare perché, se la misura cresce a parità di riferimento, l'errore diminuisce. Dal punto di vista fisico, derivare la misura significa far reagire il regolatore al moto osservato del sistema più che al cambiamento imposto dall'esterno al riferimento.\\
+	Il segno meno compare perché, se la misura cresce a parità di riferimento, l'errore diminuisce. Derivare la misura significa quindi far reagire il regolatore al moto osservato del sistema più che al cambiamento del riferimento.\\
 	Il comando grezzo viene quindi scritto come
 	\begin{equation}
 		u_{raw}[k]=u_0 + K_p e[k] + I[k] + D[k].
 	\end{equation}
-	Questa è la quantità che il PID vorrebbe applicare in assenza di vincoli. In un sistema reale, tuttavia, il comando non può essere arbitrario: motori e servomotori lavorano entro intervalli ben precisi. Per questa ragione si introduce la saturazione logica del controllore
+	Questa è la quantità che il PID vorrebbe applicare in assenza di vincoli. In un sistema reale, però, il comando non può essere arbitrario: motori e servomotori lavorano entro intervalli ben precisi. Per questa ragione si introduce la saturazione logica del controllore
 	\begin{equation}
 		u_{pid}[k]=\mathrm{clamp}\bigl(u_{raw}[k],u_{min},u_{max}\bigr),
 	\end{equation}
-	che ha il compito di rendere l'uscita del regolatore compatibile con il dominio di lavoro previsto. A questa si sovrappone poi una seconda limitazione, di natura strettamente hardware, applicata nella fase di attuazione: per i motori il PWM deve restare nel range accettato dagli ESC, mentre per i servo il comando deve rispettare sia il campo angolare sicuro sia la corrispondente finestra di conteggi timer. Distinguere questi due livelli è utile perché il primo appartiene alla legge di controllo, mentre il secondo appartiene all'interfaccia fisica con l'attuatore.
+	che rende l'uscita del regolatore compatibile con il dominio di lavoro previsto. A questa si aggiunge poi una seconda limitazione, di natura strettamente hardware, applicata in fase di attuazione: per i motori il PWM deve restare nel range accettato dagli ESC, mentre per i servo il comando deve rispettare sia il campo angolare sicuro sia la corrispondente finestra di conteggi timer.
 	
 	\subsection{Scelta dei tempi di campionamento}
-	I due rami di controllo non sono campionati alla stessa frequenza perché non osservano la stessa dinamica né usano la stessa sorgente di misura. Il ramo servo lavora con periodo nominale di \texttt{10 ms}, generato da \texttt{TIM7}, perché il controllo di assetto deve reagire con maggiore rapidità alle variazioni angolari. Il ramo motori lavora invece con periodo nominale di circa \texttt{33 ms}, associato alla disponibilità di nuove misure del VL53L1X, perché la dinamica della quota è più lenta e la misura ToF ha tempi caratteristici differenti.\\
-	Questa scelta evita due errori opposti. Campionare troppo lentamente l'assetto renderebbe il sistema poco reattivo; campionare inutilmente troppo in fretta la quota significherebbe invece reagire più al rumore del sensore che alla dinamica reale del velivolo. I tempi di campionamento non sono quindi numeri arbitrari, ma il compromesso tra reattività, qualità della misura e costo numerico dell'elaborazione.
+	I due rami di controllo non sono campionati alla stessa frequenza perché non osservano la stessa dinamica né usano la stessa sorgente di misura. Il ramo servo/IMU lavora con periodo nominale di \texttt{10 ms}, generato da \texttt{TIM7}, perché il controllo di assetto deve reagire con maggiore rapidità alle variazioni angolari; nello stesso ramo viene calcolata anche la correzione di \textit{yaw}. Il ramo motori lavora invece con periodo nominale di circa \texttt{33 ms}, associato alla disponibilità di nuove misure del VL53L1X, perché la dinamica della quota è più lenta e la misura ToF ha tempi caratteristici differenti.\\
+	Questa scelta evita due errori opposti: campionare troppo lentamente l'assetto renderebbe il sistema poco reattivo, mentre campionare inutilmente troppo in fretta la quota significherebbe reagire più al rumore del sensore che alla dinamica reale del velivolo. I tempi di campionamento non sono quindi arbitrari, ma il compromesso tra reattività e qualità della misura.
 	
 	\subsection{Derivata filtrata e anti-windup}
 	La derivata è teoricamente utile per aumentare lo smorzamento, ma numericamente ha un difetto noto: amplifica il rumore ad alta frequenza. Poiché una differenza finita tra due campioni consecutivi enfatizza proprio le variazioni rapide, il termine derivativo viene spesso filtrato. Nel firmware questo avviene tramite un filtro passa-basso del primo ordine applicato alla derivata discreta:
@@ -1086,22 +1045,31 @@
 	Se $\alpha=1$, il filtro è trasparente e il termine derivativo non viene smorzato; per valori più piccoli, il contributo diventa più regolare ma anche meno rapido. Il parametro $\alpha$ controlla quindi un compromesso tra sensibilità e robustezza.\\
 	Un secondo problema tipico riguarda il termine integrale. Se l'attuatore raggiunge un limite fisico ma l'errore resta presente, l'integrale continuerebbe ad accumularsi pur senza poter produrre ulteriore effetto reale. Questo fenomeno prende il nome di \textit{windup}. Nel firmware viene evitato con una logica di \textit{anti-windup} per \textit{clamping}: l'integrale viene aggiornato solo quando il suo accumulo aiuta il rientro dalla saturazione. Il senso di questa scelta è semplice: quando il sistema è già al massimo o al minimo consentito, il regolatore deve prepararsi al rientro, non irrigidirsi ulteriormente. Anche qui il motivo è pratico: l'integrale non deve descrivere ciò che il PID vorrebbe fare in astratto, ma ciò che l'attuatore può ancora efficacemente correggere.
 	
-	\begin{lstlisting}[style=base,language=C,caption={Struttura concettuale del PID discreto con saturazione e anti-windup}]
-		float error  = setpoint - measurement;
-		float p_term = kp * error;
-		float new_int = int_term + ki * Ts * error;
-		float output = offset + p_term + new_int + d_term;\\
-		output = clamp(output, out_min, out_max);
-	\end{lstlisting}
+	\lstinputlisting[
+	style=base,
+	language=C,
+	caption={Estratto di \texttt{pid.c}: PID discreto con saturazione e anti-windup},
+	firstline=57,
+	lastline=94,
+	firstnumber=57
+	]{codefiles/pid.c}
 	
 	\subsection{Gestione quota: VL53L1X + PID motori}
-	Il ramo di controllo della quota è costruito attorno al sensore ToF \textit{VL53L1X}, usato come sorgente primaria della distanza dal piano di riferimento. La ragione di questa scelta è che la quota è una grandezza geometrica, non inerziale: misurarla direttamente è preferibile a ricostruirla indirettamente integrando accelerazioni, operazione che introdurrebbe deriva e accumulo d'errore. In altre parole, il sensore ToF fornisce al controllore una misura vicina alla quantità che si vuole realmente regolare.\\
+	Il ramo di controllo della quota è costruito attorno al sensore ToF \textit{VL53L1X}, usato come sorgente primaria della distanza dal piano di riferimento. La ragione di questa scelta è che la quota è una grandezza geometrica, non inerziale: misurarla direttamente è preferibile a ricostruirla indirettamente integrando accelerazioni, operazione che introdurrebbe deriva e accumulo d'errore. In altre parole, il sensore ToF fornisce al controllore una misura vicina alla quantità che si vuole realmente regolare. Nel firmware attuale, però, questo ramo non è oggetto di taratura: i guadagni del PID motori sono lasciati a zero per mantenere il canale di quota in configurazione neutra durante il test dedicato allo \textit{yaw}.\\
 	Dal punto di vista \texttt{.ioc}, i blocchi principali coinvolti sono:
 	\begin{itemize}
 		\item periferiche \textbf{I2C} per la comunicazione con i sensori;
 		\item \textbf{TIM4 CH2-CH3} in PWM a 50 Hz per i due ESC;
 		\item \textbf{EXTI} sul pin \textit{data-ready} del VL53L1X per attivare il ramo motori solo quando è disponibile una nuova misura.
 	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth,keepaspectratio]{figures/03_software/TIM4-ioc.png}
+		\caption{TIM4: Prescaler e Period}
+		\label{fig:tim4-ioc}
+	\end{figure}
+	La configurazione di \texttt{TIM4} utilizzata per i canali PWM dei motori è riportata in Figura~\ref{fig:tim4-ioc}.
 	
 	\paragraph{Filtro mediano della misura}\mbox{}\\
 	La misura grezza del ToF non viene inviata direttamente al PID. Prima di tutto viene filtrata con un filtro mediano a tre campioni:
@@ -1118,22 +1086,20 @@
 	\end{equation}
 	La formula esprime un'idea geometrica semplice: la quota è la componente verticale della distanza misurata. Il termine di yaw non compare perché una rotazione attorno all'asse verticale non modifica tale proiezione. Questa relazione assume che l'asse ottico del sensore sia solidale al corpo del velivolo e che eventuali offset geometrici secondari tra sensore e punto di interesse possano essere trascurati nel regime operativo considerato. In questo contesto, la correzione è già sufficiente per evitare l'errore concettuale più importante, cioè interpretare come variazione di quota un semplice cambiamento di assetto.\\
 	Dal punto di vista fisico, la compensazione del tilt non migliora il sensore, ma trasforma la sua misura nella coordinata realmente rilevante per il problema di controllo. È quindi un passaggio di modellazione geometrica prima ancora che di filtraggio numerico.\\
-	Una volta ottenuta la quota compensata, il PID motori confronta tale misura con il riferimento verticale e genera un comando PWM comune ai due ESC. Il senso fisico di questa scelta è che la quota dipende dalla \textit{portanza totale}; per aumentarla o ridurla, i due motori devono quindi essere comandati in modo simmetrico. Nell'architettura prevista non esiste dunque un valore fisso di attuazione nel ramo motori: il comando inviato ai propulsori è l'uscita del regolatore di quota, saturata entro i limiti ammessi dall'hardware.\\
+	Una volta ottenuta la quota compensata, il PID motori confronta tale misura con il riferimento verticale e genera un comando PWM comune ai due ESC. Il senso fisico di questa scelta è che la quota dipende dalla \textit{portanza totale}; per aumentarla o ridurla, i due motori devono quindi essere comandati in modo simmetrico. Nell'architettura prevista questo valore comune costituisce la \emph{base throttle} su cui si innesta poi il mixer di \textit{yaw}. Poiché in questa fase il PID motori è mantenuto con guadagni nulli, il comando comune coincide di fatto con l'offset configurato, utile a fornire una base di spinta ripetibile mentre si studia separatamente la correzione differenziale di imbardata.\\
 	Nel ramo motori la derivata è calcolata sulla misura e non sull'errore, ed è inoltre filtrata con un passa-basso del primo ordine. La motivazione è duplice. Da un lato si evita che una variazione del riferimento produca un picco artificiale nel termine derivativo; dall'altro si limita l'amplificazione del rumore alta frequenza, che altrimenti verrebbe trasformato in oscillazioni di comando. Questo rende il ramo quota più regolare e più vicino al comportamento fisicamente desiderato.\\
-	Dal punto di vista esecutivo, il controllo della quota è attivato in modo asincrono: quando il VL53L1X segnala la disponibilità di una nuova misura, la callback imposta la flag \texttt{actuate\_motors\_control}; il ciclo principale esegue quindi nell'ordine riarmo della misura, lettura del dato, filtraggio, compensazione dell'inclinazione, calcolo PID e aggiornamento dei due canali PWM. La logica evento-driven è vantaggiosa perché sincronizza il controllore con la disponibilità reale dell'informazione, evitando di elaborare dati vecchi o di introdurre polling superfluo.
+	Dal punto di vista esecutivo, il controllo della quota è attivato in modo asincrono: quando il VL53L1X segnala la disponibilità di una nuova misura, la callback imposta la flag \texttt{actuate\_motors\_control}; il ciclo principale esegue quindi nell'ordine riarmo della misura, lettura del dato, filtraggio, compensazione dell'inclinazione, calcolo PID e aggiornamento dei due canali PWM. La logica event-driven è vantaggiosa perché sincronizza il controllore con la disponibilità reale dell'informazione, evitando di elaborare dati vecchi o di introdurre polling superfluo.
 	
-	\begin{lstlisting}[style=base,language=C,caption={Catena di elaborazione adottata nel controllo di quota}]
-		float filt_tof = (float)median_filter_compute(&tof_filter,
-		rangingData.RangeMilliMeter);\\
-		float alt_mm = tof_compensate_tilt(filt_tof,
-		imu_now.roll_deg, imu_now.pitch_deg);
-		
-		uint16_t motor_pwm = (uint16_t)(pid_compute(&pid_motor,
-		ref_altitude, alt_mm) + 0.5f);\\
-		set_pwm_motors(motor_pwm);
-	\end{lstlisting}
+	\lstinputlisting[
+	style=base,
+	language=C,
+	caption={Estratto di \texttt{main.c}: catena di elaborazione del controllo di quota},
+	firstline=351,
+	lastline=358,
+	firstnumber=351
+	]{codefiles/main.c}
 	
-	\subsection{Gestione assetto: BNO055 + PID servomotori}
+	\subsection{Gestione assetto \textit{roll/pitch}: BNO055 + PID servomotori}
 	Il controllo di assetto utilizza il sensore inerziale \textit{BNO055} in modalità \texttt{NDOF}, nella quale il dispositivo fornisce direttamente gli angoli di Eulero stimati dalla propria fusione sensoriale interna. Questa scelta è vantaggiosa perché sposta la complessità della stima d'assetto sul sensore stesso e permette al microcontrollore di ragionare subito in termini di angoli fisici. In una relazione di controllo, questo è importante perché rende immediato il passaggio tra fenomeno osservato, errore e comando correttivo.\\
 	Dal punto di vista \texttt{.ioc}, i blocchi principali sono:
 	\begin{itemize}
@@ -1142,9 +1108,29 @@
 		\item \textbf{TIM7} come base tempi periodica per attivare il ramo di assetto.
 	\end{itemize}
 	
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[t]{0.48\textwidth}
+			\vspace{0pt}
+			\centering
+			\includegraphics[width=\textwidth,keepaspectratio]{figures/03_software/TIM2-ioc.png}
+			\caption{TIM2: Prescaler e Period}
+			\label{fig:tim2-ioc}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}[t]{0.48\textwidth}
+			\vspace{0pt}
+			\centering
+			\includegraphics[width=\textwidth,keepaspectratio]{figures/03_software/TIM7-ioc.png}
+			\caption{TIM7: Prescaler e Period}
+			\label{fig:tim7-ioc}
+		\end{subfigure}
+	\end{figure}
+	Le configurazioni dei timer \texttt{TIM2} e \texttt{TIM7}, impiegati rispettivamente per il pilotaggio dei servo e per la base tempi del ramo IMU-servo, sono raccolte in Figura~\ref{fig:tim2-ioc} e Figura~\ref{fig:tim7-ioc}.
+	
 	\paragraph{Disallineamento tra riferimento IMU e riferimento flap}\mbox{}\\
-	Il render meccanico del primo capitolo mostra che i flap non sono allineati con gli assi nativi della IMU. Questo significa che la coppia di grandezze $(\phi,\theta)$ fornita dal sensore non coincide direttamente con le coordinate in cui gli attuatori aerodinamici producono i momenti correttivi. Per descrivere correttamente il problema si introduce quindi una trasformazione di coordinate piana.\\
-	Se si indica con $\beta$ l'angolo di disallineamento fisso tra il riferimento IMU e il riferimento dei flap, la relazione tra i due sistemi può essere scritta in forma matriciale come
+	Il render meccanico in Figura \ref{fig:render_ducted_fan} mostra che i flap non sono allineati con gli assi nativi della IMU. Questo significa che la coppia di grandezze $(\phi,\theta)$ fornita dal sensore non coincide direttamente con le coordinate in cui gli attuatori aerodinamici producono i momenti correttivi. Per descrivere correttamente il problema non basta quindi ``leggere gli angoli'' della IMU: è necessario trasformarli nel riferimento meccanico in cui i flap agiscono realmente.\\
+	Nel firmware questa trasformazione è implementata come una rotazione piana di ampiezza costante, pari a circa $15^{\circ}$, a cui si aggiunge una convenzione di segno coerente con il verso fisico dei servo. Indicando con $\beta$ l'angolo di disallineamento e con $(\phi_f,\theta_f)$ le coordinate nel riferimento dei flap, la struttura implementata può essere letta come
 	\begin{equation}
 		\begin{bmatrix}
 			\phi_f \\
@@ -1152,7 +1138,7 @@
 		\end{bmatrix}
 		=
 		\begin{bmatrix}
-			\cos\beta & \sin\beta \\
+			-\cos\beta & -\sin\beta \\
 			-\sin\beta & \cos\beta
 		\end{bmatrix}
 		\begin{bmatrix}
@@ -1160,38 +1146,68 @@
 			\theta
 		\end{bmatrix}.
 	\end{equation}
-	La matrice di rotazione è la traduzione matematica di una scelta geometrica osservabile nel render: il sensore misura in un riferimento, mentre i flap generano il momento correttivo in un altro. Poiché il disallineamento è fisso, il firmware non ricalcola trigonometria a ogni ciclo, ma usa coefficienti costanti già valutati una volta per tutte. Il vantaggio non è soltanto computazionale; è soprattutto concettuale, perché rende esplicito il passaggio da geometria meccanica a legge di controllo implementata.\\
+	La matrice sopra non va interpretata come una formula ``teorica ideale'', ma come la traduzione del comportamento realmente codificato in \texttt{axis\_remap\_imu\_to\_flaps()}: il sensore misura in un riferimento, i flap agiscono in un altro, e una delle componenti è anche invertita di segno per mantenere coerenza tra errore positivo e momento correttivo desiderato. Poiché il disallineamento è fisso, il firmware non ricalcola trigonometria a ogni ciclo, ma usa coefficienti costanti già valutati una volta per tutte. Il vantaggio non è soltanto computazionale; è soprattutto concettuale, perché rende esplicito il passaggio da geometria meccanica a legge di controllo implementata.\\
 	Questo passaggio ha un significato fisico molto forte: il PID deve vedere il sistema nel riferimento in cui agisce. Solo così un errore positivo su un asse genera una deflessione del flap che produce il momento aerodinamico atteso. Se il remap venisse omesso, il controllore sarebbe costretto a correggere un errore espresso in coordinate non coerenti con gli attuatori, rendendo molto meno intuitiva sia la taratura sia l'interpretazione dei risultati.\\
-	I due controllori dei flap sono configurati con riferimento nullo, perché in condizioni di hovering l'assetto desiderato corrisponde a un velivolo approssimativamente orizzontale. Nella configurazione attuale il comportamento è prevalentemente proporzionale, con tempo di campionamento pari a \texttt{10 ms} e saturazione in uscita nell'intervallo \([-60^{\circ}, +60^{\circ}]\). Questa scelta è sensata perché il ramo servo agisce su una dinamica relativamente rapida e già osservata da una misura elaborata a monte; partire da una legge proporzionale ben dimensionata permette di ottenere una relazione chiara tra errore angolare e correzione del flap, lasciando integrale e derivata come estensioni future e non come prerequisiti per la comprensione del ramo di assetto.\\
+	I due controllori dei flap sono configurati con riferimento nullo, perché in condizioni di hovering l'assetto desiderato corrisponde a un velivolo approssimativamente orizzontale. Nel firmware attuale, tuttavia, i loro guadagni sono volutamente posti a zero. Questa scelta non rappresenta un'omissione, ma una precisa decisione sperimentale: durante la taratura dello \textit{yaw} si è preferito mantenere i flap in condizione neutra, così da evitare che correzioni simultanee su \textit{roll} e \textit{pitch} rendessero più difficile interpretare l'effetto del solo mixer sui propulsori. L'infrastruttura del ramo servo resta comunque completa: campionamento a \texttt{10 ms}, conversione angolo--PWM, saturazioni logiche e limiti hardware sono già predisposti e pronti per una futura taratura dedicata.\\
 	L'uscita del PID non è espressa direttamente in PWM, ma in angolo desiderato del flap. Tale scelta separa il livello funzionale dal livello hardware: il controllore decide quanto deve ruotare il flap; solo in seguito il modulo PWM traduce questa richiesta nel corrispondente valore di compare register. In questo modo il progetto resta leggibile in termini fisici e la taratura del controllo non viene confusa con la calibrazione dell'attuatore.\\
-	La conversione angolo--PWM è eseguita dalla funzione \texttt{angle\_to\_pwm()}, che usa il valore centrale del servo e il coefficiente \texttt{CCR\_PER\_DEGREE} per trasformare i gradi in conteggi timer, applicando poi un ulteriore \textit{clamp} ai limiti meccanicamente sicuri. Il doppio livello di saturazione, prima sull'angolo e poi sul PWM, è utile perché impedisce che una richiesta numericamente lecita dal punto di vista del controllore diventi un comando non opportuno dal punto di vista del meccanismo reale.\\
+	La conversione angolo--PWM è eseguita dalla funzione \texttt{angle\_to\_pwm()}, che usa il valore centrale del servo e il coefficiente \texttt{CCR\_PER\_DEGREE} per trasformare i gradi in conteggi timer, applicando poi un \textit{clamp} finale ai limiti meccanicamente sicuri. Dal punto di vista pratico, il livello davvero vincolante per la sicurezza del servo è proprio questo \textit{clamp} hardware sul compare register: esso garantisce che, anche se il PID producesse una richiesta più ampia del necessario, il comando scritto al timer resti comunque all'interno della finestra fisicamente ammessa.\\
 	Anche il controllo di assetto è gestito secondo una logica event-driven. Il timer \texttt{TIM7} genera la base tempi periodica del ramo servo e la relativa callback imposta una flag di attivazione.\\
 	Quando il ciclo principale rileva questa flag, esegue la lettura IMU, il remap degli assi, il calcolo dei due PID, la conversione in PWM e l'aggiornamento dei registri \texttt{TIM2->CCR1} e \texttt{TIM2->CCR2}. Così il campionamento resta regolare, ma l'elaborazione numerica rimane fuori dal contesto di interrupt, dove sarebbe più difficile da controllare e manutenere.
 	
-	\begin{lstlisting}[style=base,language=C,caption={Conversione della misura IMU nel riferimento dei flap e generazione del comando servo}]
-		axis_remap_imu_to_flaps(imu_now.roll_deg, imu_now.pitch_deg, &flap);
-		
-		float req_roll_deg = pid_compute(&pid_roll, 0.0f, flap.flap_roll);
-		float req_pitch_deg = pid_compute(&pid_pitch, 0.0f, flap.flap_pitch);
-		
-		uint16_t roll_pwm = angle_to_pwm(req_roll_deg, CENTER_SERVO,
-		CCR_PER_DEGREE, UPPER_LIMIT_SERVO, LOWER_LIMIT_SERVO);
-	\end{lstlisting}
+	\lstinputlisting[
+	style=base,
+	language=C,
+	caption={Estratto di \texttt{main.c}: rimappatura IMU--flap e generazione del comando servo},
+	firstline=374,
+	lastline=384,
+	firstnumber=374
+	]{codefiles/main.c}
+	
+	\subsection{Gestione dello yaw: IMU + PID differenziale sui motori}
+	Il controllo dello \textit{yaw} nasce da un fatto sperimentalmente molto chiaro: la controrotazione dei due motori riduce la coppia netta attorno all'asse verticale, ma non la annulla in modo sufficientemente preciso e ripetibile. In un sistema reale rimangono infatti inevitabili piccole asimmetrie tra motori, eliche, ESC, attriti meccanici, distribuzione delle masse e condizioni di flusso. Anche quando queste differenze sono modeste, il loro effetto cumulato può produrre una rotazione lenta ma persistente del velivolo attorno al proprio asse verticale. Dal punto di vista del controllo, il problema non è quindi creare lo \textit{yaw} --- che il sistema genera già da solo come effetto indesiderato --- ma impedire che esso si accumuli nel tempo fino a compromettere la stabilità complessiva del comportamento in volo.\\
+	Per questa ragione il firmware introduce un quarto PID dedicato esclusivamente all'imbardata. La scelta è concettualmente importante: il regolatore di \textit{yaw} non deve aumentare o diminuire la spinta totale, perché ciò appartiene al controllo di quota; deve invece modificare solo il \emph{bilanciamento relativo} tra i due propulsori. In altri termini, la grandezza fisica che il controllo di \textit{yaw} manipola non è la portanza media, ma la differenza di coppia generata dai due gruppi motore-elica. Questa separazione è essenziale perché consente di dare al comando un significato fisico semplice: il ramo quota stabilisce ``quanta spinta complessiva serve'', mentre il ramo \textit{yaw} stabilisce ``come ripartire quella spinta tra i due motori'' affinché il velivolo non ruoti.\\
+	La misura utilizzata non è l'angolo assoluto di \textit{yaw} restituito dal BNO055, ma il suo valore \emph{relativo alla posa acquisita in inizializzazione}. Il firmware memorizza infatti una configurazione di riferimento con \texttt{imu\_set\_reference()} e poi aggiorna il controllo tramite la successiva lettura relativa della IMU. Anche questa scelta ha una motivazione pratica precisa. In un test sperimentale mirato alla stabilizzazione, non interessa tanto l'heading assoluto nel mondo, quanto lo scostamento dell'imbardata rispetto alla condizione iniziale scelta come equilibrio. L'imbardata viene quindi campionata con la stessa periodicità del ramo IMU, pari a \texttt{10 ms}, così da mantenere allineati lettura del sensore, aggiornamento del controllore e scrittura dei comandi. Il riferimento viene posto pari a zero proprio perché zero rappresenta, in questo contesto, l'assenza di rotazione rispetto alla posa iniziale desiderata.\\
+	Dal punto di vista del controllo, eventuali asimmetrie residue del sistema propulsivo possono essere mitigate in due modi complementari. Il primo è dinamico ed è affidato al PID di \textit{yaw}: se il veicolo inizia a ruotare, il regolatore genera immediatamente una correzione differenziale che aumenta il comando sul motore meno efficace o lo riduce su quello più efficace, in modo da riportare la coppia risultante verso l'equilibrio. Il secondo è statico ed è rappresentato dal termine \texttt{yaw\_trim}, previsto proprio per compensare eventuali squilibri permanenti tra i due gruppi motore-elica-ESC. Anche se nella configurazione attuale tale termine è mantenuto nullo, la sua presenza nel firmware riflette una scelta progettuale precisa: distinguere ciò che deve essere corretto continuamente dal PID da ciò che, se necessario, può essere compensato come offset strutturale. In questo senso, il controllore dinamico e l'eventuale trim statico non sono soluzioni alternative, ma due livelli di mitigazione della stessa dinamica fisica.\\
+	Nel firmware il PID di \textit{yaw} è l'unico regolatore effettivamente tarato. I parametri utilizzati sono
+	\begin{equation}
+		K_p = 7.0, \qquad K_i = 0.02, \qquad K_d = 0.15,
+	\end{equation}
+	con tempo di campionamento \texttt{10 ms}, filtro passa-basso del primo ordine sul termine derivativo con coefficiente $\alpha = 0.3$ e saturazione dell'uscita in un intervallo simmetrico pari a metà dell'escursione PWM disponibile sui motori. Nel codice, il termine derivativo di questo PID è calcolato sull'errore e non direttamente sulla misura, mentre il filtraggio del contributo derivativo serve a evitare che piccole fluttuazioni del segnale inerziale si traducano in rapide oscillazioni del PWM motore. Questa configurazione riflette bene il significato dei tre contributi del PID. Il termine proporzionale fornisce la correzione immediata: più il velivolo è ruotato rispetto al riferimento, più il comando differenziale deve crescere. Il termine integrale compensa eventuali squilibri persistenti, cioè quelle condizioni in cui il drone continuerebbe a ruotare lentamente anche in presenza di un errore piccolo ma costante. Il termine derivativo, infine, aiuta a smorzare la risposta e a evitare che la correzione produca un'inversione eccessiva del moto di imbardata.\\
+	L'uscita del PID di \textit{yaw} non viene inviata direttamente a un attuatore dedicato, perché il sistema non possiede un attuatore separato per l'imbardata. Essa entra invece in un mixer differenziale. Se si indica con $u_z[k]$ la base throttle comune ai motori e con $u_{\psi}[k]$ la correzione di \textit{yaw}, il firmware realizza la seguente decomposizione:
+	\begin{align}
+		u_{top}[k] &= u_z[k] + u_{\psi}[k] + \frac{u_{trim}}{2}, \\
+		u_{bottom}[k] &= u_z[k] - u_{\psi}[k] - \frac{u_{trim}}{2}.
+	\end{align}
+	Il termine $u_z[k]$ rappresenta il livello medio di comando comune ai due motori ed è associato alla portanza complessiva. Il termine $u_{\psi}[k]$ è invece la correzione differenziale generata dal PID di \textit{yaw}: viene sommata a un motore e sottratta all'altro per creare una differenza di coppia, non una variazione uniforme della spinta. Il vantaggio del mixer è quindi rendere esplicita la separazione tra comando medio e correzione differenziale.\\
+	Il termine \texttt{yaw\_trim} rappresenta un'eventuale compensazione statica di sbilanciamenti sistematici tra i due gruppi motore-elica. Nella configurazione attuale esso è posto a zero, ma la sua presenza nel firmware mostra che l'architettura tiene conto anche di possibili asimmetrie strutturali.\\
+	Dopo il mixer, il firmware applica una saturazione \emph{indipendente} sui due canali motore. Se una correzione differenziale portasse uno dei due PWM fuori dal range ammesso, quel comando viene tagliato al limite. Questa scelta è conservativa: quando i limiti hardware vengono raggiunti, il sistema privilegia il rispetto del range sicuro dei motori e accetta di perdere una parte dell'autorità di \textit{yaw}.\\
+	Il PID di \textit{yaw} viene aggiornato nel ramo periodico guidato da \texttt{TIM7}, insieme alla lettura IMU e alla generazione dei comandi per i servo. L'elaborazione resta nel \texttt{main}, non nell'ISR, così da mantenere leggere le interrupt e più prevedibili i tempi di esecuzione. In sintesi, il mixer differenziale è il cuore della strategia di stabilizzazione dello \textit{yaw}, perché traduce direttamente l'errore angolare in una redistribuzione coerente dei PWM dei due motori.
+	
+	\lstinputlisting[
+	style=base,
+	language=C,
+	caption={Estratto di \texttt{main.c}: mixer differenziale per la stabilizzazione dello yaw},
+	firstline=388,
+	lastline=393,
+	firstnumber=388
+	]{codefiles/main.c}
+	
 	
 	\subsection{Saturazioni, sicurezza e robustezza}
 	Nel DPDF la sicurezza non è un blocco aggiuntivo rispetto al controllo, ma una sua parte costitutiva. La procedura di \textit{safe startup}, l'arming iniziale degli ESC, i limiti di saturazione e il ritorno a una condizione sicura in fase di arresto rispondono tutti alla stessa esigenza: fare in modo che il sistema non passi mai bruscamente da uno stato non controllato a uno stato energeticamente attivo. In presenza di attuatori aerodinamici e propulsivi, questa gradualità non è soltanto una buona pratica software, ma una condizione per ridurre il rischio operativo.\\
 	Anche la scelta di mantenere le ISR leggere rientra in questa logica. Separare acquisizione dell'evento, elaborazione numerica e attuazione del comando riduce le interdipendenze tra moduli e rende più semplice isolare eventuali problemi. Un firmware di controllo robusto non è quello che esegue più operazioni possibile dentro l'interrupt, ma quello in cui ogni passaggio ha un ruolo chiaro, tempi prevedibili e responsabilità ben delimitate.
 	
-	\subsection{Taratura dei PID (TODO)}
-	
+	\subsection{Perimetro sperimentale}
+	Dal punto di vista dell'architettura software, è importante distinguere tra ciò che il firmware rende possibile e ciò che è stato effettivamente validato in prova. L'infrastruttura implementata contiene i quattro regolatori, i canali di misura, il mixer differenziale e le logiche di sicurezza necessarie a un controllo più completo del sistema. La campagna sperimentale descritta in questa relazione, tuttavia, è stata deliberatamente circoscritta al solo regolatore di \textit{yaw}.\\
+	Per studiare in modo leggibile la dinamica di imbardata è stato necessario isolare il contributo del ramo IMU--PID--mixer, evitando che altri anelli introducessero correzioni concorrenti difficili da interpretare. Nel firmware, ciò corrisponde a una configurazione in cui i PID di quota, \textit{roll} e \textit{pitch} non sono oggetto di taratura, mentre il solo PID di \textit{yaw} contiene i parametri effettivamente determinati in prova.\\
 	
 	\section{Funzionamento complessivo}
 	L'esecuzione del firmware segue una sequenza precisa che combina una fase di avvio rigorosamente ordinata e una successiva gestione concorrente degli eventi. Questa scelta architetturale non nasce da un'esigenza formale, ma dal fatto che nel sistema convivono operazioni con natura molto diversa: alcune devono essere eseguite una sola volta, in un ordine ben definito, per portare l'hardware in una condizione affidabile; altre, invece, devono ripetersi durante il funzionamento con temporalità differenti, reagendo agli eventi senza bloccare inutilmente la CPU. Separare questi due livelli rende più semplice capire il comportamento del firmware e, soprattutto, riduce il rischio che una fase critica di inizializzazione interferisca con la logica di controllo a regime.\\
 	In quest'ottica, la sequenza operativa può essere riassunta come segue:
 	\begin{enumerate}
 		\item \textbf{Safe startup}: il sistema attende un consenso esplicito all'avvio e utilizza \texttt{TIM6} per generare il conto alla rovescia visivo tramite LED; durante questa attesa l'uso di \texttt{\_\_WFI()} evita busy-waiting e lascia il microcontrollore in una condizione più ordinata e prevedibile, coerente con l'idea di attivare il sistema solo quando è realmente pronto;
-		\item \textbf{Attivazione e inizializzazione sensori}: vengono alimentati i dispositivi esterni, viene eseguito il reset hardware del VL53L1X tramite \texttt{XSHUT} e il BNO055 viene configurato in modalità \texttt{NDOF} con il corretto remap degli assi; l'ordine è importante perché il controllo ha senso solo se le misure sono disponibili e già espresse nel riferimento coerente con gli attuatori;
-		\item \textbf{Configurazione del controllo}: sono inizializzati i tre PID, il filtro mediano del sensore ToF e i canali PWM necessari per attuatori e motori; questa fase precede volutamente ogni comando fisico, così da evitare che un attuatore venga abilitato quando la catena misura--controllo non è ancora completamente definita;
+		\item \textbf{Attivazione e inizializzazione sensori}: vengono alimentati i dispositivi esterni, viene eseguito il reset hardware del VL53L1X tramite \texttt{XSHUT} e il BNO055 viene configurato in modalità \texttt{NDOF}; a livello implementativo, questa fase include sia la configurazione dei segni e del remap interno della IMU, sia la successiva acquisizione della posa di riferimento da cui verranno poi calcolati gli angoli relativi. L'ordine è importante perché il controllo ha senso solo se le misure sono disponibili e già espresse nel riferimento coerente con il problema fisico affrontato;
+		\item \textbf{Configurazione del controllo}: sono inizializzati i quattro PID, il filtro mediano del sensore ToF e i canali PWM necessari per attuatori e motori; questa fase precede volutamente ogni comando fisico, così da evitare che un attuatore venga abilitato quando la catena misura--controllo non è ancora completamente definita;
 		\item \textbf{Preparazione degli ESC}: i motori vengono portati inizialmente al valore minimo di comando, lasciando un intervallo di alcuni secondi per il corretto riconoscimento del segnale da parte degli ESC; il motivo non è solo rispettare la procedura di arming, ma anche impedire che il sistema interpreti transitori di avvio come richieste di spinta valide;
 		\item \textbf{Avvio della fase operativa}: \texttt{TIM7} abilita il ramo periodico dei servo, mentre il VL53L1X avvia il flusso di misure asincrone che alimenta il ramo di quota; in questo modo i due sottosistemi di controllo iniziano a lavorare secondo la propria dinamica naturale, senza forzare una sincronizzazione artificiale tra fenomeni fisici e sensori diversi;
 		\item \textbf{Controllo nel main loop}: il \texttt{while(run)} riceve gli eventi dalle flag condivise, elabora i dati dei sensori e aggiorna gli attuatori senza effettuare busy-waiting né concentrare i calcoli nelle ISR; così la reattività agli eventi viene mantenuta senza rinunciare alla leggibilità del codice e alla prevedibilità dei tempi di esecuzione;
@@ -1202,52 +1218,86 @@
 	L'intero modello esecutivo è costruito per mantenere semplice il percorso dei dati: le callback identificano l'evento, il \texttt{main} decide se elaborarlo in base allo stato di \texttt{run}, e i moduli dedicati applicano il comando. Il vantaggio principale non è soltanto organizzativo; è anche metodologico, perché ogni decisione di controllo può essere ricondotta a una sequenza chiara di passi causali. Questo aspetto è particolarmente utile sia in fase di validazione sperimentale, quando occorre interpretare un comportamento osservato, sia in ottica di manutenzione futura, quando il firmware dovrà essere esteso senza alterarne l'equilibrio complessivo.\\
 	Per evidenziare questa scelta progettuale, il seguente frammento mostra come le interrupt si limitino a segnalare gli eventi al ciclo principale e come il \texttt{user button} possa agire sul consenso globale di esecuzione.
 	
-	\begin{lstlisting}[style=base,language=C,caption={Callback leggere: le ISR notificano l'evento, il controllo viene eseguito nel main loop}]
-		void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-			if (htim->Instance == TIM6) {
-				HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1);
-				current_number_of_toggles++;
-			}
-			if (htim->Instance == TIM7) {
-				actuate_servo_control = true;
-			}
-		}\\
-		void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-			if (GPIO_Pin == GPIO_PIN_13) run = !run;
-			if (GPIO_Pin == GPIO_PIN_12) actuate_motors_control = true;
-		}
-	\end{lstlisting}
+	\lstinputlisting[
+	style=base,
+	language=C,
+	caption={Estratto di \texttt{main.c}: le ISR notificano l'evento, il controllo resta nel main loop},
+	firstline=848,
+	lastline=873,
+	firstnumber=848
+	]{codefiles/main.c}
 	
 	La seriale si inserisce nella stessa filosofia: non introduce una seconda macchina a stati, ma fornisce un ulteriore ingresso capace di modificare \texttt{run} con lo stesso significato logico del pulsante locale. Di conseguenza il firmware conserva un comportamento coerente rispetto al consenso operativo indipendentemente da dove provenga l'evento. Questa soluzione permette di mantenere separati tre livelli distinti: acquisizione dell'evento, elaborazione della misura e attuazione del comando. Una separazione di questo tipo è particolarmente adatta a sistemi embedded con più sottosistemi concorrenti, perché limita le interdipendenze tra moduli e rende più semplice isolare eventuali problemi di sensore, controllo o attuazione.
 	
 	
 	\chapter{Test e risultati}
-	Dedicate un capitolo a tutti i test effettuati con relativi risultati, includete sia i test finali relativi al funzionamento complessivo, sia i test delle singole parti (se significativi). \\
-	Descrivete in dettaglio le condizioni in cui sono stati svolti i test in modo che siano ripetibili. Durante i test fate dei video e acquisite i dati (es usando la funzione di log di Putty), per i test più rilevanti è opportuno consegnare anche questo materiale per documentare i test effettuati. Nella relazione riportate i risultati con dei grafici come quello in Figura \ref{fig:grafico} (inserite sempre nei grafici le label sugli assi con grandezza e relativa unità di misura). Commentate in modo critico i risultati ottenuti, evidenziando sia quelli positivi sia quelli negativi.
+	Questo capitolo raccoglie i test sperimentali coerenti con il perimetro reale del lavoro svolto. Poiché l'attività conclusiva del gruppo è stata la taratura del solo regolatore di \textit{yaw}, i risultati riportati come verifica mirata del corretto funzionamento della catena IMU--PID--mixer che redistribuisce il comando tra i due motori.\\
+	Le prove sono state organizzate per rispondere a una domanda precisa: a fronte di una rotazione attorno all'asse verticale, il firmware genera una correzione differenziale con segno coerente, intensità adeguata e comportamento sufficientemente regolare da contenere la dinamica di \textit{yaw}? Per rendere questa verifica leggibile, il log seriale è stato adottato come strumento principale di osservazione, poiché il firmware trasmette direttamente la terna composta da angolo di \textit{yaw} relativo alla posa iniziale, PWM del motore superiore e PWM del motore inferiore. Queste tre grandezze sono sufficienti perché collegano in modo diretto la deviazione osservata alla risposta del mixer differenziale.\\
+	\section{Setup sperimentale}
+	L'ambiente di prova è stato mantenuto semplice e controllato per isolare il più possibile la sola dinamica di imbardata. Per questo motivo, i regolatori di quota, \textit{roll} e \textit{pitch} sono rimasti presenti nel firmware ma con guadagni nulli, mentre la spinta media dei motori è stata imposta separatamente rispetto alla taratura del ramo di \textit{yaw}.\\
+	Il setup fisico è stato progettato con due obiettivi: proteggere l'operatore e sostenere il DPDF durante le prove. A questo scopo è stata realizzata una gabbia costituita da 12 profili in alluminio: 8 elementi di lunghezza pari a 76~[cm], disposti a formare le facce parallele al terreno, e 4 montanti verticali di lunghezza pari a 1~[m]. L'unione dei profili è ottenuta mediante 20 squadre, fissate complessivamente con 40 dadi e viti.\\
+	Il parallelepipedo così ottenuto è chiuso su 5 facce delle 6 complessive tramite una rete con maglia da 6~[mm], mentre la base resta aperta e appoggiata direttamente al pavimento. Una delle facce laterali è apribile mediante un pannello fissato con ganci, così da consentire all'operatore di intervenire sul drone quando necessario. Per osservare la rotazione del drone limitando il movimento verticale, il DPDF è stato mantenuto a pochi centimetri dal suolo tramite fili di spago fissati in modo bilanciato ai piedi del drone e raccolti verso un unico punto di sospensione sulla parete superiore della gabbia. Anche la lunghezza dei fili è stata definita sperimentalmente, così da ottenere un sostegno efficace senza alterare in modo eccessivo la dinamica osservata. L'ambiente di prova e il sistema di vincolo adottati sono mostrati in Figura~\ref{fig:setup-gabbia}.
 	
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.8\textwidth,keepaspectratio]{figures/04_test_risultati/grafico_risultati_test.jpg}
-		\caption{Esempio di grafico}
-		\label{fig:grafico}
+		\begin{subfigure}[t]{0.32\textwidth}
+			\vspace{0pt}
+			\centering
+			\includegraphics[width=\textwidth,keepaspectratio]{figures/04_test_risultati/setup_gabbia.png}
+			\caption{Setup della gabbia}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}[t]{0.32\textwidth}
+			\vspace{0pt}
+			\centering
+			\includegraphics[width=\textwidth,keepaspectratio]{figures/04_test_risultati/setup_corde_drone1.jpeg}
+			\caption{Vista frontale}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}[t]{0.32\textwidth}
+			\vspace{0pt}
+			\centering
+			\includegraphics[width=\textwidth,keepaspectratio]{figures/04_test_risultati/setup_corde_drone2.jpeg}
+			\caption{Vista dall'alto}
+		\end{subfigure}
+		\caption{Ambiente di prova e sistema di vincolo del DPDF durante i test}
+		\label{fig:setup-gabbia}
 	\end{figure}
-	\section{Test VL53L1X e motori}
 	
-	\section{Test BNO055 e servomotori}
+	La lettura dei risultati viene presentata separando i due casi sperimentali. Si mostra prima la prova senza controllo di \textit{yaw} e poi quella con il PID finale attivo, così da rendere più lineare il collegamento tra grafico e discussione.
+	Nel test senza PID, riportato in Figura~\ref{fig:test_yaw_senza_pid}, i due propulsori lavorano di fatto allo stesso comando costante e le rispettive tracce risultano sostanzialmente sovrapposte. In assenza di una correzione differenziale, l'angolo di \textit{yaw} non rimane confinato in un intorno ristretto dello zero, ma evolve con derive ampie fino a raggiungere escursioni di parecchie decine di gradi. Il grafico evidenzia quindi che la sola compensazione passiva dovuta alla controrotazione non è sufficiente a contenere la rotazione residua del sistema.
 	
-	\section{Test di volo e taratura dei PID}
+	\begin{figure}[tbp]
+		\centering
+		\includegraphics[width=0.88\textwidth,keepaspectratio]{figures/04_test_risultati/grafico_test_senza_PID_yaw.png}
+		\caption{Test senza PID di \textit{yaw}}
+		\label{fig:test_yaw_senza_pid}
+	\end{figure}
 	
+	Nel test con PID attivo, riportato in Figura~\ref{fig:test_yaw_con_pid}, i comandi dei due motori non coincidono più: le due tracce PWM si separano attorno al valore medio e si muovono in verso opposto, mostrando l'azione del \textit{mixer} differenziale generata dal regolatore di \textit{yaw}. La separazione tra i due comandi aumenta in corrispondenza delle variazioni più marcate dell'angolo di imbardata, segno che il controllore reagisce redistribuendo la spinta tra propulsore superiore e inferiore senza alterarne in modo sostanziale il livello medio. Dal punto di vista dell'uscita controllata, l'angolo di \textit{yaw} resta contenuto in un intervallo molto più ristretto rispetto al caso senza PID, pur in presenza di oscillazioni e di alcuni transitori impulsivi chiaramente visibili. È importante precisare che tali picchi non sono attribuibili a un comportamento spontaneo del sistema in condizioni indisturbate, ma a perturbazioni artificiali introdotte soltanto nella prova con PID attivo, tirando una delle gambe del \textit{DPDF} tramite un cavo mantenuto lasco, con lo scopo di imporre una rotazione e osservare la reazione correttiva del controllore. Nel caso senza PID, invece, una perturbazione addizionale non è stata necessaria, perché il sistema mostrava già spontaneamente derive angolari ampie. Questo comportamento è coerente con l'obiettivo reale dell'attività: non il raggiungimento dell'\textit{hovering}, ma la dimostrazione che il ramo IMU--PID--mixer introduce una correzione con segno corretto e intensità sufficiente a contenere la dinamica di \textit{yaw}.\
+	Poiché la scala dell'asse relativo all'angolo di \textit{yaw} non è identica nei due grafici, il confronto tra i due test va interpretato in termini qualitativi e non come sovrapposizione quantitativa diretta. Ciò non indebolisce la conclusione tecnica, poiché anche al netto della diversa scala resta evidente l'effetto del controllo di \textit{yaw}.
+	
+	\begin{figure}[tbp]
+		\centering
+		\includegraphics[width=0.88\textwidth,keepaspectratio]{figures/04_test_risultati/grafico_test_con_PID_yaw.png}
+		\caption{Test con PID di \textit{yaw} finale}
+		\label{fig:test_yaw_con_pid}
+	\end{figure}
+	
+	\section{Prove sperimentali in gabbia e taratura del PID di yaw}
+	Le prove sperimentali sono state condotte con l'obiettivo specifico di tarare il PID di \textit{yaw} e validare il mixer differenziale implementato nel firmware. Coerentemente con questa scelta, i controllori di quota, \textit{roll} e \textit{pitch} non sono stati oggetto di tuning e sono rimasti con guadagni nulli, così da evitare che l'interpretazione dei risultati fosse alterata da anelli non ancora studiati in modo sistematico. La prova non mira quindi a dimostrare un \textit{hovering} completo, ma a verificare che il sistema reagisca correttamente a una rotazione attorno all'asse verticale modificando in modo opposto il comando dei due motori attorno a una spinta media imposta in modo ripetibile per ciascuna condizione di test.\\
+	Un risultato preliminare, ma decisivo per impostare il tuning, ha riguardato la natura della rotazione residua osservata. Visto dall'alto, il motore-elica inferiore ruota in senso orario, mentre il gruppo superiore ruota in senso antiorario; le coppie di reazione trasmesse alla struttura hanno quindi verso opposto. In condizioni ideali, a parità di PWM, tali coppie dovrebbero compensarsi quasi perfettamente. Le prove hanno invece mostrato che ciò non accade in modo sufficiente: a parità di comando, il gruppo inferiore genera una coppia effettiva maggiore rispetto a quella del gruppo superiore. Ne risulta una coppia residua sistematica che tende a far ruotare il velivolo sempre nello stesso verso. Questo aspetto è rilevante perché mostra che il problema di \textit{yaw} non è riconducibile soltanto a rumore o disturbi casuali, ma anche a una asimmetria fisica persistente del sistema propulsivo.\\
+	La procedura di taratura è stata volutamente semplice e progressiva. In una prima fase è stato incrementato il solo termine proporzionale, con l'obiettivo di ottenere una correzione immediata e con segno corretto rispetto all'errore di \textit{yaw}. Una volta individuato un intervallo di valori di \(K_p\) capace di produrre una risposta percepibile ma non eccessivamente aggressiva, è stato introdotto il termine derivativo per smorzare le variazioni troppo brusche e rendere più regolare la redistribuzione del comando tra i due motori. Solo in un secondo momento è stato aggiunto il contributo integrale, con il solo scopo di compensare la componente residua sistematica senza rendere il comportamento lento da interpretare o incline ad accumulo eccessivo. Il criterio seguito non è stato quindi quello di forzare una prestazione teoricamente ottima, ma di ottenere un comportamento chiaro, ripetibile e coerente con il problema fisico osservato.\\
+	In tutte le prove sono state acquisite esclusivamente tre grandezze: angolo di \textit{yaw} relativo misurato, PWM del motore superiore e PWM del motore inferiore. Questa scelta è coerente con il perimetro del test, perché permette di confrontare diversi set di parametri osservando direttamente sia l'errore angolare sia la risposta differenziale del mixer. Dal punto di vista qualitativo, un set di parametri è stato considerato migliore quando la correzione risultava rapida ma non eccessivamente, quando il comando dei due motori variava con segno coerente rispetto alla rotazione osservata e quando la spinta media rimaneva il più possibile invariata. Se uno dei due motori raggiunge un limite PWM, la saturazione deve tagliare la correzione in eccesso senza introdurre comportamenti incoerenti: anche questo è stato usato come criterio di valutazione, perché una taratura utile non deve solo correggere, ma farlo restando compatibile con i vincoli dell'attuatore.\\
+	La configurazione finale selezionata, riportata nel codice e associata al grafico con PID della Figura~\ref{fig:test_yaw_con_pid}, è la seguente: \(K_p = 7.0\), \(K_i = 0.02\), \(K_d = 0.15\), tempo di campionamento del ramo di \textit{yaw} pari a \texttt{10 ms}, coefficiente del filtro sul termine derivativo \(\alpha = 0.3\), riferimento di \textit{yaw} nullo e \texttt{yaw\_trim} posto a zero. È importante osservare che il campionamento di \texttt{10 ms} riguarda il ramo servo/IMU all'interno del quale viene calcolata anche la correzione di \textit{yaw}; il ramo quota, invece, segue la disponibilità della misura del sensore ToF.
 	\newpage
 	\addcontentsline{toc}{chapter}{Conclusioni e sviluppi futuri}
 	\section*{Conclusioni e sviluppi futuri}
-	Riassumere brevemente il lavoro svolto rispetto al task assegnato, evidenziando quali risultati sono stati raggiunti e quali no. Se ci sono aspetti del task non completati spiegare quali sono stati i problemi riscontrati in merito.\\
-	Inserire considerazioni personali su possibili sviluppi futuri dell'attività svolta (idee per migliorarla che non avete avuto modo di sperimentare, aspetti che suggerite di approfondire, problemi da risolvere..).
-	
-	\addcontentsline{toc}{chapter}{Appendici}
-	\appendix
-	\chapter{Appendice1}
-	Se necessario ricorrete alle appendici per spiegare le parti "di contorno" dell'attività svolta e/o ciò che non riuscite ad inserire nello schema generale dei capitoli della relazione (es acquisizione dei dati con Matlab).
-	
+	Il lavoro svolto ha permesso di raggiungere il risultato più rilevante nel perimetro effettivo del progetto: l'integrazione nel firmware e la taratura del PID dedicato al controllo dello \textit{yaw}. I test hanno mostrato che il regolatore agisce correttamente sul mixer differenziale dei due motori, producendo una redistribuzione coerente del comando e riducendo in modo apprezzabile la rotazione attorno all'asse verticale. Questo risultato assume particolare valore se si considera che il sistema di partenza non era immediatamente pronto alla sperimentazione e che una parte importante dell'attività ha riguardato il ripristino meccanico del \textit{DPDF}, il ricablaggio dell'elettronica di bordo e il refactoring del firmware, reso necessario per ottenere una piattaforma sufficientemente ordinata, sicura e osservabile.\\
+	Tuttavia, i risultati conseguiti non sono ancora sufficienti per affermare che il drone sia pronto a raggiungere un \textit{hovering} stabile. La limitazione principale non è riconducibile a un solo fattore, ma a una combinazione di criticità fisiche, meccaniche ed energetiche. In primo luogo, la massa complessiva del sistema risulta elevata rispetto al margine di spinta e all'autorità di controllo effettivamente disponibili. Questo aspetto penalizza sia il sostentamento del velivolo sia la capacità degli attuatori di correggere rapidamente gli sbilanciamenti. In particolare, i \textit{flap}, pur essendo concettualmente adatti al controllo di \textit{roll} e \textit{pitch}, allo stato attuale non riescono a compensare in modo sufficientemente energico le perturbazioni e gli squilibri del \textit{DPDF}, specialmente in presenza di una dinamica già resa critica dal peso e dalla distribuzione non ideale delle masse.\\
+	Un secondo problema importante riguarda il sottosistema propulsivo. La configurazione controrotante dei due motori riduce le coppie di reazione, ma le prove hanno mostrato che non è in grado di annullarle del tutto: permane infatti una coppia residua sistematica, dovuta con ogni probabilità a un'asimmetria fisica tra i due gruppi motore-elica, che tende a far ruotare il velivolo sempre nello stesso verso. Il PID di \textit{yaw} consente di contenere questo effetto, ma non può eliminarne completamente la causa. A ciò si aggiunge il degrado delle batterie, che dopo pochi utilizzi non riescono più a fornire una potenza sufficiente a far lavorare i motori alla velocità necessaria. La riduzione della tensione e della capacità di erogazione si traduce in una minore spinta disponibile proprio nelle condizioni in cui servirebbe maggiore autorità di controllo.\\
+	L'assenza di un \textit{hovering} stabile non deve quindi essere interpretata come un esito negativo del solo lavoro svolto sul PID di \textit{yaw}, ma come l'indicazione che il sistema complessivo richiede ancora ulteriori interventi prima di poter affrontare il controllo integrato del volo stazionario. In particolare, la presente relazione documenta un anello già tarato e una infrastruttura software più ampia già predisposta, ma non ancora validata sperimentalmente nei rami di quota, \textit{roll} e \textit{pitch}.\\
+	Per gli sviluppi futuri, appare quindi necessario agire su due fronti complementari. Dal lato hardware sarà opportuno ridurre il peso complessivo del sistema, migliorare il bilanciamento delle masse, verificare e uniformare il comportamento dei due gruppi propulsivi e sostituire le batterie con elementi in grado di garantire una potenza più stabile e ripetibile. In aggiunta, nelle fasi di prova risulterebbe utile predisporre un sistema di vincolo di sicurezza costituito da un cavo fissato centralmente al \textit{DPDF}, dotato di cuscinetto o giunto a bassa frizione per non ostacolare la rotazione attorno all'asse verticale e progettato in modo da riavvolgersi progressivamente durante la salita del velivolo. Una soluzione di questo tipo permetterebbe di limitare cadute rilevanti senza lasciare cavo libero in prossimità delle eliche, riducendo così sia il rischio di impatto con il suolo sia quello di interferenza con il sistema propulsivo durante i test. Dal lato del controllo, sarà invece fondamentale completare la taratura dei rami di quota, \textit{roll} e \textit{pitch}, verificare sperimentalmente l'effettiva autorità dei \textit{flap} e valutare eventuali modifiche geometriche o attuative che ne aumentino l'efficacia. Sul versante software, un ulteriore sviluppo interessante riguarda la gestione della variabilità dell'alimentazione: la misura o la stima della tensione disponibile potrebbe essere usata per introdurre strategie di compensazione, ad esempio tramite adattamento del comando motori, rimodulazione dei riferimenti o logiche di gain scheduling, così da rendere il comportamento del sistema meno sensibile al decadimento prestazionale delle batterie. Solo dopo questo insieme di interventi sarà realistico affrontare con maggiore probabilità di successo l'obiettivo finale del progetto, cioè il raggiungimento di una condizione di \textit{hovering} stabile del \textit{DPDF}.
 	
 	\bibliographystyle{ieeetr}
 	\bibliography{bibl}
