@@ -14,7 +14,7 @@ const flight_config_t FLIGHT_CFG = {
 	/*                    Servo (flap/IMU)      Motor (propeller/ToF)    Yaw (propeller/IMU)
 						  ──────────────────    ──────────────────────   ──────────────────────
 		Median filter     No  (Gaussian noise)  Yes (impulse spikes)     Yes (impulse spikes)
-		Deriv mode        On error              On measurement           On measurement
+		Deriv mode        On error              On measurement           On error
 		LPF on D          α = 1.0 (off)         α = 0.3 (moderate)       α = 0.3 (moderate)
 		Sensor filtering  No                    Median at PID input      Median at PID input
 	 */

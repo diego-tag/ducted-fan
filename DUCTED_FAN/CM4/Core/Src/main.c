@@ -149,14 +149,6 @@ int main(void) {
 
 	char uart_msg[STANDARD_MESSAGE_LENGTH];
 
-	const float ref_roll_pitch = 0.0f;
-	const uint16_t ref_altitude = 100;
-	const float ref_yaw = 0.0f;
-
-	// Positive = makes bottom motor spin faster and bottom lower by default
-	// negative = makes bottom motor spin slower and top lower by default
-	const float yaw_trim = 0.0f;
-
 	/*------------------------------ CONTROL-RELATED STRUCTURES ------------------------------*/
 
 	struct bno055_t myBNO;
@@ -298,6 +290,11 @@ int main(void) {
 			(int)pid_yaw.kp,abs((int)(pid_yaw.kp * 100) % 100),
 			(int)pid_yaw.ki,abs((int)(pid_yaw.ki * 100) % 100),
 			(int)pid_yaw.kd,abs((int)(pid_yaw.kd * 100) % 100)
+	);
+	HAL_UART_Transmit(&huart3, (uint8_t*) uart_msg, strlen(uart_msg), HAL_MAX_DELAY);
+
+	snprintf(uart_msg, sizeof uart_msg, "Base throttle: %d.%02d\n",
+			(int)FLIGHT_CFG.motor.out_offset,abs((int)(FLIGHT_CFG.motor.out_offset * 100) % 100)
 	);
 	HAL_UART_Transmit(&huart3, (uint8_t*) uart_msg, strlen(uart_msg), HAL_MAX_DELAY);
 
