@@ -348,11 +348,11 @@ int main(void) {
 
 			VL53L1_GetRangingMeasurementData(Dev, &rangingData);
 
-			/* ---- Compute median measurement---- */
-			float filt_tof  = (float)median_filter_compute(&tof_filter, rangingData.RangeMilliMeter);
-
 			/* ---- Compute tilt compensation ---- */
-			float alt_mm = tof_compensate_tilt(filt_tof, imu_now.roll_deg,imu_now.pitch_deg);
+			float compensated_alt_mm = tof_compensate_tilt((float)rangingData.RangeMilliMeter, imu_now.roll_deg,imu_now.pitch_deg);
+
+			/* ---- Compute median measurement---- */
+			float alt_mm  = median_filter_compute(&tof_filter, compensated_alt_mm);
 
 			/* ---- Compute motor PID ----- */
 			motor_pwm = (uint16_t)(pid_compute(&pid_motor,FLIGHT_CFG.ref_altitude, alt_mm));

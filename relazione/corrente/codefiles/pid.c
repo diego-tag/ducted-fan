@@ -2,7 +2,7 @@
 #include <string.h>
 
 /* Median Filter */
-int16_t median_filter_compute(median_filter_t *filt, int16_t new_val)
+float median_filter_compute(median_filter_t *filt, float new_val)
 {
     if (!filt->initialized) {
         filt->buf[0] = filt->buf[1] = filt->buf[2] = new_val;
@@ -12,7 +12,7 @@ int16_t median_filter_compute(median_filter_t *filt, int16_t new_val)
     filt->buf[filt->idx] = new_val;
     filt->idx = (filt->idx + 1) % 3;
 
-    int16_t a = filt->buf[0], b = filt->buf[1], c = filt->buf[2];
+    float a = filt->buf[0], b = filt->buf[1], c = filt->buf[2];
 
     return (a > b) ? ((b > c) ? b : ((a > c) ? c : a))
                    : ((a > c) ? a : ((b > c) ? c : b));
