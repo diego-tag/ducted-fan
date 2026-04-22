@@ -8,12 +8,12 @@
 
 /* Median Filter*/
 typedef struct {
-    int16_t buf[3];
+	float buf[3];
     uint8_t idx;
     bool    initialized;
 } median_filter_t;
 
-int16_t median_filter_compute(median_filter_t *filt, int16_t new_val);
+float median_filter_compute(median_filter_t *filt, float new_val);
 
 /* PID Controller */
 typedef struct {
